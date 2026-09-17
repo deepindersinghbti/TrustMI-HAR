@@ -78,6 +78,7 @@ def main():
     ap.add_argument("--d", type=int, default=128)
     ap.add_argument("--layers", type=int, default=2)
     ap.add_argument("--smoke", action="store_true", help="overfit-one-batch test (N6)")
+    ap.add_argument("--shuffle_labels", action="store_true", help="negative control N1")
     args = ap.parse_args()
 
     torch.backends.cudnn.benchmark = False
@@ -90,6 +91,9 @@ def main():
 
     tr, va, te = (UTDMHAD(args.fold, p) for p in ("train", "val", "test"))
     (Xtr, ytr), (Xva, yva), (Xte, yte) = to_gpu(tr), to_gpu(va), to_gpu(te)
+    if args.shuffle_labels:
+        g = torch.Generator().manual_seed(1000 + args.seed)
+        ytr = ytr[torch.randperm(len(ytr), generator=g).cuda()]
     model = FusionTransformer(mods, d=args.d, layers=args.layers).cuda()
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.wd)
 
@@ -102,7 +106,8 @@ def main():
         print(f"[smoke] {args.model:9s} loss after 300 steps on 8 samples: {loss.item():.4f}")
         return
 
-    exp_id = f"BASE_d1_{args.model}_loso_f{args.fold:02d}_s{args.seed}"
+    block = "N1" if args.shuffle_labels else "BASE"
+    exp_id = f"{block}_d1_{args.model}_loso_f{args.fold:02d}_s{args.seed}"
     run = ROOT / "runs" / exp_id
     run.mkdir(parents=True, exist_ok=True)
     sha, dirty = git_info()
@@ -156,7 +161,7 @@ def main():
             energy=s["energy"], logits=[r.tolist() for r in lg.cpu().numpy()],
         )).to_parquet(run / f"preds_{part}.parquet", index=False)
         for k, v in metrics(s, y).items():
-            rows.append(dict(exp_id=exp_id, block="BASE", dataset="d1", model=args.model,
+            rows.append(dict(exp_id=exp_id, block=block, dataset="d1", model=args.model,
                              fold=args.fold, seed=args.seed, part=part, condition="clean",
                              metric=k, value=v, best_epoch=best_ep, git_sha=sha,
                              config_tag="defaults_v0"))
