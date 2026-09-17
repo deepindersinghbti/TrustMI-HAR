@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "T_imu": 100,
+  "T_skel": 40,
+  "imu_rate_hz": 50,
+  "skel_rate_hz_observed": 19.5,
+  "resampling": "linear, over each modality's own span",
+  "skel_norm": "root=hip_center(4), scale=mean spine length",
+  "zscore": "NOT applied; fit per fold on training subjects",
+  "missing_trials": [
+    "a8_s1_t4",
+    "a23_s6_t4",
+    "a27_s8_t4"
+  ],
+  "n_trials": 861
+}

@@ -1,0 +1,18 @@
+{
+  "model": "torchvision r2plus1d_18",
+  "weights": "KINETICS400_V1",
+  "pretraining": "Kinetics-400 (YouTube); no UTD-MHAD overlap",
+  "frames_per_clip": 32,
+  "sampling": "uniform over each clip",
+  "input": "112x112 after weights.transforms()",
+  "tokens_shape": [
+    861,
+    4,
+    512
+  ],
+  "pooled_shape": [
+    861,
+    512
+  ],
+  "torch": "2.13.0+cu129"
+}

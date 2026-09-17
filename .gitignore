@@ -1,0 +1,8 @@
+trustmi-env/
+data/raw/
+data/extracted/
+data/processed/*.npz
+data/features/*.npz
+runs/
+__pycache__/
+*.pyc
