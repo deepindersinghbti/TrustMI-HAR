@@ -82,6 +82,9 @@ def main():
 
     torch.backends.cudnn.benchmark = False
     torch.use_deterministic_algorithms(True, warn_only=True)
+    torch.backends.cuda.enable_flash_sdp(False)          # non-deterministic backward
+    torch.backends.cuda.enable_mem_efficient_sdp(False)  # non-deterministic backward
+    torch.backends.cuda.enable_math_sdp(True)            # deterministic reference kernel
     set_seed(args.seed)
     mods = MODELS[args.model]
 
