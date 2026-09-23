@@ -1,18 +1,19 @@
 """Modality encoders + cross-modal fusion transformer (B1 unimodal, B4 fusion)."""
+from functools import partial
 import torch
 import torch.nn as nn
 
 
 class IMUEnc(nn.Module):
-    def __init__(self, d):
+    def __init__(self, d, c_in=6):
         super().__init__()
         self.net = nn.Sequential(
-            nn.Conv1d(6, d, 5, padding=2), nn.GELU(), nn.BatchNorm1d(d),
+            nn.Conv1d(c_in, d, 5, padding=2), nn.GELU(), nn.BatchNorm1d(d),
             nn.Conv1d(d, d, 5, padding=2, stride=2), nn.GELU(), nn.BatchNorm1d(d),
             nn.Conv1d(d, d, 5, padding=2, stride=2), nn.GELU(), nn.BatchNorm1d(d))
 
-    def forward(self, x):                        # (B, 100, 6)
-        return self.net(x.transpose(1, 2)).transpose(1, 2)   # (B, 25, d)
+    def forward(self, x):                        # (B, T, C)
+        return self.net(x.transpose(1, 2)).transpose(1, 2)   # (B, ceil(T/4), d)
 
 
 class SkelEnc(nn.Module):
@@ -33,8 +34,10 @@ class VideoEnc(nn.Module):
         return self.net(x)                       # (B, 4, d)
 
 
-ENCODERS = dict(video=VideoEnc, skel=SkelEnc, imu=IMUEnc)
-TOKENS = dict(video=4, skel=40, imu=25)
+ENCODERS = dict(video=VideoEnc, skel=SkelEnc, imu=IMUEnc,
+                watch=partial(IMUEnc, c_in=3), phone=partial(IMUEnc, c_in=10))   # MMAct devices
+TOKENS = dict(video=4, skel=40, imu=25, watch=188, phone=188)   # MMAct: 750 samples (15 s @ 50 Hz) -> 188
+STRIDE = dict(imu=4, watch=4, phone=4)   # input samples per token, used to mask padded tokens
 
 
 class FusionTransformer(nn.Module):
@@ -53,13 +56,29 @@ class FusionTransformer(nn.Module):
         for p in [self.cls, *self.type_emb.values(), *self.pos_emb.values()]:
             nn.init.trunc_normal_(p, std=0.02)
 
+    def _pool(self, m, t, lens):
+        """Mean over tokens; with `lens`, padded tokens are excluded and flagged (True = padding)."""
+        if lens is None:
+            return t.mean(dim=1), None
+        if m not in STRIDE:
+            return t.mean(dim=1), torch.zeros(t.shape[:2], dtype=torch.bool, device=t.device)
+        n_tok = torch.clamp((lens + STRIDE[m] - 1) // STRIDE[m], 1, t.shape[1])
+        pad = torch.arange(t.shape[1], device=t.device)[None, :] >= n_tok[:, None]
+        keep = (~pad).unsqueeze(-1).to(t.dtype)
+        return (t * keep).sum(1) / keep.sum(1), pad
+
     def forward(self, batch, return_emb=False):
         B = batch[self.mods[0]].shape[0]
-        tokens, emb = [self.cls.expand(B, -1, -1)], {}
+        tokens, emb, pads = [self.cls.expand(B, -1, -1)], {}, []
+        lens = batch.get("len")                  # valid samples per clip (MMAct only); None for UTD-MHAD
         for m in self.mods:
             t = self.enc[m](batch[m]) + self.type_emb[m] + self.pos_emb[m]
-            emb[m] = t.mean(dim=1)               # per-modality embedding (for the MI module later)
+            emb[m], pad = self._pool(m, t, lens)  # per-modality embedding (for the MI module later)
             tokens.append(t)
-        h = self.norm(self.fusion(torch.cat(tokens, dim=1)))
+            pads.append(pad)
+        key_pad = None
+        if lens is not None:
+            key_pad = torch.cat([torch.zeros_like(pads[0][:, :1]), *pads], dim=1)
+        h = self.norm(self.fusion(torch.cat(tokens, dim=1), src_key_padding_mask=key_pad))
         logits = self.head(h[:, 0])
         return (logits, emb) if return_emb else logits

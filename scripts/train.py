@@ -8,10 +8,16 @@ from sklearn.metrics import f1_score
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from trustmi.data.utd import UTDMHAD
+from trustmi.data.mmact import MMAct
 from trustmi.models.fusion import FusionTransformer
 
 MODELS = dict(b1_video=["video"], b1_skel=["skel"], b1_imu=["imu"],
-              b4=["video", "skel", "imu"])
+              b4=["video", "skel", "imu"],
+              b1_watch=["watch"], b1_phone=["phone"], b4s=["watch", "phone"])
+DATASETS = dict(d1=dict(cls=UTDMHAD, n_classes=27, data="utd_mhad_v1",
+                        video_features="video_r2plus1d18_v1", split="utd_mhad_loso_v1"),
+                d2=dict(cls=MMAct, n_classes=35, data="mmact_sensor_v1",
+                        video_features=None, split="mmact_loso_v1"))
 
 
 def set_seed(s):
@@ -61,13 +67,14 @@ def scores(logits, y):
 def metrics(s, y):
     yt = y.cpu().numpy()
     return dict(acc=float((s["pred"] == yt).mean()),
-                macro_f1=float(f1_score(yt, s["pred"], average="macro")),
+                macro_f1=float(f1_score(yt, s["pred"], labels=np.unique(yt), average="macro")),
                 nll=s["loss"])
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", choices=MODELS, required=True)
+    ap.add_argument("--dataset", choices=DATASETS, default="d1")
     ap.add_argument("--fold", type=int, required=True)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--epochs", type=int, default=60)
@@ -89,12 +96,16 @@ def main():
     set_seed(args.seed)
     mods = MODELS[args.model]
 
-    tr, va, te = (UTDMHAD(args.fold, p) for p in ("train", "val", "test"))
+    D = DATASETS[args.dataset]
+    tr, va, te = (D["cls"](args.fold, p) for p in ("train", "val", "test"))
+    missing = [m for m in mods if m not in tr.x]
+    if missing:
+        raise SystemExit(f"model {args.model} needs {missing}, not available in {args.dataset}")
     (Xtr, ytr), (Xva, yva), (Xte, yte) = to_gpu(tr), to_gpu(va), to_gpu(te)
     if args.shuffle_labels:
         g = torch.Generator().manual_seed(1000 + args.seed)
         ytr = ytr[torch.randperm(len(ytr), generator=g).cuda()]
-    model = FusionTransformer(mods, d=args.d, layers=args.layers).cuda()
+    model = FusionTransformer(mods, n_classes=D["n_classes"], d=args.d, layers=args.layers).cuda()
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.wd)
 
     if args.smoke:
@@ -107,15 +118,15 @@ def main():
         return
 
     block = "N1" if args.shuffle_labels else "BASE"
-    exp_id = f"{block}_d1_{args.model}_loso_f{args.fold:02d}_s{args.seed}"
+    exp_id = f"{block}_{args.dataset}_{args.model}_loso_f{args.fold:02d}_s{args.seed}"
     run = ROOT / "runs" / exp_id
     run.mkdir(parents=True, exist_ok=True)
     sha, dirty = git_info()
     if dirty:
         print(f"WARNING: uncommitted changes; this run is not reproducible from {sha[:8]}")
     cfg = vars(args) | dict(exp_id=exp_id, modalities=mods, config_tag="defaults_v0",
-                            data="utd_mhad_v1", video_features="video_r2plus1d18_v1",
-                            split="utd_mhad_loso_v1", git_sha=sha, git_dirty=dirty)
+                            data=D["data"], video_features=D["video_features"],
+                            split=D["split"], git_sha=sha, git_dirty=dirty)
     (run / "config.json").write_text(json.dumps(cfg, indent=2))
     (run / "env.json").write_text(json.dumps(dict(
         python=platform.python_version(), torch=torch.__version__, cuda=torch.version.cuda,
@@ -161,7 +172,7 @@ def main():
             energy=s["energy"], logits=[r.tolist() for r in lg.cpu().numpy()],
         )).to_parquet(run / f"preds_{part}.parquet", index=False)
         for k, v in metrics(s, y).items():
-            rows.append(dict(exp_id=exp_id, block=block, dataset="d1", model=args.model,
+            rows.append(dict(exp_id=exp_id, block=block, dataset=args.dataset, model=args.model,
                              fold=args.fold, seed=args.seed, part=part, condition="clean",
                              metric=k, value=v, best_epoch=best_ep, git_sha=sha,
                              config_tag="defaults_v0"))
