@@ -74,7 +74,7 @@ all processing reads from it and writes to data/extracted/ or data/processed/.
 - Rules for later stages: orientation converted to sin/cos at load time; semantic swaps only within
   the same scene group ({1,2,4} or {3}); swapped clips resampled to the target clip's length.
 
-### MMAct splits (scripts/make_splits_mmact.py -> data/splits/mmact_loso_v1.json)
+### MMAct splits (scripts/make_splits_mmact.py -> splits/mmact_loso_v1.json)
 - 20-fold leave-one-subject-out: test = subject k, val = next subject, train = remaining 18.
 - Main clips only; no_watch clips of the test subject form a separate test set.
 - Folds testing subjects 1-10 contain 33 classes (no heavy/light carrying): macro-F1 is computed

@@ -13,7 +13,7 @@ folds = []
 for k, s in enumerate(subjects):
     v = subjects[(k + 1) % len(subjects)]
     folds.append(dict(fold=k, test=[s], val=[v], train=[x for x in subjects if x not in (s, v)]))
-with open("data/splits/mmact_loso_v1.json", "w") as f:
+with open("splits/mmact_loso_v1.json", "w") as f:
     json.dump(dict(dataset="mmact_sensor_v1", protocol="loso", clip_filter="status == main",
                    extra_test="status == no_watch, test subject only",
                    trial_order_hash=order_hash, folds=folds), f, indent=1)
