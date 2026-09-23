@@ -178,7 +178,13 @@ def main():
                              config_tag="defaults_v0"))
     out = ROOT / "results/raw"
     out.mkdir(parents=True, exist_ok=True)
-    pd.DataFrame(rows).to_parquet(out / f"{exp_id}.parquet", index=False)
+    os.sync()                                   # checkpoint, log and predictions reach the disk first
+    tmp = out / f"{exp_id}.parquet.tmp"
+    pd.DataFrame(rows).to_parquet(tmp, index=False)
+    with open(tmp, "rb") as fh:
+        os.fsync(fh.fileno())
+    os.replace(tmp, out / f"{exp_id}.parquet")  # atomic: the result file is either complete or absent
+    os.sync()
 
     t = {r["metric"]: r["value"] for r in rows if r["part"] == "test"}
     print(f"{exp_id}: best epoch {best_ep:2d} | test acc {t['acc']:.3f} "
