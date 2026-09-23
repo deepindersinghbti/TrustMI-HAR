@@ -8,3 +8,4 @@ __pycache__/
 *.pyc
 results/raw/
 data/processed/norm_stats/
+logs/
