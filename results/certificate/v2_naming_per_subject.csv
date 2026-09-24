@@ -1,0 +1,121 @@
+fold,subject,rule,chosen,test_acc
+0,1,most support (argmax hide_drop),False,0.48975571315996846
+0,1,least support (argmin hide_drop),False,0.5102442868400315
+0,1,most confident without it (argmax hide_msp),False,0.5224586288416075
+0,1,least stable sensor (argmax stab_drop),False,0.5051221434200157
+0,1,expert least supporting the answer (argmin exp_support),False,0.5
+0,1,least confident expert (argmin exp_conf),True,0.52876280535855
+1,2,most support (argmax hide_drop),False,0.48299319727891155
+1,2,least support (argmin hide_drop),False,0.5170068027210885
+1,2,most confident without it (argmax hide_msp),False,0.5005668934240363
+1,2,least stable sensor (argmax stab_drop),False,0.5022675736961452
+1,2,expert least supporting the answer (argmin exp_support),False,0.4971655328798186
+1,2,least confident expert (argmin exp_conf),True,0.550453514739229
+2,3,most support (argmax hide_drop),False,0.4603729603729604
+2,3,least support (argmin hide_drop),False,0.5396270396270396
+2,3,most confident without it (argmax hide_msp),False,0.5058275058275058
+2,3,least stable sensor (argmax stab_drop),False,0.48096348096348096
+2,3,expert least supporting the answer (argmin exp_support),False,0.5081585081585082
+2,3,least confident expert (argmin exp_conf),True,0.5687645687645687
+3,4,most support (argmax hide_drop),False,0.4765204003079292
+3,4,least support (argmin hide_drop),False,0.5234795996920708
+3,4,most confident without it (argmax hide_msp),False,0.4884526558891455
+3,4,least stable sensor (argmax stab_drop),False,0.48768283294842185
+3,4,expert least supporting the answer (argmin exp_support),False,0.5046189376443418
+3,4,least confident expert (argmin exp_conf),True,0.5558121632024634
+4,5,most support (argmax hide_drop),False,0.4968992248062015
+4,5,least support (argmin hide_drop),False,0.5031007751937985
+4,5,most confident without it (argmax hide_msp),False,0.5341085271317829
+4,5,least stable sensor (argmax stab_drop),False,0.5081395348837209
+4,5,expert least supporting the answer (argmin exp_support),False,0.4968992248062015
+4,5,least confident expert (argmin exp_conf),True,0.5550387596899224
+5,6,most support (argmax hide_drop),False,0.476905311778291
+5,6,least support (argmin hide_drop),False,0.523094688221709
+5,6,most confident without it (argmax hide_msp),False,0.5254041570438799
+5,6,least stable sensor (argmax stab_drop),False,0.4638183217859892
+5,6,expert least supporting the answer (argmin exp_support),False,0.5073133179368745
+5,6,least confident expert (argmin exp_conf),True,0.565050038491147
+6,7,most support (argmax hide_drop),False,0.47030878859857483
+6,7,least support (argmin hide_drop),False,0.5296912114014252
+6,7,most confident without it (argmax hide_msp),False,0.5253365003958829
+6,7,least stable sensor (argmax stab_drop),False,0.4837688044338876
+6,7,expert least supporting the answer (argmin exp_support),False,0.5095011876484561
+6,7,least confident expert (argmin exp_conf),True,0.5570071258907363
+7,8,most support (argmax hide_drop),False,0.48082942097026604
+7,8,least support (argmin hide_drop),False,0.519170579029734
+7,8,most confident without it (argmax hide_msp),True,0.5203442879499217
+7,8,least stable sensor (argmax stab_drop),False,0.48826291079812206
+7,8,expert least supporting the answer (argmin exp_support),False,0.4937402190923318
+7,8,least confident expert (argmin exp_conf),False,0.5555555555555556
+8,9,most support (argmax hide_drop),False,0.4831325301204819
+8,9,least support (argmin hide_drop),False,0.516867469879518
+8,9,most confident without it (argmax hide_msp),False,0.5164658634538153
+8,9,least stable sensor (argmax stab_drop),False,0.5036144578313253
+8,9,expert least supporting the answer (argmin exp_support),False,0.4995983935742972
+8,9,least confident expert (argmin exp_conf),True,0.5325301204819277
+9,10,most support (argmax hide_drop),False,0.48759305210918114
+9,10,least support (argmin hide_drop),False,0.5124069478908189
+9,10,most confident without it (argmax hide_msp),False,0.5144747725392886
+9,10,least stable sensor (argmax stab_drop),False,0.4913151364764268
+9,10,expert least supporting the answer (argmin exp_support),False,0.4731182795698925
+9,10,least confident expert (argmin exp_conf),True,0.5719602977667494
+10,11,most support (argmax hide_drop),False,0.48034769463340893
+10,11,least support (argmin hide_drop),False,0.5196523053665911
+10,11,most confident without it (argmax hide_msp),False,0.5037792894935752
+10,11,least stable sensor (argmax stab_drop),False,0.47732426303854875
+10,11,expert least supporting the answer (argmin exp_support),False,0.5064247921390779
+10,11,least confident expert (argmin exp_conf),True,0.54572940287226
+11,12,most support (argmax hide_drop),False,0.4704783258594918
+11,12,least support (argmin hide_drop),False,0.5295216741405082
+11,12,most confident without it (argmax hide_msp),False,0.5100896860986547
+11,12,least stable sensor (argmax stab_drop),False,0.4966367713004484
+11,12,expert least supporting the answer (argmin exp_support),False,0.5022421524663677
+11,12,least confident expert (argmin exp_conf),True,0.5564275037369207
+12,13,most support (argmax hide_drop),False,0.46697388632872505
+12,13,least support (argmin hide_drop),False,0.533026113671275
+12,13,most confident without it (argmax hide_msp),False,0.5195852534562212
+12,13,least stable sensor (argmax stab_drop),False,0.5042242703533026
+12,13,expert least supporting the answer (argmin exp_support),False,0.4980798771121352
+12,13,least confident expert (argmin exp_conf),True,0.5675883256528418
+13,14,most support (argmax hide_drop),False,0.48773448773448774
+13,14,least support (argmin hide_drop),False,0.5122655122655123
+13,14,most confident without it (argmax hide_msp),False,0.5183982683982684
+13,14,least stable sensor (argmax stab_drop),False,0.4906204906204906
+13,14,expert least supporting the answer (argmin exp_support),False,0.4797979797979798
+13,14,least confident expert (argmin exp_conf),True,0.584054834054834
+14,15,most support (argmax hide_drop),False,0.4864864864864865
+14,15,least support (argmin hide_drop),False,0.5135135135135135
+14,15,most confident without it (argmax hide_msp),False,0.5097597597597597
+14,15,least stable sensor (argmax stab_drop),False,0.4936186186186186
+14,15,expert least supporting the answer (argmin exp_support),False,0.5018768768768769
+14,15,least confident expert (argmin exp_conf),True,0.5559309309309309
+15,16,most support (argmax hide_drop),False,0.480688497061293
+15,16,least support (argmin hide_drop),False,0.519311502938707
+15,16,most confident without it (argmax hide_msp),False,0.5025188916876574
+15,16,least stable sensor (argmax stab_drop),False,0.5008396305625524
+15,16,expert least supporting the answer (argmin exp_support),False,0.49580184718723763
+15,16,least confident expert (argmin exp_conf),True,0.5751469353484466
+16,17,most support (argmax hide_drop),False,0.4733770970094821
+16,17,least support (argmin hide_drop),False,0.5266229029905178
+16,17,most confident without it (argmax hide_msp),False,0.5288110867979577
+16,17,least stable sensor (argmax stab_drop),False,0.5029175784099198
+16,17,expert least supporting the answer (argmin exp_support),False,0.5211524434719184
+16,17,least confident expert (argmin exp_conf),True,0.5437636761487965
+17,18,most support (argmax hide_drop),False,0.4828216374269006
+17,18,least support (argmin hide_drop),False,0.5171783625730995
+17,18,most confident without it (argmax hide_msp),False,0.5098684210526315
+17,18,least stable sensor (argmax stab_drop),False,0.49707602339181284
+17,18,expert least supporting the answer (argmin exp_support),False,0.5021929824561403
+17,18,least confident expert (argmin exp_conf),True,0.5226608187134503
+18,19,most support (argmax hide_drop),False,0.4627906976744186
+18,19,least support (argmin hide_drop),False,0.5372093023255814
+18,19,most confident without it (argmax hide_msp),False,0.5422480620155039
+18,19,least stable sensor (argmax stab_drop),False,0.49496124031007754
+18,19,expert least supporting the answer (argmin exp_support),False,0.5077519379844961
+18,19,least confident expert (argmin exp_conf),True,0.5538759689922481
+19,20,most support (argmax hide_drop),False,0.4916036943744752
+19,20,least support (argmin hide_drop),False,0.5083963056255247
+19,20,most confident without it (argmax hide_msp),False,0.5247691015952981
+19,20,least stable sensor (argmax stab_drop),False,0.49622166246851385
+19,20,expert least supporting the answer (argmin exp_support),False,0.5008396305625524
+19,20,least confident expert (argmin exp_conf),True,0.552896725440806

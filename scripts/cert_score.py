@@ -9,8 +9,12 @@ The test person (one per fold) is the unit: one AUROC per test subject, then mea
               (a subject counts only with >= 5 mistakes and >= 5 correct, pooled over seeds)
   NAMING      MMAct s_swap rows: is the swapped sensor named? (chance 50%). Not scored on UTD-MHAD,
               where only the IMU is ever swapped, so naming would be trivially "the IMU".
-Writes results/certificate/v1_*.csv
+  --with-experts  also merges experts_<ds>_all_s0-1-2.parquet (cert_experts.py) and adds the expert signs,
+                  a second combined score and two expert naming rules; writes v2_*.csv instead of v1_*.csv.
+                  Without the flag the output is exactly the v1 analysis.
+Writes results/certificate/v1_*.csv (or v2_*.csv)
 """
+import argparse
 import sys
 from pathlib import Path
 import numpy as np
@@ -24,6 +28,9 @@ SENS = {"d1": ["imu"], "d2": ["watch", "phone"]}
 LEVELS, DEFAULT_LEVEL, MIN_CLASS = (1, 2, 3), 2, 5
 BASE = "1 - msp (baseline)"
 COMB_INPUTS = [BASE, "S1 stability drop", "S2 hide-one shift"]
+EXPERT_MODS = {"d1": ["imu", "skel", "video"], "d2": ["watch", "phone"]}
+COMB2_INPUTS = [BASE, "X experts disagree (JS)", "X lowest expert support"]
+KEYS = ["fold", "part", "seed", "clip", "condition"]
 
 
 def tq(df):
@@ -53,7 +60,7 @@ def auroc(score, label, min_class=1):
 def scores(d, ds, L):
     """Label-free suspicion scores; higher = more suspicious."""
     s, m = SENS[ds], MODS[ds]
-    return {
+    out = {
         BASE: 1 - d.msp.to_numpy(),
         "entropy (baseline)": d.entropy.to_numpy(),
         "energy (baseline)": d.energy.to_numpy(),
@@ -62,6 +69,12 @@ def scores(d, ds, L):
         "S2 hide-one shift": d[[f"hide_tv_{x}" for x in m]].max(axis=1).to_numpy(),
         "S2 hide-one flips": d[[f"hide_flip_{x}" for x in m]].mean(axis=1).to_numpy(),
     }
+    if "exp_js" in d.columns:                        # expert signs (only with --with-experts)
+        sup = d[[f"exp_support_{x}" for x in EXPERT_MODS[ds]]].to_numpy()
+        out["X experts disagree (JS)"] = d.exp_js.to_numpy()
+        out["X lowest expert support"] = 1 - sup.min(1)
+        out["X mean expert support"] = 1 - sup.mean(1)
+    return out
 
 
 def fit_logreg(X, y, lam=1.0, iters=50):
@@ -93,12 +106,16 @@ def score_task(df, ds, task):
         L = max(ok, key=ok.get) if ok else DEFAULT_LEVEL
         levels.append(L)
         sv, st = scores(va, ds, L), scores(te, ds, L)
-        if yv.sum() >= MIN_CLASS and (~yv).sum() >= MIN_CLASS:
-            Xv = np.column_stack([sv[k] for k in COMB_INPUTS]); mu, sd = Xv.mean(0), Xv.std(0) + 1e-9
-            w = fit_logreg((Xv - mu) / sd, yv.astype(float))
-            st["COMBINED (S1+S2+msp)"] = np.c_[np.ones(len(te)), (np.column_stack([st[k] for k in COMB_INPUTS]) - mu) / sd] @ w
-        else:
-            st["COMBINED (S1+S2+msp)"] = np.full(len(te), np.nan)
+        combos = [("COMBINED (S1+S2+msp)", COMB_INPUTS)]
+        if "X experts disagree (JS)" in sv:
+            combos.append(("COMBINED v2 (experts+msp)", COMB2_INPUTS))
+        for cname, inputs in combos:
+            if yv.sum() >= MIN_CLASS and (~yv).sum() >= MIN_CLASS:
+                Xv = np.column_stack([sv[k] for k in inputs]); mu, sd = Xv.mean(0), Xv.std(0) + 1e-9
+                w = fit_logreg((Xv - mu) / sd, yv.astype(float))
+                st[cname] = np.c_[np.ones(len(te)), (np.column_stack([st[k] for k in inputs]) - mu) / sd] @ w
+            else:
+                st[cname] = np.full(len(te), np.nan)
         min_c = MIN_CLASS if task == "ERROR" else 1
         for name, sc in st.items():
             rows.append(dict(dataset=ds, task=task, fold=fold, subject=te.subject.iloc[0], score=name,
@@ -127,6 +144,11 @@ def naming(df, ds):
         "most confident without it (argmax hide_msp)": lambda d, L: d[[f"hide_msp_{m}" for m in mods]].to_numpy().argmax(1),
         "least stable sensor (argmax stab_drop)": lambda d, L: d[[f"stab_drop_{m}_L{L}" for m in mods]].to_numpy().argmax(1),
     }
+    if "exp_js" in df.columns:
+        rules["expert least supporting the answer (argmin exp_support)"] = \
+            lambda d, L: d[[f"exp_support_{m}" for m in mods]].to_numpy().argmin(1)
+        rules["least confident expert (argmin exp_conf)"] = \
+            lambda d, L: d[[f"exp_conf_{m}" for m in mods]].to_numpy().argmin(1)
     rows = []
     for fold, g in df[df.available & df.condition.str.startswith("s_swap")].groupby("fold"):
         va, te = g[g.part == "val"], g[g.part == "test"]
@@ -138,11 +160,30 @@ def naming(df, ds):
     return pd.DataFrame(rows)
 
 
+def load(ds, with_experts):
+    df = pd.read_parquet(FILES[ds])
+    if not with_experts:
+        return df
+    ex = pd.read_parquet(RES / f"experts_{ds}_all_s0-1-2.parquet")
+    m = df.merge(ex, on=KEYS, how="inner", validate="one_to_one")
+    if len(m) != len(df):
+        raise SystemExit(f"{ds}: {len(df) - len(m)} signal rows have no matching expert row")
+    agree = float((m.pred == m.pred_fused).mean())
+    print(f"{ds}: experts merged; fused answers identical in {agree:.4%} of {len(m)} rows")
+    if agree < 0.999:
+        raise SystemExit("the two runs did not see the same inputs: stop and paste this")
+    return m
+
+
 def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--with-experts", action="store_true")
+    args = ap.parse_args()
+    pre = "v2" if args.with_experts else "v1"
     pd.set_option("display.width", 220); pd.set_option("display.max_colwidth", 60)
-    allres, lv = [], {}
-    for ds, f in FILES.items():
-        df = pd.read_parquet(f)
+    allres, lv, data = [], {}, {}
+    for ds in FILES:
+        df = data[ds] = load(ds, args.with_experts)
         for task in ("LIE", "ERROR"):
             r, levels = score_task(df, ds, task)
             allres.append(r); lv[(ds, task)] = pd.Series(levels).value_counts().sort_index().to_dict()
@@ -151,17 +192,17 @@ def main():
     print("AUROC per test subject, mean [95% CI]; minus_msp = paired difference to the 1 - msp baseline")
     print(summ.to_string(index=False))
     print("\nharmless level chosen on validation (level: folds):", {f"{k[0]} {k[1]}": v for k, v in lv.items()})
-    nm = naming(pd.read_parquet(FILES["d2"]), "d2")
+    nm = naming(data["d2"], "d2")
     chosen = nm[nm.chosen].groupby("subject").test_acc.mean()
     print(f"\nNAMING the swapped sensor, MMAct (chance 50%): rule chosen on validation -> "
           f"test accuracy {fmt(chosen, 100, 1)}")
     print("rules chosen per fold:", nm[nm.chosen].rule.value_counts().to_dict())
     print("each rule on test, for transparency only (not used for any choice):")
     print(nm.groupby("rule").test_acc.apply(lambda v: fmt(v, 100, 1)).to_string())
-    res.to_csv(RES / "v1_auroc_per_subject.csv", index=False)
-    summ.to_csv(RES / "v1_auroc_summary.csv", index=False)
-    nm.to_csv(RES / "v1_naming_per_subject.csv", index=False)
-    print(f"\nsaved: {RES.relative_to(ROOT)}/v1_*.csv")
+    res.to_csv(RES / f"{pre}_auroc_per_subject.csv", index=False)
+    summ.to_csv(RES / f"{pre}_auroc_summary.csv", index=False)
+    nm.to_csv(RES / f"{pre}_naming_per_subject.csv", index=False)
+    print(f"\nsaved: {RES.relative_to(ROOT)}/{pre}_*.csv")
 
 
 if __name__ == "__main__":
