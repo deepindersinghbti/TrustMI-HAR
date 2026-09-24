@@ -11,8 +11,14 @@ Design fixed before any policy result existed (see the chat plan of 2026-09-24):
                low confidence (1 - msp), on the full mixed stream and on normal clips only
 Every number is per TEST subject (seeds pooled), then mean [95% CI] across subjects.
 Backups come from configs/backups.json. Writes results/certificate/v4_policy_*.csv
+
+--revision 2  (designed AFTER seeing revision 1's results; report both, labelled):
+  use vs drop  the most sensitive threshold that drops at most 5% of the validation person's NORMAL clips
+  abstain      a separate score: the same three ingredients, fitted on validation to predict whether the
+               policy's FINAL answer is wrong (not whether the clip is a lie). Writes v5_policy_*.csv
+Without the flag the output is exactly revision 1.
 """
-import json, sys
+import argparse, json, sys
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -25,6 +31,8 @@ RES = ROOT / "results/certificate"
 BACKUPS = json.load(open(ROOT / "configs/backups.json"))
 COVERAGES = (1.0, 0.9, 0.8)
 EXP = {"d1": ["imu", "skel", "video"], "d2": ["watch", "phone"]}
+BUDGET = 0.05                                       # revision 2: max drop rate on normal validation clips
+REV = 1
 
 
 def load(ds):
@@ -69,13 +77,22 @@ def run_fold(va, te, ds, variant):
     Dt = np.c_[np.ones(len(te)), (Xt - mu) / sd] @ w
     fused_v, fused_t, yv, yt = va.pred.to_numpy(), te.pred.to_numpy(), va.y.to_numpy(), te.y.to_numpy()
     if variant is None:                             # use / abstain only
-        return Dt, fused_t, np.inf
-    bv = backup_answer(va, ds, namer(va, ds, variant))
-    bt = backup_answer(te, ds, namer(te, ds, variant))
-    cand = np.r_[np.inf, np.quantile(Dv, np.linspace(1, 0, 101))]     # from "never drop" downwards
-    acc = [np.mean(np.where(Dv >= t, bv, fused_v) == yv) for t in cand]
-    t = cand[int(np.argmax(acc))]                   # first maximum = the fewest drops among ties
-    return Dt, np.where(Dt >= t, bt, fused_t), t
+        final_v, final_t, t = fused_v, fused_t, np.inf
+    else:
+        bv = backup_answer(va, ds, namer(va, ds, variant))
+        bt = backup_answer(te, ds, namer(te, ds, variant))
+        if REV == 1:
+            cand = np.r_[np.inf, np.quantile(Dv, np.linspace(1, 0, 101))]     # from "never drop" downwards
+            acc = [np.mean(np.where(Dv >= t, bv, fused_v) == yv) for t in cand]
+            t = cand[int(np.argmax(acc))]           # first maximum = the fewest drops among ties
+        else:                                       # false-alarm budget on normal validation clips
+            t = np.nextafter(np.quantile(Dv[(va.condition == "clean").to_numpy()], 1 - BUDGET), np.inf)
+        final_v, final_t = np.where(Dv >= t, bv, fused_v), np.where(Dt >= t, bt, fused_t)
+    if REV == 1:
+        return Dt, final_t, t, Dt                   # revision 1 abstains on the lie score
+    wrong = (final_v != yv).astype(float)           # revision 2: separate "is the final answer wrong?" score
+    w2 = fit_logreg((Xv - mu) / sd, wrong)
+    return Dt, final_t, t, np.c_[np.ones(len(te)), (Xt - mu) / sd] @ w2
 
 
 def selective(score, answer, y, cov):
@@ -89,7 +106,7 @@ def evaluate(df, ds, variant, label):
     rows = []
     for fold, g in df.groupby("fold"):
         va, te = g[g.part == "val"], g[g.part == "test"]
-        Dt, final, t = run_fold(va, te, ds, variant)
+        Dt, final, t, At = run_fold(va, te, ds, variant)
         y, fused, grp = te.y.to_numpy(), te.pred.to_numpy(), group(te.condition)
         drop_flag = (Dt >= t) if variant else np.zeros(len(te), bool)
         r = dict(policy=label, dataset=ds, fold=fold, subject=te.subject.iloc[0])
@@ -102,7 +119,7 @@ def evaluate(df, ds, variant, label):
             msp_score = 1 - te.msp.to_numpy()[k]
             for cov in COVERAGES:
                 r[f"{stream}_cov{int(cov * 100)}_msp_main"] = selective(msp_score, fused[k], y[k], cov)
-                r[f"{stream}_cov{int(cov * 100)}_cert_policy"] = selective(Dt[k], final[k], y[k], cov)
+                r[f"{stream}_cov{int(cov * 100)}_cert_policy"] = selective(At[k], final[k], y[k], cov)
         rows.append(r)
     return pd.DataFrame(rows)
 
@@ -125,14 +142,20 @@ def report(res):
 
 
 def main():
+    global REV
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--revision", type=int, choices=(1, 2), default=1)
+    REV = ap.parse_args().revision
+    tag = "" if REV == 1 else " [revision 2]"
     pd.set_option("display.width", 200)
-    res = pd.concat([evaluate(load("d1"), "d1", "odd", "use / drop (odd one out) / abstain"),
-                     evaluate(load("d2"), "d2", None, "use / abstain (official)"),
-                     evaluate(load("d2"), "d2", "least_conf", "use / drop (least confident expert) / abstain [transparency only]")],
+    res = pd.concat([evaluate(load("d1"), "d1", "odd", "use / drop (odd one out) / abstain" + tag),
+                     evaluate(load("d2"), "d2", None, "use / abstain (official)" + tag),
+                     evaluate(load("d2"), "d2", "least_conf", "use / drop (least confident expert) / abstain [transparency only]" + tag)],
                     ignore_index=True)
     report(res)
-    res.to_csv(RES / "v4_policy_per_subject.csv", index=False)
-    print(f"\nsaved: {RES.relative_to(ROOT)}/v4_policy_per_subject.csv")
+    out = RES / ("v4_policy_per_subject.csv" if REV == 1 else "v5_policy_per_subject.csv")
+    res.to_csv(out, index=False)
+    print(f"\nsaved: {out.relative_to(ROOT)}")
 
 
 if __name__ == "__main__":
