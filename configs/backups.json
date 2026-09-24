@@ -1,0 +1,6 @@
+{
+  "_note": "Certificate v1, option A: the model that answers when a sensor is dropped. Chosen 2026-09-24 by validation accuracy with a rule fixed in advance (skeleton+video must beat skeleton-only by more than 1 point on validation; it was +0.4, 4/8 subjects), so the simpler model was chosen. Test accuracy was not used.",
+  "d1": {"imu": "b1_skel"},
+  "d2": {"watch": "b1_phone", "phone": "b1_watch"},
+  "evidence_val_acc_pct": {"d1": {"b1_skel": 79.6, "b4_noimu": 80.1}}
+}
