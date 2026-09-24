@@ -9,6 +9,7 @@ Per row, all label-free:
   exp_disagree                True if the experts' answers are not all the same
   exp_div_<m>                 mean JS divergence of expert m from the OTHER experts ("odd one out")
 Plus y, subject, attacked, donor_y, available, correct, msp, entropy, energy, so the file stands alone.
+--extra-models b4_noskel,b4_novideo   also store model_pred_<name>, model_conf_<name> (e.g. option-A backups)
 --attack imu,skel,video   plant lies in these sensors (default: the physical sensors, as in cert_signals.py);
                           harmless conditions only for sensors with a physical model. Adds _att-... to the name.
 Output: results/certificate/experts_<dataset>_<folds>_s<seeds>[_att-...].parquet
@@ -27,6 +28,7 @@ from trustmi.operators import OperatorBank
 
 EXPERTS = dict(d1=dict(imu="b1_imu", skel="b1_skel", video="b1_video"),
                d2=dict(watch="b1_watch", phone="b1_phone"))
+EXTRA_MODS = dict(b4_noimu=["video", "skel"], b4_noskel=["video", "imu"], b4_novideo=["skel", "imu"])  # as in train.py
 
 
 def js(p, q):
@@ -41,6 +43,7 @@ def main():
     ap.add_argument("--folds", default="all")
     ap.add_argument("--seeds", default="0,1,2")
     ap.add_argument("--attack", default=None, help="comma list of sensors to swap")
+    ap.add_argument("--extra-models", default="", help="comma list of extra models to store answers for")
     args = ap.parse_args()
     torch.backends.cudnn.benchmark = False
     C, dname = CFG[args.dataset], args.dataset
@@ -60,6 +63,8 @@ def main():
         fused = {s: load_model(run_dir(dname, C["model"], fold, s), mods, C["n_classes"]) for s in seeds}
         experts = {(m, s): load_model(run_dir(dname, b, fold, s), [m], C["n_classes"])
                    for m, b in E.items() for s in seeds}
+        extras = {(x, s): load_model(run_dir(dname, x, fold, s), EXTRA_MODS[x], C["n_classes"])
+                  for x in filter(None, args.extra_models.split(",")) for s in seeds}
         for part in ("val", "test"):
             ds = DS(fold, part)
             base = {m: ds.x[m] for m in mods}
@@ -96,6 +101,11 @@ def main():
                         cols[f"exp_conf_{m}"] = pm.max(1)
                         cols[f"exp_support_{m}"] = pm[ar, pred]
                     cols["exp_js"] = np.mean([js(P[a], P[b]) for a, b in itertools.combinations(P, 2)], axis=0)
+                    for (x, sx), mdl in extras.items():
+                        if sx == s:
+                            px = fwd(mdl, inp, lens)[1]
+                            cols[f"model_pred_{x}"] = px.argmax(1)
+                            cols[f"model_conf_{x}"] = px.max(1)
                     for m in P:
                         cols[f"exp_div_{m}"] = np.mean([js(P[m], P[k]) for k in P if k != m], axis=0)
                     ep = np.stack([P[m].argmax(1) for m in P])
