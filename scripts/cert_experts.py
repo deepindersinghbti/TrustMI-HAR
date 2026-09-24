@@ -7,7 +7,11 @@ Per row, all label-free:
   exp_support_<m>             how much the expert believes the FUSED model's answer (its prob for it)
   exp_js                      mean pairwise Jensen-Shannon divergence between the experts' distributions
   exp_disagree                True if the experts' answers are not all the same
-Output: results/certificate/experts_<dataset>_<folds>_s<seeds>.parquet
+  exp_div_<m>                 mean JS divergence of expert m from the OTHER experts ("odd one out")
+Plus y, subject, attacked, donor_y, available, correct, msp, entropy, energy, so the file stands alone.
+--attack imu,skel,video   plant lies in these sensors (default: the physical sensors, as in cert_signals.py);
+                          harmless conditions only for sensors with a physical model. Adds _att-... to the name.
+Output: results/certificate/experts_<dataset>_<folds>_s<seeds>[_att-...].parquet
 """
 import argparse, itertools, sys, time
 from pathlib import Path
@@ -36,6 +40,7 @@ def main():
     ap.add_argument("--dataset", choices=CFG, required=True)
     ap.add_argument("--folds", default="all")
     ap.add_argument("--seeds", default="0,1,2")
+    ap.add_argument("--attack", default=None, help="comma list of sensors to swap")
     args = ap.parse_args()
     torch.backends.cudnn.benchmark = False
     C, dname = CFG[args.dataset], args.dataset
@@ -45,7 +50,9 @@ def main():
     DS = dataset_cls(dname)
     out_dir = ROOT / "results/certificate"; out_dir.mkdir(parents=True, exist_ok=True)
     tag = "all" if args.folds == "all" else "f" + "-".join(map(str, folds))
-    out = out_dir / f"experts_{dname}_{tag}_s{'-'.join(map(str, seeds))}.parquet"
+    attack = args.attack.split(",") if args.attack else C["sensors"]
+    suffix = f"_att-{'-'.join(attack)}" if args.attack else ""
+    out = out_dir / f"experts_{dname}_{tag}_s{'-'.join(map(str, seeds))}{suffix}.parquet"
     rows, t0 = [], time.time()
 
     for fold in folds:
@@ -58,14 +65,17 @@ def main():
             base = {m: ds.x[m] for m in mods}
             lens = ds.x["len"] if "len" in ds.x else None
             y = np.asarray(ds.y).astype(int); N = len(y); ar = np.arange(N)
-            banks = {sen: OperatorBank(dname, sen, ds, tr, fold) for sen in C["sensors"]}
-            gidx = banks[C["sensors"][0]].gidx
-            conds = {"clean": {}}                        # identical construction to cert_signals.py
-            for sen in C["sensors"]:
+            banks = {sen: OperatorBank(dname, sen, ds, tr, fold) for sen in attack}
+            gidx, subj = banks[attack[0]].gidx, np.asarray(ds.subject)
+            conds = {"clean": ({}, np.full(N, -1), np.ones(N, bool), "")}   # same construction as cert_signals.py
+            for sen in attack:
                 for op in ("s_swap", "c_swap_same"):
-                    conds[f"{op}:{sen}"] = {sen: banks[sen].apply(op)[0]}
-                conds[f"h_all:{sen}"] = {sen: banks[sen].apply("h_all", level=2)[0]}
-            for cname, repl in conds.items():
+                    xn, _, avail, info = banks[sen].apply(op)
+                    conds[f"{op}:{sen}"] = ({sen: xn}, np.array([i["donor_y"] for i in info]), avail, sen)
+                if sen in C["sensors"]:                  # harmless changes need a physical model
+                    xn, _, avail, _ = banks[sen].apply("h_all", level=2)
+                    conds[f"h_all:{sen}"] = ({sen: xn}, np.full(N, -1), avail, sen)
+            for cname, (repl, donor_y, avail, attacked) in conds.items():
                 inp = dict(base); inp.update({k: torch.from_numpy(v) for k, v in repl.items()})
                 for s in seeds:
                     z0, p0 = fwd(fused[s], inp, lens)
@@ -76,12 +86,18 @@ def main():
                             raise SystemExit("clean logits do not match the stored run: stop and paste this")
                     pred = p0.argmax(1)
                     P = {m: fwd(experts[(m, s)], inp, lens)[1] for m in E}
-                    cols = dict(fold=fold, part=part, seed=s, clip=gidx, condition=cname, pred_fused=pred)
+                    lse = np.log(np.exp(z0 - z0.max(1, keepdims=True)).sum(1)) + z0.max(1)
+                    cols = dict(fold=fold, part=part, seed=s, clip=gidx, condition=cname, pred_fused=pred,
+                                y=y, subject=subj, attacked=attacked, donor_y=donor_y, available=avail,
+                                correct=pred == y, msp=p0.max(1),
+                                entropy=-(p0 * np.log(np.clip(p0, 1e-12, 1))).sum(1), energy=-lse)
                     for m, pm in P.items():
                         cols[f"exp_pred_{m}"] = pm.argmax(1)
                         cols[f"exp_conf_{m}"] = pm.max(1)
                         cols[f"exp_support_{m}"] = pm[ar, pred]
                     cols["exp_js"] = np.mean([js(P[a], P[b]) for a, b in itertools.combinations(P, 2)], axis=0)
+                    for m in P:
+                        cols[f"exp_div_{m}"] = np.mean([js(P[m], P[k]) for k in P if k != m], axis=0)
                     ep = np.stack([P[m].argmax(1) for m in P])
                     cols["exp_disagree"] = (ep != ep[0]).any(0)
                     rows.append(pd.DataFrame(cols))

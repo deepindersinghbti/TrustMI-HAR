@@ -165,6 +165,7 @@ def load(ds, with_experts):
     if not with_experts:
         return df
     ex = pd.read_parquet(RES / f"experts_{ds}_all_s0-1-2.parquet")
+    ex = ex[KEYS + ["pred_fused"] + [c for c in ex.columns if c.startswith("exp_")]]   # expert columns only
     m = df.merge(ex, on=KEYS, how="inner", validate="one_to_one")
     if len(m) != len(df):
         raise SystemExit(f"{ds}: {len(df) - len(m)} signal rows have no matching expert row")

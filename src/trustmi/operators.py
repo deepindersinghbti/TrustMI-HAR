@@ -111,7 +111,9 @@ class OperatorBank:
     def __init__(self, dataset, modality, ds, train_ds, fold, seed=0):
         self.dataset, self.modality, self.ds, self.fold, self.seed = dataset, modality, ds, fold, seed
         self.layout = LAYOUTS.get((dataset, modality), Layout(generic=True))
-        self.x = np.asarray(ds.x[modality], dtype=np.float64)          # (N, T, C) normalised
+        x = np.asarray(ds.x[modality], dtype=np.float64)                # normalised input
+        self.shape = x.shape                                            # e.g. skeleton (N, 40, 20, 3)
+        self.x = x.reshape(x.shape[0], x.shape[1], -1)                  # always (N, T, C) inside the bank
         self.N, self.T, self.C = self.x.shape
         self.lens = (np.asarray(ds.x["len"]).astype(int) if "len" in ds.x
                      else np.full(self.N, self.T, int))
@@ -238,4 +240,4 @@ class OperatorBank:
                 x_new[r] = out
             absent[r] = ab
             infos.append(dict(row=int(i), clip=int(self.gidx[i]), y=int(self.y[i]), **info))
-        return x_new.astype(np.float32), absent, avail, infos
+        return x_new.reshape(len(rows), *self.shape[1:]).astype(np.float32), absent, avail, infos

@@ -31,9 +31,11 @@ def check_bank(bank, name):
             if bank.layout.generic and FAMILY[op] == "harmless":
                 continue
             xn, absent, avail, info = bank.apply(op, level=level or 2)
-            assert xn.shape == x.shape, op
+            assert xn.shape == bank.shape, op
+            xn = xn.reshape(x.shape)                     # compare in the bank's (N, T, C) view
             assert np.all(xn[~V] == 0), f"{op}: padding changed"
             xn2, _, avail2, _ = bank.apply(op, level=level or 2)
+            xn2 = xn2.reshape(x.shape)
             assert np.array_equal(xn, xn2) and np.array_equal(avail, avail2), f"{op}: not deterministic"
             if not avail.any():
                 rows.append((op, level, "n/a", "", "", "")); continue
@@ -85,6 +87,8 @@ def main(fold=0):
     from trustmi.data.mmact import MMAct
     tr, te = UTDMHAD(fold, "train"), UTDMHAD(fold, "test")
     check_bank(OperatorBank("d1", "imu", te, tr, fold), f"D1 UTD-MHAD imu, fold {fold}")
+    for m in ("skel", "video"):                          # generic sensors: swaps and removal only
+        check_bank(OperatorBank("d1", m, te, tr, fold), f"D1 UTD-MHAD {m}, fold {fold}")
     tr, te = MMAct(fold, "train"), MMAct(fold, "test")
     for m in ("watch", "phone"):
         check_bank(OperatorBank("d2", m, te, tr, fold), f"D2 MMAct {m}, fold {fold}")

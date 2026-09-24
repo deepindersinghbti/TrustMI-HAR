@@ -1,0 +1,73 @@
+fold,subject,rule,chosen,lie_in,acc
+0,1,odd one out (argmax exp_div),True,imu,0.9158878504672897
+0,1,odd one out (argmax exp_div),True,skel,0.9003115264797508
+0,1,odd one out (argmax exp_div),True,video,0.9595015576323987
+0,1,least supports the answer (argmin exp_support),False,imu,0.5607476635514018
+0,1,least supports the answer (argmin exp_support),False,skel,0.6417445482866043
+0,1,least supports the answer (argmin exp_support),False,video,0.9595015576323987
+0,1,least confident expert (argmin exp_conf),False,imu,0.14953271028037382
+0,1,least confident expert (argmin exp_conf),False,skel,0.11214953271028037
+0,1,least confident expert (argmin exp_conf),False,video,0.7227414330218068
+1,2,odd one out (argmax exp_div),True,imu,0.8950617283950617
+1,2,odd one out (argmax exp_div),True,skel,0.7962962962962963
+1,2,odd one out (argmax exp_div),True,video,0.7623456790123457
+1,2,least supports the answer (argmin exp_support),False,imu,0.5030864197530864
+1,2,least supports the answer (argmin exp_support),False,skel,0.5432098765432098
+1,2,least supports the answer (argmin exp_support),False,video,0.7839506172839507
+1,2,least confident expert (argmin exp_conf),False,imu,0.033950617283950615
+1,2,least confident expert (argmin exp_conf),False,skel,0.24691358024691357
+1,2,least confident expert (argmin exp_conf),False,video,0.7345679012345679
+2,3,odd one out (argmax exp_div),True,imu,0.9074074074074074
+2,3,odd one out (argmax exp_div),True,skel,0.8024691358024691
+2,3,odd one out (argmax exp_div),True,video,0.8055555555555556
+2,3,least supports the answer (argmin exp_support),False,imu,0.5740740740740741
+2,3,least supports the answer (argmin exp_support),False,skel,0.5216049382716049
+2,3,least supports the answer (argmin exp_support),False,video,0.8333333333333334
+2,3,least confident expert (argmin exp_conf),False,imu,0.027777777777777776
+2,3,least confident expert (argmin exp_conf),False,skel,0.2932098765432099
+2,3,least confident expert (argmin exp_conf),False,video,0.7098765432098766
+3,4,odd one out (argmax exp_div),True,imu,0.9012345679012346
+3,4,odd one out (argmax exp_div),True,skel,0.7592592592592593
+3,4,odd one out (argmax exp_div),True,video,0.845679012345679
+3,4,least supports the answer (argmin exp_support),False,imu,0.4783950617283951
+3,4,least supports the answer (argmin exp_support),False,skel,0.6141975308641975
+3,4,least supports the answer (argmin exp_support),False,video,0.9228395061728395
+3,4,least confident expert (argmin exp_conf),False,imu,0.12962962962962962
+3,4,least confident expert (argmin exp_conf),False,skel,0.5030864197530864
+3,4,least confident expert (argmin exp_conf),False,video,0.4567901234567901
+4,5,odd one out (argmax exp_div),True,imu,0.8055555555555556
+4,5,odd one out (argmax exp_div),True,skel,0.75
+4,5,odd one out (argmax exp_div),True,video,0.7993827160493827
+4,5,least supports the answer (argmin exp_support),False,imu,0.3950617283950617
+4,5,least supports the answer (argmin exp_support),False,skel,0.5987654320987654
+4,5,least supports the answer (argmin exp_support),False,video,0.8858024691358025
+4,5,least confident expert (argmin exp_conf),False,imu,0.12962962962962962
+4,5,least confident expert (argmin exp_conf),False,skel,0.17901234567901234
+4,5,least confident expert (argmin exp_conf),False,video,0.691358024691358
+5,6,odd one out (argmax exp_div),True,imu,0.8006230529595015
+5,6,odd one out (argmax exp_div),True,skel,0.7445482866043613
+5,6,odd one out (argmax exp_div),True,video,0.8286604361370716
+5,6,least supports the answer (argmin exp_support),False,imu,0.48598130841121495
+5,6,least supports the answer (argmin exp_support),False,skel,0.573208722741433
+5,6,least supports the answer (argmin exp_support),False,video,0.8660436137071651
+5,6,least confident expert (argmin exp_conf),False,imu,0.0778816199376947
+5,6,least confident expert (argmin exp_conf),False,skel,0.3364485981308411
+5,6,least confident expert (argmin exp_conf),False,video,0.6355140186915887
+6,7,odd one out (argmax exp_div),True,imu,0.808641975308642
+6,7,odd one out (argmax exp_div),True,skel,0.6481481481481481
+6,7,odd one out (argmax exp_div),True,video,0.8919753086419753
+6,7,least supports the answer (argmin exp_support),False,imu,0.3549382716049383
+6,7,least supports the answer (argmin exp_support),False,skel,0.6018518518518519
+6,7,least supports the answer (argmin exp_support),False,video,0.8858024691358025
+6,7,least confident expert (argmin exp_conf),False,imu,0.08950617283950617
+6,7,least confident expert (argmin exp_conf),False,skel,0.14814814814814814
+6,7,least confident expert (argmin exp_conf),False,video,0.7932098765432098
+7,8,odd one out (argmax exp_div),True,imu,0.8878504672897196
+7,8,odd one out (argmax exp_div),True,skel,0.9003115264797508
+7,8,odd one out (argmax exp_div),True,video,0.8317757009345794
+7,8,least supports the answer (argmin exp_support),False,imu,0.4174454828660436
+7,8,least supports the answer (argmin exp_support),False,skel,0.6199376947040498
+7,8,least supports the answer (argmin exp_support),False,video,0.897196261682243
+7,8,least confident expert (argmin exp_conf),False,imu,0.2398753894080997
+7,8,least confident expert (argmin exp_conf),False,skel,0.14953271028037382
+7,8,least confident expert (argmin exp_conf),False,video,0.5981308411214953
