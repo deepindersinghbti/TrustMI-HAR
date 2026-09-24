@@ -76,9 +76,15 @@ class FusionTransformer(nn.Module):
             emb[m], pad = self._pool(m, t, lens)  # per-modality embedding (for the MI module later)
             tokens.append(t)
             pads.append(pad)
+        absent = batch.get("absent")             # r_mask: {modality: (B,) bool}, True = hide from fusion
         key_pad = None
-        if lens is not None:
+        if lens is not None or absent:
+            pads = [torch.zeros(t.shape[:2], dtype=torch.bool, device=t.device) if p is None else p
+                    for t, p in zip(tokens[1:], pads)]
+            if absent:
+                pads = [p | absent[m].to(p.device)[:, None] if m in absent else p
+                        for m, p in zip(self.mods, pads)]
             key_pad = torch.cat([torch.zeros_like(pads[0][:, :1]), *pads], dim=1)
         h = self.norm(self.fusion(torch.cat(tokens, dim=1), src_key_padding_mask=key_pad))
-        logits = self.head(h[:, 0])
+        logits = self.head(h[:, 0])             # CLS only; emb of a hidden modality is not used
         return (logits, emb) if return_emb else logits
