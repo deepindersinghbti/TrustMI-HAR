@@ -10,3 +10,4 @@ results/raw/
 data/processed/norm_stats/
 logs/
 results/operators/*.parquet
+results/certificate/*.parquet
