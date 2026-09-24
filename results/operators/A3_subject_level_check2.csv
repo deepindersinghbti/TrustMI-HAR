@@ -1,0 +1,4 @@
+dataset,target,subjects,rho_ratio_vs_unimodal_acc,rho_ratio_vs_model_separation
+d1,imu,8,-0.31 (p=0.470),+0.50 (p=0.220)
+d2,watch,20,-0.21 (p=0.379),-0.48 (p=0.035)
+d2,phone,20,-0.20 (p=0.398),-0.16 (p=0.490)

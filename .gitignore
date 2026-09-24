@@ -9,3 +9,4 @@ __pycache__/
 results/raw/
 data/processed/norm_stats/
 logs/
+results/operators/*.parquet
