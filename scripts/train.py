@@ -14,7 +14,9 @@ from trustmi.models.fusion import FusionTransformer
 MODELS = dict(b1_video=["video"], b1_skel=["skel"], b1_imu=["imu"],
               b4=["video", "skel", "imu"],
               b1_watch=["watch"], b1_phone=["phone"], b4s=["watch", "phone"],
-              b4_noimu=["video", "skel"])   # certificate option A: backup for UTD-MHAD when the IMU is dropped
+              b4_noimu=["video", "skel"],   # certificate option A: backup for UTD-MHAD when the IMU is dropped
+              b4_noskel=["video", "imu"],   # candidate backup when the skeleton is dropped
+              b4_novideo=["skel", "imu"])   # candidate backup when the video is dropped
 DATASETS = dict(d1=dict(cls=UTDMHAD, n_classes=27, data="utd_mhad_v1",
                         video_features="video_r2plus1d18_v1", split="utd_mhad_loso_v1"),
                 d2=dict(cls=MMAct, n_classes=35, data="mmact_sensor_v1",

@@ -98,7 +98,7 @@ def main():
         print(f"  lie in {sen:5s} {fmt(g.acc, 100, 1)}")
     print("rules chosen per fold:", ch.drop_duplicates("fold").rule.value_counts().to_dict())
     print("\nwho gets blamed, rule chosen on validation (rows: lying sensor, % of its lies; all folds and seeds):")
-    print((100 * conf.div(conf.sum(1), axis=0)).round(1).to_string())
+    print((100 * conf.div(conf.sum(axis=1), axis=0)).round(1).to_string())
     print("\neach rule on test, overall, for transparency only (not used for any choice):")
     print(nm.groupby(["rule", "subject"]).acc.mean().groupby("rule").apply(lambda v: fmt(v, 100, 1)).to_string())
     summ.to_csv(RES / "v3_attrib_detection_summary.csv", index=False)

@@ -1,6 +1,28 @@
 {
-  "_note": "Certificate v1, option A: the model that answers when a sensor is dropped. Chosen 2026-09-24 by validation accuracy with a rule fixed in advance (skeleton+video must beat skeleton-only by more than 1 point on validation; it was +0.4, 4/8 subjects), so the simpler model was chosen. Test accuracy was not used.",
-  "d1": {"imu": "b1_skel"},
-  "d2": {"watch": "b1_phone", "phone": "b1_watch"},
-  "evidence_val_acc_pct": {"d1": {"b1_skel": 79.6, "b4_noimu": 80.1}}
+  "_note": "Certificate option A: the model that answers when a sensor is dropped. Chosen per sensor by validation accuracy with a rule fixed in advance (multi-sensor candidate must beat the single-sensor candidate by more than 1 point on validation, else the single-sensor model); test accuracy never used. UTD-MHAD: scripts/choose_backups_d1.py.",
+  "d1": {
+    "imu": "b1_skel",
+    "skel": "b4_noskel",
+    "video": "b4_novideo"
+  },
+  "d2": {
+    "watch": "b1_phone",
+    "phone": "b1_watch"
+  },
+  "evidence_val_acc_pct": {
+    "d1": {
+      "imu": {
+        "b4_noimu": 80.1,
+        "b1_skel": 79.6
+      },
+      "skel": {
+        "b4_noskel": 93.4,
+        "b1_imu": 90.7
+      },
+      "video": {
+        "b4_novideo": 97.3,
+        "b1_imu": 90.7
+      }
+    }
+  }
 }
