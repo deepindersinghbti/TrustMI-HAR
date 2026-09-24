@@ -48,21 +48,31 @@ def predict(model, x, lens=None, absent=None, bs=256):
             b["len"] = lens[a:a + bs].cuda()
         if absent is not None:
             b["absent"] = {m: v[a:a + bs].cuda() for m, v in absent.items()}
-        out.append(model(b).float().cpu())
+        with torch.autocast("cuda", dtype=torch.bfloat16):     # same precision as train.py's evaluation
+            out.append(model(b).float().cpu())
     return torch.cat(out)
 
 
-def check_repro(run, pred, gidx):
+LOGIT_TOL = 0.5   # bf16 rounding moves logits by ~0.01-0.1; a real mismatch (wrong checkpoint,
+                  # normalisation or padding) moves them by whole units on many clips
+
+
+def check_repro(run, logits, y):
+    """Compare our clean logits with the logits train.py stored for the same clips (same order).
+    If every logit is within LOGIT_TOL, any changed prediction is necessarily a near-tie:
+    a flip needs the stored top-2 gap to be at most 2 x the largest logit difference."""
     old = pd.read_parquet(run / "preds_test.parquet")
-    col = next((c for c in ("pred", "y_pred", "prediction") if c in old.columns), None)
-    if col is None:
-        return None, f"no prediction column in preds_test.parquet: {list(old.columns)}"
-    if "index" in old.columns:
-        ref = old.set_index("index")[col].reindex(gidx).to_numpy()
-    else:
-        ref = old[col].to_numpy()
-    agree = float((ref == pred).mean())
-    return agree, f"{agree:.2%} of {len(pred)} stored test predictions reproduced"
+    if not np.array_equal(old["true"].to_numpy(), y):
+        return False, "stored rows are in a different clip order (true labels differ)"
+    L = np.stack(old["logits"].to_numpy()).astype(np.float64)
+    d = np.abs(logits - L)
+    mism = np.flatnonzero(logits.argmax(1) != old["pred"].to_numpy())
+    s = np.sort(L, 1); gap = s[:, -1] - s[:, -2]
+    msg = (f"max |logit diff| {d.max():.4f} (median {np.median(d):.5f}) | "
+           f"{len(y) - len(mism)}/{len(y)} preds identical"
+           + (f", changed preds had stored top-2 gaps {np.round(gap[mism], 4).tolist()}"
+              if len(mism) else ""))
+    return bool(d.max() < LOGIT_TOL), msg
 
 
 def entropy(p):
@@ -76,6 +86,7 @@ def main():
     ap.add_argument("--folds", default="all", help="'all' or comma list, e.g. 0,1")
     ap.add_argument("--seeds", default="0,1,2")
     args = ap.parse_args()
+    torch.backends.cudnn.benchmark = False                    # as in train.py
     D, mods = DATA[args.dataset], MODELS[args.model]
     folds = list(range(D["n_folds"])) if args.folds == "all" else [int(f) for f in args.folds.split(",")]
     seeds = [int(s) for s in args.seeds.split(",")]
@@ -96,12 +107,13 @@ def main():
         for s in seeds:
             run = ROOT / "runs" / f"BASE_{args.dataset}_{args.model}_loso_f{fold:02d}_s{s}"
             models[s] = load_model(run, mods, D["n_classes"])
-            p = torch.softmax(predict(models[s], base, lens), 1).numpy()
+            logits = predict(models[s], base, lens).numpy().astype(np.float64)
+            p = torch.softmax(torch.from_numpy(logits), 1).numpy()
             clean[s] = p
-            agree, msg = check_repro(run, p.argmax(1), gidx)
+            ok, msg = check_repro(run, logits, y)
             print(f"fold {fold:2d} seed {s}: clean acc {(p.argmax(1) == y).mean():.3f} | {msg}")
-            if agree is not None and agree < 0.99:
-                raise SystemExit("clean predictions do not match the stored run: stop and paste this")
+            if not ok:
+                raise SystemExit("clean logits do not match the stored run: stop and paste this")
             for t in D["targets"]:
                 ab = {t: torch.ones(len(y), dtype=torch.bool)}
                 noisy = dict(base); noisy[t] = torch.randn_like(base[t])
