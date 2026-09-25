@@ -30,6 +30,7 @@ from trustmi.operators import OperatorBank
 # run name -> (method, sensors in the order train.py used; ECML's fusion order depends on it)
 METHODS = dict(d1=dict(tmc=("tmc", ["video", "skel", "imu"]), ecml=("ecml", ["video", "skel", "imu"])),
                d2=dict(tmc_s=("tmc", ["watch", "phone"]), ecml_s=("ecml", ["watch", "phone"])))
+PAPER = dict(tmc="tmc_p", ecml="ecml_p", tmc_s="tmc_sp", ecml_s="ecml_sp")   # --paper-settings run names
 
 
 def load_ev(run, method, mods, K):
@@ -87,17 +88,20 @@ def main():
     ap.add_argument("--folds", default="all")
     ap.add_argument("--seeds", default="0,1,2")
     ap.add_argument("--attack", default=None, help="comma list of sensors to swap (as in cert_experts.py)")
+    ap.add_argument("--paper-settings", action="store_true", help="read the _p / _sp runs (papers' optimiser settings)")
     args = ap.parse_args()
     torch.backends.cudnn.benchmark = False
     C, dname = CFG[args.dataset], args.dataset
     K, M = C["n_classes"], METHODS[args.dataset]
+    if args.paper_settings:
+        M = {PAPER[k]: v for k, v in M.items()}
     folds = list(range(C["n_folds"])) if args.folds == "all" else [int(f) for f in args.folds.split(",")]
     seeds = [int(s) for s in args.seeds.split(",")]
     DS = dataset_cls(dname)
     out_dir = ROOT / "results/certificate"; out_dir.mkdir(parents=True, exist_ok=True)
     tag = "all" if args.folds == "all" else "f" + "-".join(map(str, folds))
     attack = args.attack.split(",") if args.attack else C["sensors"]
-    suffix = f"_att-{'-'.join(attack)}" if args.attack else ""
+    suffix = (f"_att-{'-'.join(attack)}" if args.attack else "") + ("_paper" if args.paper_settings else "")
     out = out_dir / f"evidential_{dname}_{tag}_s{'-'.join(map(str, seeds))}{suffix}.parquet"
     rows, t0 = [], time.time()
 
