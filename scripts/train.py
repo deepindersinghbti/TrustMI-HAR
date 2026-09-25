@@ -10,13 +10,17 @@ sys.path.insert(0, str(ROOT / "src"))
 from trustmi.data.utd import UTDMHAD
 from trustmi.data.mmact import MMAct
 from trustmi.models.fusion import FusionTransformer
+from trustmi.models.evidential import EvidentialLateFusion
 
 MODELS = dict(b1_video=["video"], b1_skel=["skel"], b1_imu=["imu"],
               b4=["video", "skel", "imu"],
               b1_watch=["watch"], b1_phone=["phone"], b4s=["watch", "phone"],
               b4_noimu=["video", "skel"],   # certificate option A: backup for UTD-MHAD when the IMU is dropped
               b4_noskel=["video", "imu"],   # candidate backup when the skeleton is dropped
-              b4_novideo=["skel", "imu"])   # candidate backup when the video is dropped
+              b4_novideo=["skel", "imu"],   # candidate backup when the video is dropped
+              tmc=["video", "skel", "imu"], ecml=["video", "skel", "imu"],   # literature baselines (E)
+              tmc_s=["watch", "phone"], ecml_s=["watch", "phone"])
+EVIDENTIAL = ("tmc", "ecml")                # method = model name before any "_s"
 DATASETS = dict(d1=dict(cls=UTDMHAD, n_classes=27, data="utd_mhad_v1",
                         video_features="video_r2plus1d18_v1", split="utd_mhad_loso_v1"),
                 d2=dict(cls=MMAct, n_classes=35, data="mmact_sensor_v1",
@@ -108,16 +112,23 @@ def main():
     if args.shuffle_labels:
         g = torch.Generator().manual_seed(1000 + args.seed)
         ytr = ytr[torch.randperm(len(ytr), generator=g).cuda()]
-    model = FusionTransformer(mods, n_classes=D["n_classes"], d=args.d, layers=args.layers).cuda()
+    method = args.model.split("_")[0]
+    if method in EVIDENTIAL:                 # per-sensor evidential networks + the paper's fusion and loss
+        model = EvidentialLateFusion(mods, method, n_classes=D["n_classes"], d=args.d, layers=args.layers,
+                                     anneal_epochs=max(1, round(0.1 * args.epochs))).cuda()
+    else:
+        model = FusionTransformer(mods, n_classes=D["n_classes"], d=args.d, layers=args.layers).cuda()
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.wd)
 
     if args.smoke:
         xb, yb = {k: v[:8] for k, v in Xtr.items()}, ytr[:8]
         model.train()
         for _ in range(300):
-            loss = F.cross_entropy(model(xb), yb)
+            loss = model.loss(xb, yb, 300) if method in EVIDENTIAL else F.cross_entropy(model(xb), yb)
             opt.zero_grad(); loss.backward(); opt.step()
         print(f"[smoke] {args.model:9s} loss after 300 steps on 8 samples: {loss.item():.4f}")
+        if method in EVIDENTIAL:
+            print(f"[smoke] {args.model:9s} fused answer correct on {(model(xb).argmax(-1) == yb).sum().item()}/8")
         return
 
     block = "N1" if args.shuffle_labels else "BASE"
@@ -144,7 +155,7 @@ def main():
         total, n = 0.0, 0
         for xb, yb in batches(Xtr, ytr, args.bs, gen):
             with torch.autocast("cuda", dtype=torch.bfloat16):
-                loss = F.cross_entropy(model(xb), yb)
+                loss = model.loss(xb, yb, ep) if method in EVIDENTIAL else F.cross_entropy(model(xb), yb)
             opt.zero_grad(set_to_none=True)
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
