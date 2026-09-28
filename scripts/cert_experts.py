@@ -25,6 +25,7 @@ sys.path.insert(0, str(ROOT / "src")); sys.path.insert(0, str(ROOT / "scripts"))
 from eval_operators import load_model, dataset_cls, MODELS as FUSED
 from cert_signals import CFG, run_dir, repro, fwd
 from trustmi.operators import OperatorBank
+from cert_evidential import load_ev, METHODS as EV_METHODS
 
 EXPERTS = dict(d1=dict(imu="b1_imu", skel="b1_skel", video="b1_video"),
                d2=dict(watch="b1_watch", phone="b1_phone"))
@@ -44,6 +45,7 @@ def main():
     ap.add_argument("--seeds", default="0,1,2")
     ap.add_argument("--attack", default=None, help="comma list of sensors to swap")
     ap.add_argument("--extra-models", default="", help="comma list of extra models to store answers for")
+    ap.add_argument("--main", default=None, help="judge this evidential run's answers instead of B4's (e.g. tmc, tmc_s)")
     args = ap.parse_args()
     torch.backends.cudnn.benchmark = False
     C, dname = CFG[args.dataset], args.dataset
@@ -54,13 +56,18 @@ def main():
     out_dir = ROOT / "results/certificate"; out_dir.mkdir(parents=True, exist_ok=True)
     tag = "all" if args.folds == "all" else "f" + "-".join(map(str, folds))
     attack = args.attack.split(",") if args.attack else C["sensors"]
-    suffix = f"_att-{'-'.join(attack)}" if args.attack else ""
+    suffix = (f"_att-{'-'.join(attack)}" if args.attack else "") + (f"_main-{args.main}" if args.main else "")
     out = out_dir / f"experts_{dname}_{tag}_s{'-'.join(map(str, seeds))}{suffix}.parquet"
     rows, t0 = [], time.time()
 
     for fold in folds:
         tr = DS(fold, "train")
-        fused = {s: load_model(run_dir(dname, C["model"], fold, s), mods, C["n_classes"]) for s in seeds}
+        main = args.main or C["model"]
+        if args.main:                                   # an evidential main model (TMC / ECML)
+            meth, mmods = EV_METHODS[dname][args.main]
+            fused = {s: load_ev(run_dir(dname, main, fold, s), meth, mmods, C["n_classes"]) for s in seeds}
+        else:
+            fused = {s: load_model(run_dir(dname, C["model"], fold, s), mods, C["n_classes"]) for s in seeds}
         experts = {(m, s): load_model(run_dir(dname, b, fold, s), [m], C["n_classes"])
                    for m, b in E.items() for s in seeds}
         extras = {(x, s): load_model(run_dir(dname, x, fold, s), EXTRA_MODS[x], C["n_classes"])
@@ -85,7 +92,7 @@ def main():
                 for s in seeds:
                     z0, p0 = fwd(fused[s], inp, lens)
                     if cname == "clean":
-                        ok, msg = repro(run_dir(dname, C["model"], fold, s), part, z0, y)
+                        ok, msg = repro(run_dir(dname, main, fold, s), part, z0, y)
                         print(f"fold {fold:2d} {part:4s} seed {s}: fused clean | {msg}")
                         if not ok:
                             raise SystemExit("clean logits do not match the stored run: stop and paste this")
