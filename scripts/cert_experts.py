@@ -24,7 +24,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src")); sys.path.insert(0, str(ROOT / "scripts"))
 from eval_operators import load_model, dataset_cls, MODELS as FUSED
 from cert_signals import CFG, run_dir, repro, fwd
-from trustmi.operators import OperatorBank
+from cert_conditions import build_conditions
 from cert_evidential import load_ev, METHODS as EV_METHODS
 
 EXPERTS = dict(d1=dict(imu="b1_imu", skel="b1_skel", video="b1_video"),
@@ -77,16 +77,8 @@ def main():
             base = {m: ds.x[m] for m in mods}
             lens = ds.x["len"] if "len" in ds.x else None
             y = np.asarray(ds.y).astype(int); N = len(y); ar = np.arange(N)
-            banks = {sen: OperatorBank(dname, sen, ds, tr, fold) for sen in attack}
-            gidx, subj = banks[attack[0]].gidx, np.asarray(ds.subject)
-            conds = {"clean": ({}, np.full(N, -1), np.ones(N, bool), "")}   # same construction as cert_signals.py
-            for sen in attack:
-                for op in ("s_swap", "c_swap_same"):
-                    xn, _, avail, info = banks[sen].apply(op)
-                    conds[f"{op}:{sen}"] = ({sen: xn}, np.array([i["donor_y"] for i in info]), avail, sen)
-                if sen in C["sensors"]:                  # harmless changes need a physical model
-                    xn, _, avail, _ = banks[sen].apply("h_all", level=2)
-                    conds[f"h_all:{sen}"] = ({sen: xn}, np.full(N, -1), avail, sen)
+            conds, gidx = build_conditions(dname, ds, tr, fold, attack, C["sensors"])   # shared with cert_mi.py
+            subj = np.asarray(ds.subject)
             for cname, (repl, donor_y, avail, attacked) in conds.items():
                 inp = dict(base); inp.update({k: torch.from_numpy(v) for k, v in repl.items()})
                 for s in seeds:
