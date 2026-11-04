@@ -156,7 +156,9 @@ def train(model, Xtr, ctr, Xva, cva, mods, args, device, log_every=None):
     for ep in range(args.epochs):
         model.train()
         order = rng.permutation(len(ctr.key))
-        tot, n = 0.0, 0
+        if getattr(args, "anchors_per_epoch", 0):           # a fresh random subset of clips every epoch
+            order = order[:args.anchors_per_epoch]
+        tot, n, te = 0.0, 0, time.time()
         for a in range(0, len(order), args.bs):
             idx = order[a:a + args.bs]
             C, V = ctr.draw(idx, rng)
@@ -169,7 +171,8 @@ def train(model, Xtr, ctr, Xva, cva, mods, args, device, log_every=None):
         log.append(dict(epoch=ep, train_loss=tot / n, val_loss=vl, scale=model.scale().item(),
                         **{f"val_mi_{p}": v for p, v in vmi.items()}))
         if log_every and ep % log_every == 0:
-            print(f"  epoch {ep:2d} train {tot / n:.3f} val {vl:.3f} " + " ".join(f"{p} {v:.2f}" for p, v in vmi.items()))
+            print(f"  epoch {ep:2d} train {tot / n:.3f} val {vl:.3f} " + " ".join(f"{p} {v:.2f}" for p, v in vmi.items())
+                  + f" | {time.time() - te:.1f} s", flush=True)
         if vl < best:
             best, best_ep, bad = vl, ep, 0
             best_state = {k: v.detach().clone() for k, v in model.state_dict().items()}
@@ -192,6 +195,8 @@ def main():
     ap.add_argument("--bs", type=int, default=32)
     ap.add_argument("--lr", type=float, default=3e-4)
     ap.add_argument("--wd", type=float, default=0.05)
+    ap.add_argument("--anchors-per-epoch", type=int, default=0, help="clips per epoch (0 = all training clips)")
+    ap.add_argument("--log-every", type=int, default=0, help="print every N epochs (0 = only the final line)")
     ap.add_argument("--smoke", action="store_true")
     args = ap.parse_args()
 
@@ -209,7 +214,7 @@ def main():
     model = build_model(args.dataset, args.version, args.fold, args.seed, mods, dev)
 
     if args.smoke:                       # a small fixed subset; the training loss must fall
-        sub = np.random.default_rng(0).choice(len(ctr.key), 64, replace=False)
+        sub = np.random.default_rng(0).choice(len(ctr.key), args.bs, replace=False)   # one real-size batch
         rng = np.random.default_rng(0)
         params = [p for p in model.parameters() if p.requires_grad]
         opt = torch.optim.AdamW(params, lr=1e-3)
@@ -222,7 +227,7 @@ def main():
             if step in (0, 29):
                 print(f"[smoke] step {step:2d} loss {loss.item():.3f} | " +
                       " ".join(f"{a}-{b} MI>={d['mi_lb'].item():.2f}" for (a, b), d in info.items()))
-        print(f"[smoke] {args.dataset} {args.version}: 30 steps on 64 clips x {args.k + 1} candidates in "
+        print(f"[smoke] {args.dataset} {args.version}: 30 steps on {args.bs} clips x {args.k + 1} candidates in "
               f"{time.time() - t0:.1f} s; log(K+1) = {np.log(args.k + 1):.2f} nats is the ceiling")
         return
 
@@ -235,7 +240,7 @@ def main():
         exp_id=name, modalities=mods, pos_stretch_p=POS_STRETCH_P, val_seed=VAL_SEED, git_sha=sha,
         git_dirty=dirty, trainable=sum(p.numel() for p in model.parameters() if p.requires_grad)), indent=2))
     t0 = time.time()
-    state, ep, log = train(model, Xtr, ctr, Xva, cva, mods, args, dev)
+    state, ep, log = train(model, Xtr, ctr, Xva, cva, mods, args, dev, log_every=args.log_every)
     torch.save(state, run / "ckpt_best.pt")
     pd.DataFrame(log).to_csv(run / "log.csv", index=False)
     best = log[ep]
