@@ -1,0 +1,108 @@
+===== d1 systems <StringArray>
+['ours', 'ecml', 'ecml_p', 'tmc', 'tmc_p']
+Length: 5, dtype: str revs [1 2]
+rev1 ours    lie 0.873 [0.838, 0.907] n=8 | lie_msp 0.728 [0.708, 0.748] n=8 | err 0.937 [0.881, 0.994] n=5 | err_msp 0.926 [0.895, 0.957] n=7 | naming 83.1 [79.0, 87.2] n=8
+          acc_main_normal 95.0 [93.2, 96.9] n=8 acc_main_lie 60.9 [57.8, 64.0] n=8 | pol_normal 93.1 [90.2, 96.1] n=8 pol_lie 72.9 [67.2, 78.6] n=8 | cov80 91.2 [89.3, 93.1] n=8 cov80_msp 90.7 [89.0, 92.4] n=8 cov100 85.6 [82.7, 88.4] n=8
+rev1 tmc     lie 0.842 [0.795, 0.889] n=8 | lie_msp 0.694 [0.636, 0.752] n=8 | err 0.907 [0.839, 0.974] n=5 | err_msp 0.910 [0.864, 0.955] n=7 | naming 74.1 [67.9, 80.3] n=8
+          acc_main_normal 94.4 [92.2, 96.6] n=8 acc_main_lie 74.9 [69.4, 80.3] n=8 | pol_normal 94.4 [92.2, 96.6] n=8 pol_lie 74.9 [69.4, 80.3] n=8 | cov80 89.8 [86.7, 92.9] n=8 cov80_msp 93.5 [90.7, 96.3] n=8 cov100 87.2 [84.0, 90.3] n=8
+rev1 ecml    lie 0.832 [0.803, 0.861] n=8 | lie_msp 0.627 [0.600, 0.654] n=8 | err 0.887 [0.805, 0.968] n=8 | err_msp 0.795 [0.691, 0.900] n=8 | naming 67.0 [62.1, 72.0] n=8
+          acc_main_normal 93.5 [91.4, 95.7] n=8 acc_main_lie 65.3 [62.7, 67.8] n=8 | pol_normal 93.1 [91.3, 94.9] n=8 pol_lie 69.1 [64.4, 73.9] n=8 | cov80 88.2 [86.2, 90.2] n=8 cov80_msp 87.9 [86.1, 89.7] n=8 cov100 84.1 [81.5, 86.7] n=8
+  rev1 ours-ecml lie_auroc: 0.040 [0.023, 0.058] n=8 better 8/8
+  rev1 ours-ecml naming: 16.1 [12.5, 19.7] n=8 better 8/8
+  rev1 ours-ecml acc_policy_lie: 3.7 [-1.7, 9.2] n=8 better 6/8
+  rev1 ours-ecml acc_policy_normal: 0.0 [-2.9, 3.0] n=8 better 5/8
+  rev1 ours-ecml all_cov80_cert_policy: 3.0 [0.9, 5.1] n=8 better 7/8
+  rev1 ours-ecml error_auroc: 0.007 [-0.065, 0.079] n=5 better 4/5
+  rev1 ours-tmc lie_auroc: 0.031 [0.012, 0.050] n=8 better 8/8
+  rev1 ours-tmc naming: 9.0 [5.0, 13.1] n=8 better 8/8
+  rev1 ours-tmc acc_policy_lie: -2.0 [-6.6, 2.6] n=8 better 2/8
+  rev1 ours-tmc acc_policy_normal: -1.2 [-5.0, 2.5] n=8 better 4/8
+  rev1 ours-tmc all_cov80_cert_policy: 1.4 [-1.3, 4.0] n=8 better 7/8
+  rev1 ours-tmc error_auroc: 0.038 [-0.015, 0.090] n=3 better 3/3
+rev2 ours    lie 0.873 [0.838, 0.907] n=8 | lie_msp 0.728 [0.708, 0.748] n=8 | err 0.937 [0.881, 0.994] n=5 | err_msp 0.926 [0.895, 0.957] n=7 | naming 83.1 [79.0, 87.2] n=8
+          acc_main_normal 95.0 [93.2, 96.9] n=8 acc_main_lie 60.9 [57.8, 64.0] n=8 | pol_normal 94.9 [92.2, 97.5] n=8 pol_lie 70.5 [66.6, 74.5] n=8 | cov80 91.9 [90.0, 93.9] n=8 cov80_msp 90.7 [89.0, 92.4] n=8 cov100 85.7 [83.3, 88.1] n=8
+rev2 tmc     lie 0.842 [0.795, 0.889] n=8 | lie_msp 0.694 [0.636, 0.752] n=8 | err 0.907 [0.839, 0.974] n=5 | err_msp 0.910 [0.864, 0.955] n=7 | naming 74.1 [67.9, 80.3] n=8
+          acc_main_normal 94.4 [92.2, 96.6] n=8 acc_main_lie 74.9 [69.4, 80.3] n=8 | pol_normal 94.4 [92.2, 96.5] n=8 pol_lie 74.9 [69.4, 80.3] n=8 | cov80 94.5 [91.9, 97.1] n=8 cov80_msp 93.5 [90.7, 96.3] n=8 cov100 87.2 [84.0, 90.3] n=8
+rev2 ecml    lie 0.832 [0.803, 0.861] n=8 | lie_msp 0.627 [0.600, 0.654] n=8 | err 0.887 [0.805, 0.968] n=8 | err_msp 0.795 [0.691, 0.900] n=8 | naming 67.0 [62.1, 72.0] n=8
+          acc_main_normal 93.5 [91.4, 95.7] n=8 acc_main_lie 65.3 [62.7, 67.8] n=8 | pol_normal 92.8 [91.0, 94.7] n=8 pol_lie 69.3 [64.3, 74.4] n=8 | cov80 90.3 [88.4, 92.3] n=8 cov80_msp 87.9 [86.1, 89.7] n=8 cov100 84.0 [81.3, 86.7] n=8
+  rev2 ours-ecml lie_auroc: 0.040 [0.023, 0.058] n=8 better 8/8
+  rev2 ours-ecml naming: 16.1 [12.5, 19.7] n=8 better 8/8
+  rev2 ours-ecml acc_policy_lie: 1.2 [-2.8, 5.2] n=8 better 5/8
+  rev2 ours-ecml acc_policy_normal: 2.0 [-0.7, 4.8] n=8 better 5/8
+  rev2 ours-ecml all_cov80_cert_policy: 1.6 [-0.7, 3.9] n=8 better 5/8
+  rev2 ours-ecml error_auroc: 0.007 [-0.065, 0.079] n=5 better 4/5
+  rev2 ours-tmc lie_auroc: 0.031 [0.012, 0.050] n=8 better 8/8
+  rev2 ours-tmc naming: 9.0 [5.0, 13.1] n=8 better 8/8
+  rev2 ours-tmc acc_policy_lie: -4.3 [-9.2, 0.5] n=8 better 3/8
+  rev2 ours-tmc acc_policy_normal: 0.5 [-2.7, 3.7] n=8 better 3/8
+  rev2 ours-tmc all_cov80_cert_policy: -2.6 [-5.1, -0.0] n=8 better 1/8
+  rev2 ours-tmc error_auroc: 0.038 [-0.015, 0.090] n=3 better 3/3
+===== d2 systems <StringArray>
+['ours', 'ecml_s', 'tmc_s']
+Length: 3, dtype: str revs [1 2]
+rev1 ours    lie 0.853 [0.825, 0.881] n=20 | lie_msp 0.686 [0.664, 0.709] n=20 | err 0.876 [0.861, 0.891] n=20 | err_msp 0.838 [0.823, 0.853] n=20 | naming na
+          acc_main_normal 79.0 [74.5, 83.6] n=20 acc_main_lie 29.8 [28.4, 31.3] n=20 | pol_normal 79.0 [74.5, 83.6] n=20 pol_lie 29.8 [28.4, 31.3] n=20 | cov80 73.7 [69.8, 77.6] n=20 cov80_msp 73.6 [69.7, 77.4] n=20 cov100 64.9 [61.3, 68.5] n=20
+rev1 tmc_s   lie 0.688 [0.659, 0.717] n=20 | lie_msp 0.596 [0.571, 0.622] n=20 | err 0.829 [0.808, 0.850] n=20 | err_msp 0.820 [0.800, 0.840] n=20 | naming na
+          acc_main_normal 77.5 [73.6, 81.5] n=20 acc_main_lie 42.2 [40.1, 44.3] n=20 | pol_normal 77.5 [73.6, 81.5] n=20 pol_lie 42.2 [40.1, 44.3] n=20 | cov80 72.5 [68.7, 76.4] n=20 cov80_msp 74.1 [70.6, 77.6] n=20 cov100 67.4 [63.9, 70.8] n=20
+rev1 ecml_s  lie 0.688 [0.663, 0.714] n=20 | lie_msp 0.580 [0.561, 0.599] n=20 | err 0.819 [0.800, 0.838] n=20 | err_msp 0.803 [0.785, 0.822] n=20 | naming na
+          acc_main_normal 77.8 [73.6, 81.9] n=20 acc_main_lie 42.2 [40.0, 44.5] n=20 | pol_normal 77.8 [73.6, 81.9] n=20 pol_lie 42.2 [40.0, 44.5] n=20 | cov80 72.3 [68.3, 76.2] n=20 cov80_msp 73.9 [70.4, 77.3] n=20 cov100 67.4 [63.9, 71.0] n=20
+  rev1 ours-ecml_s lie_auroc: 0.165 [0.153, 0.177] n=20 better 20/20
+  rev1 ours-ecml_s acc_policy_lie: -12.4 [-13.5, -11.3] n=20 better 0/20
+  rev1 ours-ecml_s acc_policy_normal: 1.3 [0.1, 2.4] n=20 better 15/20
+  rev1 ours-ecml_s all_cov80_cert_policy: 1.5 [0.5, 2.5] n=20 better 13/20
+  rev1 ours-ecml_s error_auroc: 0.057 [0.040, 0.075] n=20 better 19/20
+  rev1 ours-tmc_s lie_auroc: 0.165 [0.152, 0.179] n=20 better 20/20
+  rev1 ours-tmc_s acc_policy_lie: -12.4 [-13.3, -11.5] n=20 better 0/20
+  rev1 ours-tmc_s acc_policy_normal: 1.5 [0.3, 2.6] n=20 better 13/20
+  rev1 ours-tmc_s all_cov80_cert_policy: 1.2 [0.3, 2.1] n=20 better 14/20
+  rev1 ours-tmc_s error_auroc: 0.047 [0.032, 0.062] n=20 better 18/20
+rev2 ours    lie 0.853 [0.825, 0.881] n=20 | lie_msp 0.686 [0.664, 0.709] n=20 | err 0.876 [0.861, 0.891] n=20 | err_msp 0.838 [0.823, 0.853] n=20 | naming na
+          acc_main_normal 79.0 [74.5, 83.6] n=20 acc_main_lie 29.8 [28.4, 31.3] n=20 | pol_normal 79.0 [74.5, 83.6] n=20 pol_lie 29.8 [28.4, 31.3] n=20 | cov80 75.1 [71.2, 79.1] n=20 cov80_msp 73.6 [69.7, 77.4] n=20 cov100 64.9 [61.3, 68.5] n=20
+rev2 tmc_s   lie 0.688 [0.659, 0.717] n=20 | lie_msp 0.596 [0.571, 0.622] n=20 | err 0.829 [0.808, 0.850] n=20 | err_msp 0.820 [0.800, 0.840] n=20 | naming na
+          acc_main_normal 77.5 [73.6, 81.5] n=20 acc_main_lie 42.2 [40.1, 44.3] n=20 | pol_normal 77.5 [73.6, 81.5] n=20 pol_lie 42.2 [40.1, 44.3] n=20 | cov80 74.6 [71.0, 78.3] n=20 cov80_msp 74.1 [70.6, 77.6] n=20 cov100 67.4 [63.9, 70.8] n=20
+rev2 ecml_s  lie 0.688 [0.663, 0.714] n=20 | lie_msp 0.580 [0.561, 0.599] n=20 | err 0.819 [0.800, 0.838] n=20 | err_msp 0.803 [0.785, 0.822] n=20 | naming na
+          acc_main_normal 77.8 [73.6, 81.9] n=20 acc_main_lie 42.2 [40.0, 44.5] n=20 | pol_normal 77.8 [73.6, 81.9] n=20 pol_lie 42.2 [40.0, 44.5] n=20 | cov80 74.4 [70.6, 78.2] n=20 cov80_msp 73.9 [70.4, 77.3] n=20 cov100 67.4 [63.9, 71.0] n=20
+  rev2 ours-ecml_s lie_auroc: 0.165 [0.153, 0.177] n=20 better 20/20
+  rev2 ours-ecml_s acc_policy_lie: -12.4 [-13.5, -11.3] n=20 better 0/20
+  rev2 ours-ecml_s acc_policy_normal: 1.3 [0.1, 2.4] n=20 better 15/20
+  rev2 ours-ecml_s all_cov80_cert_policy: 0.7 [-0.0, 1.5] n=20 better 12/20
+  rev2 ours-ecml_s error_auroc: 0.057 [0.040, 0.075] n=20 better 19/20
+  rev2 ours-tmc_s lie_auroc: 0.165 [0.152, 0.179] n=20 better 20/20
+  rev2 ours-tmc_s acc_policy_lie: -12.4 [-13.3, -11.5] n=20 better 0/20
+  rev2 ours-tmc_s acc_policy_normal: 1.5 [0.3, 2.6] n=20 better 13/20
+  rev2 ours-tmc_s all_cov80_cert_policy: 0.5 [-0.4, 1.4] n=20 better 13/20
+  rev2 ours-tmc_s error_auroc: 0.047 [0.032, 0.062] n=20 better 18/20
+===== on d1 tmc
+rev1 certificate on tmc                 lie 0.856 [0.816, 0.896] n=8 naming 83.1 [79.0, 87.2] n=8 pol_lie 75.9 [69.9, 82.0] n=8 pol_norm 93.8 [91.5, 96.1] n=8 cov80 91.4 [87.2, 95.5] n=8
+rev1 certificate on tmc, option-A drop  lie 0.856 [0.816, 0.896] n=8 naming 83.1 [79.0, 87.2] n=8 pol_lie 76.4 [71.6, 81.2] n=8 pol_norm 93.8 [91.5, 96.1] n=8 cov80 91.6 [88.0, 95.1] n=8
+rev1 tmc alone                          lie 0.842 [0.795, 0.889] n=8 naming 74.1 [67.9, 80.3] n=8 pol_lie 74.9 [69.4, 80.3] n=8 pol_norm 94.4 [92.2, 96.6] n=8 cov80 89.8 [86.7, 92.9] n=8
+rev1 certificate on B4                  lie 0.873 [0.838, 0.907] n=8 naming 83.1 [79.0, 87.2] n=8 pol_lie 72.9 [67.2, 78.6] n=8 pol_norm 93.1 [90.2, 96.1] n=8 cov80 91.2 [89.3, 93.1] n=8
+  rev1 cert_on-tmc lie_auroc: 0.014 [-0.012, 0.040] n=8 better 5/8 worse 3
+  rev1 cert_on-tmc naming: 9.0 [5.0, 13.1] n=8 better 8/8 worse 0
+  rev1 cert_on-tmc acc_policy_lie: 1.1 [-0.5, 2.6] n=8 better 4/8 worse 1
+  rev1 cert_on-tmc acc_policy_normal: -0.6 [-1.7, 0.4] n=8 better 0/8 worse 2
+  rev1 cert_on-tmc all_cov80_cert_policy: 1.6 [-0.3, 3.5] n=8 better 7/8 worse 1
+rev2 certificate on tmc                 lie 0.856 [0.816, 0.896] n=8 naming 83.1 [79.0, 87.2] n=8 pol_lie 75.0 [68.9, 81.2] n=8 pol_norm 92.6 [89.6, 95.6] n=8 cov80 93.9 [91.1, 96.7] n=8
+rev2 certificate on tmc, option-A drop  lie 0.856 [0.816, 0.896] n=8 naming 83.1 [79.0, 87.2] n=8 pol_lie 75.1 [69.8, 80.4] n=8 pol_norm 92.6 [89.8, 95.3] n=8 cov80 93.7 [91.1, 96.3] n=8
+rev2 tmc alone                          lie 0.842 [0.795, 0.889] n=8 naming 74.1 [67.9, 80.3] n=8 pol_lie 74.9 [69.4, 80.3] n=8 pol_norm 94.4 [92.2, 96.5] n=8 cov80 94.5 [91.9, 97.1] n=8
+rev2 certificate on B4                  lie 0.873 [0.838, 0.907] n=8 naming 83.1 [79.0, 87.2] n=8 pol_lie 70.5 [66.6, 74.5] n=8 pol_norm 94.9 [92.2, 97.5] n=8 cov80 91.9 [90.0, 93.9] n=8
+  rev2 cert_on-tmc lie_auroc: 0.014 [-0.012, 0.040] n=8 better 5/8 worse 3
+  rev2 cert_on-tmc naming: 9.0 [5.0, 13.1] n=8 better 8/8 worse 0
+  rev2 cert_on-tmc acc_policy_lie: 0.1 [-0.9, 1.2] n=8 better 4/8 worse 4
+  rev2 cert_on-tmc acc_policy_normal: -1.8 [-3.5, -0.1] n=8 better 1/8 worse 7
+  rev2 cert_on-tmc all_cov80_cert_policy: -0.6 [-1.6, 0.4] n=8 better 2/8 worse 5
+===== on d2 tmc_s
+rev1 certificate on tmc_s               lie 0.845 [0.819, 0.871] n=20 naming na pol_lie 42.2 [40.1, 44.3] n=20 pol_norm 77.5 [73.6, 81.5] n=20 cov80 72.0 [68.1, 75.9] n=20
+rev1 tmc_s alone                        lie 0.688 [0.659, 0.717] n=20 naming na pol_lie 42.2 [40.1, 44.3] n=20 pol_norm 77.5 [73.6, 81.5] n=20 cov80 72.5 [68.7, 76.4] n=20
+rev1 certificate on B4                  lie 0.853 [0.825, 0.881] n=20 naming na pol_lie 29.8 [28.4, 31.3] n=20 pol_norm 79.0 [74.5, 83.6] n=20 cov80 73.7 [69.8, 77.6] n=20
+  rev1 cert_on-tmc_s lie_auroc: 0.157 [0.142, 0.173] n=20 better 20/20 worse 0
+  rev1 cert_on-tmc_s acc_policy_lie: 0.0 [0.0, 0.0] n=20 better 0/20 worse 0
+  rev1 cert_on-tmc_s acc_policy_normal: -0.0 [-0.0, 0.0] n=20 better 0/20 worse 1
+  rev1 cert_on-tmc_s all_cov80_cert_policy: -0.6 [-1.4, 0.2] n=20 better 8/20 worse 12
+rev2 certificate on tmc_s               lie 0.845 [0.819, 0.871] n=20 naming na pol_lie 42.2 [40.1, 44.3] n=20 pol_norm 77.5 [73.6, 81.5] n=20 cov80 77.1 [73.6, 80.6] n=20
+rev2 tmc_s alone                        lie 0.688 [0.659, 0.717] n=20 naming na pol_lie 42.2 [40.1, 44.3] n=20 pol_norm 77.5 [73.6, 81.5] n=20 cov80 74.6 [71.0, 78.3] n=20
+rev2 certificate on B4                  lie 0.853 [0.825, 0.881] n=20 naming na pol_lie 29.8 [28.4, 31.3] n=20 pol_norm 79.0 [74.5, 83.6] n=20 cov80 75.1 [71.2, 79.1] n=20
+  rev2 cert_on-tmc_s lie_auroc: 0.157 [0.142, 0.173] n=20 better 20/20 worse 0
+  rev2 cert_on-tmc_s acc_policy_lie: 0.0 [0.0, 0.0] n=20 better 0/20 worse 0
+  rev2 cert_on-tmc_s acc_policy_normal: -0.0 [-0.0, 0.0] n=20 better 0/20 worse 1
+  rev2 cert_on-tmc_s all_cov80_cert_policy: 2.4 [2.0, 2.9] n=20 better 20/20 worse 0
