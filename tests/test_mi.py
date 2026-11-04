@@ -145,3 +145,50 @@ def test_pairwise_pmi_keys():
     out = pairwise_pmi(z, z, torch.tensor(5.0))
     assert set(out) == {("imu", "skel"), ("imu", "video"), ("skel", "video")}
     assert all(v.shape == (4,) for v in out.values())
+
+
+# ---------------------------------------------------------------- step 3 additions
+from trustmi.mi import info_nce_candidates, resample_to
+
+
+def test_resample_matches_lie_donor_code():
+    """Our GPU stretching must equal trustmi.operators._resample, which builds the lie donors."""
+    import numpy as np
+    from trustmi.operators import _resample
+    rng = np.random.default_rng(0)
+    T = 50
+    x = torch.zeros(6, T, 3, dtype=torch.float64)
+    src = torch.tensor([50, 30, 7, 1, 50, 2]); dst = torch.tensor([20, 45, 7, 9, 1, 50])
+    for p in range(6):
+        x[p, :src[p]] = torch.from_numpy(rng.normal(size=(int(src[p]), 3)))
+    out = resample_to(x, src, dst)
+    for p in range(6):
+        ref = _resample(x[p, :src[p]].numpy(), int(dst[p]))
+        assert np.allclose(out[p, :dst[p]].numpy(), ref, atol=1e-12)
+        assert (out[p, dst[p]:] == 0).all()                       # padding stays exactly 0
+    sk = torch.randn(4, 40, 20, 3, dtype=torch.float64)          # extra trailing dims are fine
+    assert torch.equal(resample_to(sk, torch.full((4,), 40), torch.full((4,), 40)), sk)
+
+
+def test_candidate_infonce_bounds():
+    B, K1, k = 8, 5, 16
+    base = nn.functional.normalize(torch.randn(B, k), dim=-1)
+    other = nn.functional.normalize(torch.randn(B, K1 - 1, k), dim=-1)
+    zc = {m: torch.cat([base[:, None], other], 1) for m in ("a", "b")}     # true partner identical
+    _, info = info_nce_candidates(zc, torch.tensor(100.0))
+    assert info[("a", "b")]["mi_lb"].item() == pytest.approx(math.log(K1), abs=1e-3)   # hits the ceiling
+    valid = torch.ones(B, K1, dtype=torch.bool); valid[:, 3:] = False
+    _, info = info_nce_candidates(zc, torch.tensor(100.0), valid)
+    assert info[("a", "b")]["mi_lb"].item() == pytest.approx(math.log(3), abs=1e-3)    # fewer candidates
+    zr = {m: nn.functional.normalize(torch.randn(B, K1, k), dim=-1) for m in ("a", "b")}
+    _, info = info_nce_candidates(zr, torch.tensor(0.0))                  # uninformative critic
+    assert info[("a", "b")]["mi_lb"].item() == pytest.approx(0.0, abs=1e-6)
+
+
+def test_pointwise_mi_per_clip_bank_equals_shared_bank():
+    za, zb = (nn.functional.normalize(torch.randn(5, 8), dim=-1) for _ in range(2))
+    ba, bb = (nn.functional.normalize(torch.randn(7, 8), dim=-1) for _ in range(2))
+    s = torch.tensor(3.0)
+    shared = pointwise_mi(za, zb, ba, bb, s)
+    per = pointwise_mi(za, zb, ba.expand(5, -1, -1), bb.expand(5, -1, -1), s)
+    assert torch.allclose(shared, per, atol=1e-6)

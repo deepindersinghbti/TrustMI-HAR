@@ -114,19 +114,72 @@ def info_nce(z, scale, groups=None):
     return torch.stack(losses).mean(), info
 
 
+def info_nce_candidates(zc, scale, valid=None):
+    """InfoNCE with EXPLICIT candidates (used for training and validation; plan step 3).
+
+    zc: {sensor: (B, K1, k)} unit vectors. Row i holds clip i's candidate clips: column 0 = clip i itself
+        (the true partner), columns 1..K1-1 = other clips of the same subject and group (wrong partners,
+        already time-stretched to clip i's length, exactly like the lie donors).
+    valid: optional (B, K1) bool, False marks unused candidate slots (small groups); column 0 must be True.
+    For every ordered sensor pair (a, b): clip i's sensor a must pick its own sensor b among the candidates.
+    Returns (loss, info); info[(a, b)] = dict(ce, mi_lb = mean(log K_i - CE_i)) over both directions,
+    K_i = number of valid candidates of row i (the bound can never exceed log K_i).
+    """
+    mods = list(zc)
+    B, K1, _ = zc[mods[0]].shape
+    if valid is None:
+        valid = torch.ones(B, K1, dtype=torch.bool, device=zc[mods[0]].device)
+    logK = valid.sum(1).float().log()
+    target = torch.zeros(B, dtype=torch.long, device=valid.device)
+    losses, info = [], {}
+    for a, b in itertools.combinations(mods, 2):
+        ce = 0
+        for x, y in ((a, b), (b, a)):
+            logits = scale * torch.einsum("bk,bjk->bj", zc[x][:, 0], zc[y])      # (B, K1)
+            logits = logits.float().masked_fill(~valid, float("-inf"))
+            ce = ce + 0.5 * F.cross_entropy(logits, target, reduction="none")
+        losses.append(ce.mean())
+        info[(a, b)] = dict(ce=ce.mean().detach(), mi_lb=(logK - ce).mean().detach())
+    return torch.stack(losses).mean(), info
+
+
+def resample_to(x, src_len, dst_len):
+    """Linear time-resampling of each row's VALID part to a new length; padding after it stays 0.
+
+    x: (P, T, ...) ; src_len, dst_len: (P,) ints in [1, T]. Row p's first src_len[p] samples are stretched
+    to dst_len[p] samples. Identical to trustmi.operators._resample (np.interp on linspace(0, 1) grids),
+    which builds the lie donors, so wrong partners are made exactly like the lies.
+    """
+    P, T = x.shape[:2]
+    flat = x.reshape(P, T, -1)
+    src_len, dst_len = src_len.long(), dst_len.long()
+    t = torch.arange(T, device=x.device, dtype=torch.float64)[None, :]
+    step = (src_len - 1).double() / (dst_len - 1).clamp(min=1).double()
+    pos = (t * step[:, None]).clamp(max=(src_len - 1).double()[:, None])            # source position
+    lo = pos.floor().long()
+    hi = torch.minimum(lo + 1, (src_len - 1)[:, None])
+    w = (pos - lo.double()).to(x.dtype)[..., None]
+    g = lambda idx: torch.gather(flat, 1, idx[..., None].expand(-1, -1, flat.shape[2]))
+    out = g(lo) * (1 - w) + g(hi) * w
+    out = out * (t < dst_len.double()[:, None]).to(x.dtype)[..., None]
+    return out.reshape(x.shape)
+
+
 @torch.no_grad()
 def pointwise_mi(za, zb, bank_a, bank_b, scale):
     """Per-clip pointwise MI between sensors a and b, symmetric (mean of both directions).
 
     za, zb:         (N, k) unit vectors of the N clips to judge (row i of za belongs with row i of zb)
-    bank_a, bank_b: (K, k) unit vectors of K fixed reference clips (e.g. training clips)
+    bank_a, bank_b: (K, k) unit vectors of K fixed reference clips (e.g. training clips), shared by all
+                    clips, or (N, K, k) when each clip has its own bank (MMAct: bank stretched to its length)
     i(a->b) = f(za_i, zb_i) - logmeanexp_j f(za_i, bank_b_j);  i(b->a) likewise;  result = their mean.
     High = sensors a and b of this clip belong together; low = one of them looks foreign.
     """
-    K = bank_a.shape[0]
+    K = bank_a.shape[-2]
     pos = scale * (za * zb).sum(1)
-    norm_ab = torch.logsumexp(scale * za @ bank_b.T, 1) - math.log(K)
-    norm_ba = torch.logsumexp(scale * zb @ bank_a.T, 1) - math.log(K)
+    sim = (lambda q, bank: q @ bank.T) if bank_a.dim() == 2 else (lambda q, bank: torch.einsum("nk,njk->nj", q, bank))
+    norm_ab = torch.logsumexp(scale * sim(za, bank_b), 1) - math.log(K)
+    norm_ba = torch.logsumexp(scale * sim(zb, bank_a), 1) - math.log(K)
     return 0.5 * ((pos - norm_ab) + (pos - norm_ba))
 
 
