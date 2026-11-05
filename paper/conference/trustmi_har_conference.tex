@@ -15,7 +15,7 @@
 
 \begin{document}
 
-\title{TrustMI-HAR: Unimodal Witness Certificates for Detecting and Naming a Misleading Sensor in Multimodal Human Activity Recognition}
+\title{TrustMI-HAR: Witness and Mutual-Information Certificates for Detecting and Naming a Misleading Sensor in Multimodal Human Activity Recognition}
 
 \author{\IEEEauthorblockN{Author Name 1}
 \IEEEauthorblockA{Department, Institution\\
@@ -31,11 +31,11 @@ email@institution}
 \maketitle
 
 \begin{abstract}
-Multimodal human activity recognition (HAR) systems are usually trusted more when their sensors agree. We show that this trust is misplaced when one sensor carries a real but wrong recording. On UTD-MHAD, replacing one of three sensors with the same person's recording of a different action lowers a fusion transformer from 95.0\% to 60.9\% accuracy, and its confidence barely separates these clips from normal ones (AUROC 0.728). We propose TrustMI-HAR, a per-prediction certificate built from unimodal witness models, each trained on a single sensor. The certificate combines the fused model's confidence with how much the witnesses disagree and how weakly the least convinced witness supports the fused answer, names the odd-one-out sensor, and decides whether to use the answer, drop the named sensor, or abstain. All choices are fitted on validation subjects under leave-one-subject-out evaluation. On UTD-MHAD (8 subjects, 3 sensors) and MMAct (20 subjects, 2 sensors), the certificate detects planted lies with AUROC 0.873 and 0.853, against 0.842 and 0.688 for trusted multi-view classification (TMC) and 0.832 and 0.688 for evidential conflictive multi-view learning (ECML), and names the lying sensor in 83.1\% of UTD-MHAD lie clips (chance 33.3\%; TMC 74.1\%). Applied on top of TMC without retraining it, the certificate raises lie detection on MMAct from 0.688 to 0.845 for all 20 test subjects. It does not make the final answer more often correct than TMC, which we report as a limitation.
+Multimodal human activity recognition (HAR) systems are usually trusted more when their sensors agree. We show that this trust is misplaced when one sensor carries a real but wrong recording. On UTD-MHAD, replacing one of three sensors with the same person's recording of a different action lowers a fusion transformer from 95.0\% to 60.9\% accuracy, and its confidence barely separates these clips from normal ones (AUROC 0.728). We propose TrustMI-HAR, a per-prediction certificate that checks the fused answer with unimodal witness models, each trained on one sensor, and with a label-free contrastive matcher that estimates the pointwise mutual information (MI) between every pair of sensors of the clip. It combines confidence, witness disagreement and support, and the lowest pairwise MI into a trust score, names the suspected sensor, and decides whether to use the answer, drop that sensor, or abstain, with all choices fitted on validation subjects under leave-one-subject-out evaluation. On UTD-MHAD (8 subjects, 3 sensors) and MMAct (20 subjects, 2 sensors), the certificate detects planted lies with AUROC 0.907 and 0.908, against 0.842 and 0.688 for trusted multi-view classification (TMC) and 0.832 and 0.688 for evidential conflictive multi-view learning (ECML); adding MI to the witnesses improves detection for 7 of 8 and 20 of 20 test subjects. It names the lying sensor in 81.4\% of UTD-MHAD lie clips (chance 33.3\%; TMC 74.1\%). Applied on top of TMC without retraining it, the certificate raises accuracy on UTD-MHAD lie clips from 74.9\% to 77.9\% and lie detection on MMAct from 0.688 to 0.907. MI does not help to detect the fused model's natural mistakes, which occur while the sensors agree.
 \end{abstract}
 
 \begin{IEEEkeywords}
-human activity recognition, multimodal fusion, sensor fault detection, uncertainty, selective classification, trustworthy machine learning
+human activity recognition, multimodal fusion, sensor fault detection, uncertainty, mutual information, selective classification, trustworthy machine learning
 \end{IEEEkeywords}
 
 \section{Introduction}
@@ -44,13 +44,13 @@ Wearable and camera-based sensors are combined in HAR because each sensor fails 
 
 We study this case directly. In our experiments a fusion transformer trained on UTD-MHAD is right on 95.0\% of normal clips but only 60.9\% of clips in which one sensor carries the same subject's recording of a different action. Its maximum softmax probability (MSP), the standard confidence score \cite{hendrycks2017baseline}, separates these lie clips from normal ones with an AUROC of only 0.728. The uncertainty of evidential multi-view methods \cite{sensoy2018evidential,han2021tmc,xu2024ecml} is designed to rise when views conflict, yet in our tests it also leaves much of the gap open.
 
-We propose TrustMI-HAR, a certificate that accompanies every prediction of a multimodal model. It uses unimodal witnesses, one small model per sensor, whose opinions cannot be influenced by the other sensors. The certificate answers three questions: should this answer be trusted, which sensor is the likely cause if not, and should the system use the answer, drop that sensor, or abstain. It needs no change to the main model, so it can also be placed on top of an existing trust-aware fusion method.
+We propose TrustMI-HAR, a certificate that accompanies every prediction of a multimodal model. It uses two kinds of evidence that the other sensors cannot influence: unimodal witnesses, one small model per sensor, which report the action each sensor shows, and a contrastive matcher, trained without action labels to recognize which recordings of different sensors belong together, which estimates the pointwise mutual information (MI) of each sensor pair of a clip. Sensors of one activity share much information on average, which fusion exploits; but high MI on average is not enough, since the fused model never checks it clip by clip, and a substituted stream shares little information with the rest. The certificate answers three questions: should this answer be trusted, which sensor is the likely cause if not, and should the system use the answer, drop that sensor, or abstain. It needs no change to the main model, so it can also be placed on top of an existing trust-aware fusion method.
 
 Our contributions are as follows.
 \begin{itemize}
 \item A counterfactual test bench for multimodal HAR with a semantic swap (the lie) and two controls that keep the meaning fixed (a same-action swap and physically bounded harmless perturbations), so that detection of meaning conflicts can be separated from sensitivity to any change.
-\item A witness-based certificate that detects a misleading sensor, names it by an odd-one-out rule, and maps the result to a use, drop or abstain decision, with every threshold and weight fitted on validation subjects only.
-\item A leave-one-subject-out evaluation on UTD-MHAD and MMAct against confidence baselines and against TMC \cite{han2021tmc} and ECML \cite{xu2024ecml}, re-implemented and checked numerically against the authors' code, including the certificate applied on top of TMC.
+\item A certificate built from unimodal witnesses and a label-free contrastive estimate of pointwise cross-sensor MI, which detects a misleading sensor, names it, and maps the result to a use, drop or abstain decision, with every threshold and weight fitted on validation subjects only.
+\item A leave-one-subject-out evaluation on UTD-MHAD and MMAct against confidence baselines and against TMC \cite{han2021tmc} and ECML \cite{xu2024ecml}, re-implemented and checked numerically against the authors' code, including the certificate applied on top of TMC and an ablation that separates the contribution of MI from that of the witnesses.
 \end{itemize}
 
 \section{Related Work}
@@ -63,6 +63,9 @@ Ma et al. \cite{ma2022missing} showed that multimodal transformers are sensitive
 
 \subsection{Uncertainty-aware fusion}
 Evidential deep learning \cite{sensoy2018evidential} places a Dirichlet distribution on class probabilities. TMC \cite{han2021tmc} combines per-view Dirichlet opinions with Dempster's rule, and ECML \cite{xu2024ecml} averages per-view evidence and adds a conflict term during training. Quality-aware fusion \cite{zhang2023qmf} weights modalities by estimated uncertainty. These methods change how views are fused; our certificate instead judges the output of any fused model and points to the responsible sensor.
+
+\subsection{Mutual information estimation}
+Contrastive InfoNCE objectives bound the MI between two variables from below \cite{oord2018cpc,poole2019variational} and are widely used to learn which samples of two modalities belong together \cite{radford2021clip}. We use such a critic as a per-clip test of whether the sensors of a clip share the information that real recordings share.
 
 \subsection{Error detection and abstention}
 MSP \cite{hendrycks2017baseline}, predictive entropy and the energy score \cite{liu2020energy} are standard label-free scores for detecting errors and unusual inputs, and selective classification \cite{geifman2017selective} abstains on the least confident inputs. We use these as baselines and evaluate abstention at fixed coverage.
@@ -79,56 +82,62 @@ Fig.~\ref{fig:pipeline} gives an overview of the certificate.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\linewidth]{figs/pipeline.pdf}
-\caption{Overview of TrustMI-HAR. The fused model answers; unimodal witnesses, each seeing one sensor, judge the answer. Three signals form a trust score, the odd-one-out witness names the suspected sensor, and the decision step uses the answer, drops the named sensor, or abstains.}
+\includegraphics[width=0.92\linewidth]{figs/pipeline.pdf}
+\caption{Overview of TrustMI-HAR. The fused model answers; unimodal witnesses, each seeing one sensor, judge the answer, and a label-free matcher estimates the pointwise MI of every sensor pair. Four signals form a trust score, the witnesses or the MI name the suspected sensor, and the decision step uses the answer, drops the named sensor, or abstains.}
 \label{fig:pipeline}
 \end{figure}
 
 \subsection{Unimodal witnesses}
 For each sensor $m$ we train a witness $g_m$ that sees only $x_m$ and outputs $q_m=g_m(x_m)$. Because a witness never sees the other sensors, a lie in sensor $m$ can change only $q_m$, while the other witnesses still report what their own sensors show.
 
+\subsection{Cross-sensor mutual information}
+For each sensor $m$, an encoder with the witness architecture (without its classification head) and a projection give a unit vector $z_m(x_m)\in\mathbb{R}^{64}$, and $h(x_m,x_n)=z_m^{\top}z_n/t$ scores how well two recordings match, with a learned temperature $t$. The matcher is trained with the InfoNCE loss $\mathcal{L}$ \cite{oord2018cpc}: sensor $m$ of a training clip must pick the clip's own sensor $n$ among $K+1$ candidates, the true partner and $K=16$ recordings of the same subject and recording group of any action, so that the person and the sensor placement cannot reveal a mismatch. On MMAct every candidate is resampled to the clip's length like a lie donor, and with probability 0.5 the true partner is resampled to a random length and back, so that neither length nor resampling reveals a mismatch. No labels are used. The loss bounds the information that two sensors share beyond the person and the group \cite{poole2019variational},
+\begin{equation}
+I(X_m;X_n\mid \text{subject},\text{group})\geq \log(K+1)-\mathcal{L}. \label{eq:bound}
+\end{equation}
+For a test clip, the pointwise MI of sensors $m$ and $n$ is
+\begin{equation}
+i_{mn}(x)=h(x_m,x_n)-\log\frac{1}{B}\sum_{j=1}^{B}e^{h(x_m,\,x_n^{(j)})}, \label{eq:pmi}
+\end{equation}
+averaged over both directions, where $x^{(j)}$ are $B=64$ fixed training clips (on MMAct resampled to the clip's length). A real pair of recordings shares information; a substituted stream does not, so $i_{mn}$ drops for every pair that contains it.
+
 \subsection{Signals and trust score}
-For each clip we compute three label-free signals:
+For each clip we compute four label-free signals:
 \begin{align}
 s_1 &= 1-\max_k p_k, \label{eq:s1}\\
 s_2 &= \frac{2}{M(M-1)}\sum_{m<n}\mathrm{JS}(q_m,q_n), \label{eq:s2}\\
-s_3 &= 1-\min_m q_m[\hat{y}], \label{eq:s3}
+s_3 &= 1-\min_m q_m[\hat{y}], \label{eq:s3}\\
+s_4 &= -\min_{m<n} i_{mn}(x), \label{eq:s4}
 \end{align}
-where $\mathrm{JS}$ is the Jensen-Shannon divergence \cite{lin1991divergence}. $s_1$ is the fused model's own doubt, $s_2$ measures how much the witnesses disagree with each other, and $s_3$ is high when at least one witness gives little probability to the fused answer. The trust score is
+where $\mathrm{JS}$ is the Jensen-Shannon divergence \cite{lin1991divergence}. $s_1$ is the fused model's own doubt, $s_2$ measures how much the witnesses disagree with each other, $s_3$ is high when at least one witness gives little probability to the fused answer, and $s_4$ is high when some pair of sensors shares little information. $s_2$ is itself an MI: $\mathrm{JS}(q_m,q_n)$ equals the MI between the predicted label and a fair choice between the two witnesses \cite{lin1991divergence}. It compares the witnesses' answers, whereas $s_4$ compares the sensors' contents. The trust score is
 \begin{equation}
-T(x)=w_0+\sum_{i=1}^{3} w_i\,\frac{s_i-\mu_i}{\sigma_i},
+T(x)=w_0+\sum_{i=1}^{4} w_i\,\frac{s_i-\mu_i}{\sigma_i},
 \end{equation}
 where $\mu_i$ and $\sigma_i$ are computed on the validation subject and the weights come from L2-regularized logistic regression ($\lambda=1$) fitted on the validation subject to separate lie clips from benign clips (normal clips and both controls). Higher $T$ means more suspicious.
 
 \subsection{Naming the misleading sensor}
-The named sensor is the odd one out,
-\begin{equation}
-m^{\ast}=\arg\max_m \frac{1}{M-1}\sum_{n\neq m}\mathrm{JS}(q_m,q_n).
-\end{equation}
-Naming requires $M\geq 3$; with two sensors a disagreement does not indicate which side is wrong.
+Two naming rules are candidates, and the one that names more validation lies correctly is used: the odd-one-out witness, $m^{\ast}=\arg\max_m \frac{1}{M-1}\sum_{n\neq m}\mathrm{JS}(q_m,q_n)$, and the sensor that shares the least information with the others, $m^{\ast}=\arg\min_m \frac{1}{M-1}\sum_{n\neq m} i_{mn}(x)$. Naming requires $M\geq 3$; with two sensors a disagreement does not indicate which side is wrong.
 
 \subsection{Use, drop or abstain}
 For each sensor we select a backup model that does not use it, chosen on validation accuracy with a rule fixed in advance: a multi-sensor backup is preferred only if it beats the single-sensor candidate by more than one point on validation. If $T(x)\geq\tau$ the answer is taken from the backup for $m^{\ast}$; otherwise the fused answer is kept. In the pre-registered version (revision 1), $\tau$ is chosen on the validation subject to maximize accuracy, with ties broken toward fewer drops. For abstention, the system answers only the fraction $c$ of clips with the lowest $T$. On MMAct, where naming is not possible, the policy is use or abstain only. Algorithm~\ref{alg:cert} summarizes inference.
 
-A second version (revision 2) was designed after inspecting revision 1 results and is reported separately with that label: $\tau$ is set so that at most 5\% of the validation subject's normal clips are dropped, and abstention uses a separate logistic score, fitted on the same three signals, that predicts whether the final answer is wrong.
+A second version (revision 2) was designed after inspecting revision 1 results and is reported separately with that label: $\tau$ is set so that at most 5\% of the validation subject's normal clips are dropped, and abstention uses a separate logistic score, fitted on the same signals, that predicts whether the final answer is wrong. The MI signal was likewise added after the witness-only certificate (signals $s_1$ to $s_3$) had been evaluated; its design (matcher, $K$, $B$, naming candidates) was fixed before it was scored, and we report both certificates.
 
 \begin{algorithm}[t]
 \caption{Certificate inference for one clip}
 \label{alg:cert}
 \begin{algorithmic}[1]
-\Require clip $x$; fused model $f$; witnesses $g_1,\dots,g_M$; backups $b_1,\dots,b_M$; weights $w$, statistics $(\mu,\sigma)$ and threshold $\tau$ fitted on validation
-\State $p \gets f(x)$, $\hat{y}\gets\arg\max_k p_k$
-\For{$m=1$ to $M$} \State $q_m \gets g_m(x_m)$ \EndFor
-\State compute $s_1,s_2,s_3$ by (\ref{eq:s1}) to (\ref{eq:s3}); $T\gets w_0+\sum_i w_i(s_i-\mu_i)/\sigma_i$
-\If{$M\geq 3$} \State $m^{\ast}\gets\arg\max_m \mathrm{mean}_{n\neq m}\,\mathrm{JS}(q_m,q_n)$ \EndIf
-\If{$M\geq 3$ and $T\geq\tau$} \State $y \gets \arg\max_k b_{m^{\ast}}(x_{-m^{\ast}})_k$ \Comment{drop $m^{\ast}$}
-\Else \State $y\gets\hat{y}$ \EndIf
+\Require clip $x$; fused model $f$; witnesses $g_1,\dots,g_M$; matcher $h$; backups $b_1,\dots,b_M$; weights $w$, statistics $(\mu,\sigma)$, naming rule and threshold $\tau$ fitted on validation
+\State $p \gets f(x)$, $\hat{y}\gets\arg\max_k p_k$; $q_m \gets g_m(x_m)$ for all $m$; $i_{mn}$ by (\ref{eq:pmi}) for all $m<n$
+\State $s_1,\dots,s_4$ by (\ref{eq:s1})--(\ref{eq:s4}); $T\gets w_0+\sum_i w_i(s_i-\mu_i)/\sigma_i$
+\State if $M\geq 3$: $m^{\ast}\gets$ the naming rule chosen on validation
+\State $y\gets\arg\max_k b_{m^{\ast}}(x_{-m^{\ast}})_k$ if $M\geq 3$ and $T\geq\tau$ (drop $m^{\ast}$), else $y\gets\hat{y}$
 \State \Return $(y, T, m^{\ast})$; abstain if $T$ is above the coverage cut-off
 \end{algorithmic}
 \end{algorithm}
 
 \subsection{Certificate on top of an evidential model}
-Because the certificate only reads the main model's output, the fused model $f$ can be replaced by another method. When it sits on TMC, the witnesses judge TMC's answer, $s_1$ uses TMC's projected probabilities, and dropping $m^{\ast}$ means using TMC's own fusion without that sensor, a rule fixed before any result was seen.
+Because the certificate only reads the main model's output, the fused model $f$ can be replaced by another method. When it sits on TMC, the witnesses judge TMC's answer, $s_1$ uses TMC's projected probabilities, $s_4$ is unchanged because it does not depend on the main model, and dropping $m^{\ast}$ means using TMC's own fusion without that sensor, a rule fixed before any result was seen.
 
 \section{Experimental Setup}
 
@@ -138,7 +147,7 @@ UTD-MHAD \cite{chen2015utd} has 861 trials of 27 actions by 8 subjects. We use t
 MMAct \cite{kong2019mmact} (V1, trimmed sensor data) has 35 action classes in our processed version and 20 subjects. We use two sensors: the smartwatch accelerometer (3 channels) and the phone (accelerometer, gyroscope, and sine and cosine of pitch and roll, 10 channels), at 50 Hz in 15 s windows that are centre-cropped or zero-padded with padding masked in the model. After an audit, 8,471 clips with both sensors are used; 247 clips without watch data and 263 clips with inconsistent stream lengths or sampling rates are excluded.
 
 \subsection{Models and training}
-All models share one architecture: per-sensor encoders (three 1-D convolution layers for inertial streams, two-layer MLPs for skeleton frames and video tokens), learned sensor-type and position embeddings, a class token, and a 2-layer pre-norm transformer encoder (width 128, 4 heads) over the tokens of all sensors \cite{vaswani2017attention}. The fused model (B4) uses all sensors; each witness is the same network with one sensor. Training uses AdamW \cite{loshchilov2019adamw} (learning rate $3\times10^{-4}$, weight decay 0.05, batch 32, cosine schedule), at most 60 epochs with early stopping on validation macro-F1 (patience 15), gradient clipping at 1.0, and three random seeds per fold.
+All models share one architecture: per-sensor encoders (three 1-D convolution layers for inertial streams, two-layer MLPs for skeleton frames and video tokens), learned sensor-type and position embeddings, a class token, and a 2-layer pre-norm transformer encoder (width 128, 4 heads) over the tokens of all sensors \cite{vaswani2017attention}. The fused model (B4) uses all sensors; each witness is the same network with one sensor. Training uses AdamW \cite{loshchilov2019adamw} (learning rate $3\times10^{-4}$, weight decay 0.05, batch 32, cosine schedule), at most 60 epochs with early stopping on validation macro-F1 (patience 15), gradient clipping at 1.0, and three random seeds per fold. The MI matcher is trained per fold and seed with the same settings and early stopping on the validation InfoNCE loss; on MMAct each epoch uses 1000 random training clips. As an ablation, the matcher reuses the frozen witness encoders and trains only the projections.
 
 \subsection{Baselines}
 Label-free scores of the fused model: $1-$MSP \cite{hendrycks2017baseline}, entropy, and energy \cite{liu2020energy}. Trust-aware fusion: TMC \cite{han2021tmc} and ECML \cite{xu2024ecml}, re-implemented with the same per-sensor networks as our witnesses. On random inputs our fusion rules matched the official implementations exactly and the losses matched to within $1.5\times10^{-7}$. Each method was also trained with the optimizer settings of its paper; a rule fixed in advance (higher mean validation lie AUROC) selected our shared protocol for both. TMC and ECML are scored with the same procedure as the certificate, using a logistic combination of $1-$MSP, their uncertainty $u$ and their conflict measure, and their best of three naming rules chosen on validation.
@@ -150,25 +159,7 @@ We use leave-one-subject-out evaluation: in fold $k$ subject $k$ is the test sub
 
 \subsection{Fusion follows a single misleading sensor}
 
-Table~\ref{tab:clean} lists clean accuracy. Fusion is the most accurate model on both datasets, and TMC and ECML are close to it.
-
-\begin{table}[t]
-\centering
-\caption{Clean test accuracy (\%), mean over test subjects.}
-\label{tab:clean}
-\begin{tabular}{lcc}
-\toprule
-Model & UTD-MHAD & MMAct \\
-\midrule
-Witness: inertial / watch & 88.2 & 74.2 \\
-Witness: skeleton / phone & 76.8 & 56.3 \\
-Witness: video & 54.6 & n/a \\
-Fused model (B4) & 95.0 & 79.0 \\
-TMC \cite{han2021tmc} & 94.4 & 77.5 \\
-ECML \cite{xu2024ecml} & 93.5 & 77.8 \\
-\bottomrule
-\end{tabular}
-\end{table}
+Mean clean test accuracy on UTD-MHAD and MMAct is 95.0\% and 79.0\% for the fused model (B4), 94.4\% and 77.5\% for TMC, and 93.5\% and 77.8\% for ECML. The witnesses reach 88.2\% (inertial), 76.8\% (skeleton) and 54.6\% (video) on UTD-MHAD and 74.2\% (watch) and 56.3\% (phone) on MMAct.
 
 Table~\ref{tab:flip} shows how often the fused model changes its answer under each intervention. A swap with a different action changes the answer in 59.5\% to 73.4\% of clips, while a same-action swap changes it in 3.4\% to 16.3\% and a harmless perturbation in 0.5\% to 4.0\%. The different-action swap changed more answers than the same-action swap for every test subject and sensor (48 of 48 cases), so the model reacts to the meaning of the substituted stream rather than to the substitution itself. When the UTD-MHAD inertial stream is swapped, accuracy falls to 35.8\% while mean confidence stays at 0.668 (0.881 on clean clips); on MMAct, confidence on watch-swapped clips is 0.851 against 0.931 on clean clips. With lies planted in each of the three UTD-MHAD sensors, B4 accuracy on lie clips is 60.9\%, against 74.9\% for TMC and 65.3\% for ECML.
 
@@ -189,11 +180,14 @@ MMAct phone & 59.5 & 15.1 & 4.0 \\
 
 The witnesses expose these cases. On normal test clips the witnesses do not all agree in 57.6\% of UTD-MHAD clips and 52.4\% of MMAct clips, because single sensors are weaker. On lie clips this rises to 98.2\% to 99.7\% on UTD-MHAD and 94.9\% to 96.3\% on MMAct, while same-action swaps stay at 53.2\% to 57.8\%, close to normal clips.
 
+\subsection{Mutual information between sensors}
+By (\ref{eq:bound}) on validation subjects, the sensors share at least 1.22 [1.03, 1.42] nats (skeleton, inertial), 0.88 [0.63, 1.13] (video, skeleton) and 0.80 [0.47, 1.13] (video, inertial) on UTD-MHAD, and 1.28 [1.12, 1.45] (watch, phone) on MMAct, beyond the person and placement (ceiling $\log 17=2.83$). Pointwise MI isolates the liar: when the UTD-MHAD inertial stream is swapped, mean $i_{mn}$ of the two inertial pairs falls from $-0.16$ and 0.86 to $-6.0$ and $-6.3$ nats, while the video--skeleton pair stays at 0.42. Same-action swaps and harmless perturbations change it by at most 0.11 nats. On MMAct a same-action swap lowers it from 1.51 to 1.09--1.24, far less than a lie ($-3.3$ to $-3.5$); long MMAct recordings of one action differ more, as the 15--16\% answer changes in Table~\ref{tab:flip} also show.
+
 \subsection{Detecting a misleading sensor}
 
 \begin{table}[t]
 \centering
-\caption{Lie detection AUROC, mean [95\% interval] over test subjects, and number of subjects for which the certificate is better.}
+\caption{Lie detection AUROC, mean [95\% interval] over test subjects, and paired differences with the number of subjects for which the certificate is better.}
 \label{tab:detect}
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{lcc}
@@ -203,35 +197,33 @@ Score & UTD-MHAD (8) & MMAct (20) \\
 $1-$MSP of B4 & 0.728 [0.708, 0.748] & 0.686 [0.664, 0.709] \\
 TMC & 0.842 [0.795, 0.889] & 0.688 [0.659, 0.717] \\
 ECML & 0.832 [0.803, 0.861] & 0.688 [0.663, 0.714] \\
-Certificate (ours) & \textbf{0.873} [0.838, 0.907] & \textbf{0.853} [0.825, 0.881] \\
+Witnesses only ($s_1$--$s_3$) & 0.873 [0.838, 0.907] & 0.853 [0.825, 0.881] \\
+MI only ($s_4$) & 0.876 [0.832, 0.921] & 0.884 [0.862, 0.905] \\
+Certificate ($s_1$--$s_4$) & \textbf{0.907} [0.866, 0.948] & \textbf{0.908} [0.886, 0.929] \\
 \midrule
-Ours minus TMC & +0.031, 8/8 & +0.165, 20/20 \\
-Ours minus ECML & +0.040, 8/8 & +0.165, 20/20 \\
+Ours minus witnesses only & +0.034, 7/8 & +0.054, 20/20 \\
+Ours minus TMC & +0.065, 8/8 & +0.220, 20/20 \\
+Ours minus ECML & +0.075, 8/8 & +0.219, 20/20 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Table~\ref{tab:detect} reports lie detection. The certificate is better than both evidential methods for every test subject on both datasets, with paired 95\% intervals of $[+0.012, +0.050]$ and $[+0.023, +0.058]$ on UTD-MHAD and $[+0.152, +0.179]$ and $[+0.153, +0.177]$ on MMAct. On UTD-MHAD the gain over $1-$MSP holds for lies in each sensor: 0.908 against 0.791 for the inertial unit, 0.897 against 0.788 for the skeleton and 0.812 against 0.605 for video, with all 8 subjects improving in each case. The certificate also detects the fused model's own natural mistakes on MMAct better than MSP (0.876 against 0.838; 0.829 for TMC and 0.819 for ECML). Fig.~\ref{fig:persubject} shows the per-subject values.
+Table~\ref{tab:detect} reports lie detection. The certificate is better than both evidential methods for every test subject on both datasets, with paired 95\% intervals of $[+0.038, +0.091]$ and $[+0.045, +0.104]$ on UTD-MHAD and $[+0.204, +0.236]$ and $[+0.207, +0.232]$ on MMAct. MI alone, without labels, matches the three witness-based signals, and adding it to them improves detection by $[+0.015, +0.053]$ on UTD-MHAD and $[+0.043, +0.066]$ on MMAct. The gain is largest where the witnesses are weakest: for video lies AUROC rises from 0.812 to 0.886 ($[+0.056, +0.092]$, 8/8; $1-$MSP 0.605); for inertial and skeleton lies (0.919, 0.915; $1-$MSP 0.791, 0.788) the gains are small and include zero. With frozen witness encoders in the matcher detection is 0.890 and 0.862, and doubt plus MI without witnesses reaches 0.885 and 0.884, so own encoders matter and witnesses and MI are complementary. Fig.~\ref{fig:persubject} shows the per-subject values.
 
-Our first certificate design used the stability of the answer under harmless perturbations and the effect of hiding one sensor from the fused model. In a preliminary setting with lies only in the UTD-MHAD inertial unit, these signals reached AUROC 0.568 to 0.755 against 0.791 for $1-$MSP, and 0.513 to 0.629 against 0.686 on MMAct. Signals computed inside the fused model inherit its tendency to follow the misleading sensor, which motivated independent witnesses.
+High MI is not enough in a second sense: on MMAct, MI alone detects the fused model's natural mistakes on normal clips poorly (AUROC 0.572), because they happen while the sensors agree. The certificate detects them better than MSP (0.867 against 0.838; TMC 0.829, ECML 0.819), slightly below the witness-only certificate (0.876; $-0.009$ $[-0.016, -0.003]$).
+
+Signals computed inside the fused model (answer stability under harmless perturbations, the effect of hiding one sensor) were weaker than $1-$MSP in a preliminary test (AUROC 0.568 to 0.755 against 0.791), because they inherit its tendency to follow the misleading sensor; this motivated independent evidence.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figs/lie_auroc_per_subject.pdf}
-\caption{Per-subject lie detection AUROC on UTD-MHAD (left) and MMAct (right). Each gray line is one test subject; black squares and the numbers under the labels are means over subjects.}
+\caption{Per-subject lie detection AUROC on UTD-MHAD (left) and MMAct (right) for $1-$MSP, ECML, TMC, the witness-only certificate (Witn.) and the certificate with MI (Ours). Each gray line is one test subject; squares and the numbers under the labels are means over subjects.}
 \label{fig:persubject}
 \end{figure}
 
 \subsection{Naming the misleading sensor}
 
-On UTD-MHAD the odd-one-out rule was chosen on validation in all 8 folds. It names the lying sensor in 83.1\% [79.0, 87.2] of lie clips (chance 33.3\%): 86.5\% for the inertial unit, 78.8\% for the skeleton and 84.1\% for video (Fig.~\ref{fig:confusion}). TMC and ECML name it in 74.1\% and 67.0\% of clips; the certificate is better for all 8 subjects, by 9.0 [5.0, 13.1] and 16.1 [12.5, 19.7] points. On MMAct, naming between two sensors is at chance level, as expected.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.62\linewidth]{figs/naming_matrix.pdf}
-\caption{Which sensor the certificate names, by the sensor that actually carries the lie (UTD-MHAD, all folds and seeds, \% of each row).}
-\label{fig:confusion}
-\end{figure}
+Without MI, the odd-one-out rule is chosen on validation in all 8 folds and names the lying sensor in 83.1\% [79.0, 87.2] of UTD-MHAD lie clips (chance 33.3\%): 86.5\% for the inertial unit, 78.8\% for the skeleton and 84.1\% for video. The lowest MI share alone names 80.9\%. With both candidates, validation chose the MI rule in 5 folds and the odd-one-out rule in 3; the certificate then names 81.4\% [76.3, 86.6], 1.7 points below the witness rule ($[-3.3, -0.0]$), so MI does not improve naming. TMC and ECML name the sensor in 74.1\% and 67.0\% of clips; the certificate is better for all 8 subjects, by 7.4 [3.5, 11.2] and 14.4 [11.2, 17.7] points. On MMAct, naming between two sensors is at chance level, as expected.
 
 \subsection{Use, drop or abstain}
 
@@ -245,54 +237,56 @@ On UTD-MHAD the odd-one-out rule was chosen on validation in all 8 folds. It nam
 System & Normal & Lie & Answer 80\% \\
 \midrule
 B4 alone & 95.0 & 60.9 & 90.7 \\
-Certificate on B4, rev.\ 1 & 93.1 & 72.9 & 91.2 \\
-Certificate on B4, rev.\ 2 & 94.9 & 70.5 & 91.9 \\
+Witness-only cert.\ on B4, rev.\ 1 & 93.1 & 72.9 & 91.2 \\
+Witness-only cert.\ on B4, rev.\ 2 & 94.9 & 70.5 & 91.9 \\
+Certificate on B4, rev.\ 1 & 93.2 & 76.6 & 89.9 \\
+Certificate on B4, rev.\ 2 & 94.0 & 75.5 & 92.5 \\
 TMC alone & 94.4 & 74.9 & 89.8 \\
 ECML alone, rev.\ 1 & 93.1 & 69.1 & 88.2 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Table~\ref{tab:policy} shows the effect of acting on the certificate. With revision 1, accuracy on UTD-MHAD lie clips rises from 60.9\% to 72.9\% (+12.0 points [6.6, 17.4], all 8 subjects), at a cost of 1.9 points on normal clips, of which 18.4\% are dropped. Revision 2 keeps normal accuracy at 94.9\% (6.8\% dropped) and reaches 70.5\% on lie clips. B4 with the certificate still does not reach TMC on lie clips (74.9\%), because B4 is misled more often to begin with. On MMAct only abstention is possible and accuracy on lie clips stays at 29.8\%, below TMC and ECML (42.2\%). The B4 row of the last column uses abstention on $1-$MSP; the TMC and ECML rows use their own revision 1 scores.
+Table~\ref{tab:policy} shows the effect of acting on the certificate. Without MI, revision 1 raises accuracy on UTD-MHAD lie clips from 60.9\% to 72.9\% (+12.0 [6.6, 17.4], 8/8) at a cost of 1.9 points on normal clips (18.4\% dropped); revision 2 keeps normal accuracy at 94.9\% (6.8\% dropped) with 70.5\% on lie clips. Neither reaches TMC (74.9\%), which is misled less often to begin with. With MI, lie-clip accuracy is 76.6\% (rev.\ 1; +3.7 $[-1.9, 9.3]$ over the witness-only certificate) and 75.5\% (rev.\ 2; +4.9 [2.3, 7.5], 8/8), so B4 with the certificate matches TMC on lie clips (+1.7 $[-3.1, 6.6]$, rev.\ 1), with normal accuracy within 1.2 points. On MMAct only abstention is possible and accuracy on lie clips stays at 29.8\%, below TMC and ECML (42.2\%). The B4 row of the last column uses abstention on $1-$MSP; the TMC and ECML rows use their own revision 1 scores.
 
 \subsection{Certificate on top of TMC}
 
 \begin{table}[t]
 \centering
-\caption{TMC alone vs.\ the certificate on top of TMC (rev.\ 1 unless marked). Differences: mean [95\% interval], subjects improved.}
+\caption{TMC alone vs.\ the witness-only certificate (+W) and the certificate with MI (+W+MI) on top of TMC (rev.\ 1 unless marked). Differences (+W+MI minus TMC): mean [95\% interval], subjects improved.}
 \label{tab:ontmc}
-\setlength{\tabcolsep}{2.5pt}
+\setlength{\tabcolsep}{1.6pt}
 \footnotesize
-\begin{tabular}{llcccc}
+\begin{tabular}{llccccc}
 \toprule
- & Metric & TMC & +Cert. & Diff. [95\% CI] & Better \\
+ & Metric & TMC & +W & +W+MI & Diff. [95\% CI] & Better \\
 \midrule
-\multirow{4}{*}{UTD} & Lie AUROC & 0.842 & 0.856 & +0.014 [$-$0.012, 0.040] & 5/8 \\
- & Naming (\%) & 74.1 & 83.1 & +9.0 [5.0, 13.1] & 8/8 \\
- & Lie acc. (\%) & 74.9 & 75.9 & +1.1 [$-$0.5, 2.6] & 4/8 \\
- & Normal acc. (\%) & 94.4 & 93.8 & $-$0.6 [$-$1.7, 0.4] & 0/8 \\
+\multirow{4}{*}{UTD} & Lie AUROC & 0.842 & 0.856 & 0.902 & +0.060 [0.031, 0.089] & 8/8 \\
+ & Naming \% & 74.1 & 83.1 & 81.4 & +7.4 [3.5, 11.2] & 8/8 \\
+ & Lie acc.\ \% & 74.9 & 75.9 & 77.9 & +3.1 [0.8, 5.3] & 7/8 \\
+ & Normal \% & 94.4 & 93.8 & 92.9 & $-$1.5 [$-$3.3, 0.4] & 1/8 \\
 \midrule
-\multirow{4}{*}{MMAct} & Lie AUROC & 0.688 & 0.845 & +0.157 [0.142, 0.173] & 20/20 \\
- & Lie acc. (\%) & 42.2 & 42.2 & 0.0 & 0/20 \\
- & Ans. 80\% & 72.5 & 72.0 & $-$0.6 [$-$1.4, 0.2] & 8/20 \\
- & Ans. 80\%, rev. 2 & 74.6 & 77.1 & +2.4 [2.0, 2.9] & 20/20 \\
+\multirow{4}{*}{MMAct} & Lie AUROC & 0.688 & 0.845 & 0.907 & +0.220 [0.203, 0.236] & 20/20 \\
+ & Lie acc.\ \% & 42.2 & 42.2 & 42.2 & 0.0 & 0/20 \\
+ & Ans. 80\% & 72.5 & 72.0 & 73.2 & +0.6 [$-$0.0, 1.3] & 13/20 \\
+ & Ans.\ 80\%, r2 & 74.6 & 77.1 & 77.1 & +2.4 [2.0, 2.8] & 20/20 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Table~\ref{tab:ontmc} applies the unchanged certificate to TMC. On MMAct it raises lie detection from 0.688 to 0.845 for every test subject, which shows that the witness signals carry information that TMC's uncertainty does not. Accuracy on lie clips is unchanged because only abstention is available with two sensors; with the revision 2 abstention score, accuracy on the 80\% least suspicious clips rises by 2.4 points for all 20 subjects. On UTD-MHAD the clear gain is naming (83.1\% against 74.1\%, all subjects); the changes in lie detection and lie-clip accuracy are small and their intervals include zero, and normal accuracy is slightly lower. With revision 2 on UTD-MHAD, accuracy on the 80\% least suspicious clips is 93.9\% against 94.5\% for TMC alone.
+Table~\ref{tab:ontmc} applies the unchanged certificate to TMC. On MMAct it raises lie detection from 0.688 to 0.907 for every subject (0.845 without MI): witness and MI signals carry information that TMC's uncertainty does not. Lie-clip accuracy is unchanged because only abstention is possible with two sensors; with the revision 2 abstention score, accuracy on the 80\% least suspicious clips rises by 2.4 points for all 20 subjects. On UTD-MHAD the witness-only certificate mainly improved naming. With MI, lie detection rises from 0.842 to 0.902 (8/8) and lie-clip accuracy from 74.9\% to 77.9\% (7/8), at a cost of 1.5 points on normal clips (interval includes zero); with revision 2, accuracy on the 80\% least suspicious clips is 94.3\% against 94.5\% for TMC.
 
 \section{Discussion and Limitations}
 
-The results support a narrow claim: independent unimodal witnesses detect a misleading sensor better than the confidence of a fused model and better than the uncertainty of TMC and ECML, they can name the sensor when at least three are available, and they add to TMC without retraining it. They do not support a claim that the certificate makes final answers more often correct than TMC. TMC is less often misled by a single sensor, and the certificate's decision step recovers much, but not all, of B4's loss.
+The results support a specific claim: unimodal witnesses and label-free pointwise MI are complementary, independent evidence that detects a misleading sensor better than a fused model's confidence and the uncertainty of TMC and ECML, with MI helping most where the witnesses are weakest; they name the sensor when at least three are available, and they improve TMC without retraining it. With MI, the decision step brings B4 to TMC's lie-clip accuracy, but not beyond it. MI does not improve naming, nor does it detect natural mistakes, which occur while the sensors agree; for those, the witnesses and the model's confidence remain necessary.
 
-The study has further limitations. The lies are constructed by swapping real recordings of the same subject; real faults such as drift, partial dropout or timing errors are not yet tested. UTD-MHAD has 8 subjects, so several differences have wide intervals. Revision 2 of the decision step was designed after seeing revision 1 results; we report both. Naming is not possible on MMAct with two sensors. The witnesses add training and inference cost proportional to the number of sensors.
+The study has further limitations. The lies are constructed by swapping real recordings of the same subject; real faults such as drift, partial dropout or timing errors are not yet tested. UTD-MHAD has 8 subjects, so several differences have wide intervals. Revision 2 of the decision step and the MI signal were designed after seeing earlier results; we report all versions. The MI estimate is a lower bound capped at $\log(K+1)$, and on MMAct pointwise MI also drops partly for same-action swaps. Naming is not possible on MMAct with two sensors. The witnesses and the matcher add training and inference cost that grows with the number of sensors and sensor pairs.
 
-Future work will add MMAct video as a third sensor so that naming can be tested on a second dataset, evaluate the 247 MMAct clips in which the watch did not record, extend the comparison to further fusion methods and datasets, and study more types of faults.
+Future work will add MMAct video as a third sensor so that naming can be tested on a second dataset, evaluate the 247 MMAct clips without watch data, add further fusion methods and datasets, and study more fault types.
 
 \section{Conclusion}
 
-Agreement between sensors is not a sufficient basis for trust in multimodal HAR: a single real but wrong stream can mislead a fusion transformer while its confidence stays high. TrustMI-HAR attaches to each prediction a certificate built from unimodal witnesses. Under leave-one-subject-out evaluation on UTD-MHAD and MMAct it detects misleading sensors better than confidence scores, TMC and ECML for every test subject, names the misleading sensor in 83.1\% of UTD-MHAD lie clips, and improves TMC's lie detection on MMAct from 0.688 to 0.845 when placed on top of it.
+Agreement between sensors is not a sufficient basis for trust in multimodal HAR: a single real but wrong stream can mislead a fusion transformer while its confidence stays high, and high MI between sensors on average does not protect a single prediction. TrustMI-HAR attaches to each prediction a certificate from unimodal witnesses and label-free pointwise cross-sensor MI that detects misleading sensors better than confidence, TMC and ECML for every test subject, names them on UTD-MHAD, and improves TMC when placed on top of it.
 
 \begin{thebibliography}{99}
 
@@ -331,6 +325,15 @@ W. Liu, X. Wang, J. Owens, and Y. Li, ``Energy-based out-of-distribution detecti
 
 \bibitem{geifman2017selective}
 Y. Geifman and R. El-Yaniv, ``Selective classification for deep neural networks,'' in \textit{Advances in Neural Information Processing Systems (NeurIPS)}, 2017, pp. 4878-4887.
+
+\bibitem{oord2018cpc}
+A. van den Oord, Y. Li, and O. Vinyals, ``Representation learning with contrastive predictive coding,'' arXiv:1807.03748, 2018.
+
+\bibitem{poole2019variational}
+B. Poole, S. Ozair, A. van den Oord, A. A. Alemi, and G. Tucker, ``On variational bounds of mutual information,'' in \textit{Proc. Int. Conf. Machine Learning (ICML)}, 2019, pp. 5171-5180.
+
+\bibitem{radford2021clip}
+A. Radford et al., ``Learning transferable visual models from natural language supervision,'' in \textit{Proc. Int. Conf. Machine Learning (ICML)}, 2021, pp. 8748-8763.
 
 \bibitem{lin1991divergence}
 J. Lin, ``Divergence measures based on the Shannon entropy,'' \textit{IEEE Trans. Information Theory}, vol. 37, no. 1, pp. 145-151, 1991.
