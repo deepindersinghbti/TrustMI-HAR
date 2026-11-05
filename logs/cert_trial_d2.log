@@ -1,0 +1,16 @@
+/home/deepinder/Research_Projects/TrustMI-HAR/scripts/cert_signals.py:154: Pandas4Warning: Starting with pandas version 4.0 all arguments of mean will be keyword-only.
+  stab_flip_L2=g[stab].mean().mean(1)))
+fold  0 val  seed 0: clean acc 0.844 | max |logit diff| 0.1250
+fold  0 test seed 0: clean acc 0.631 | max |logit diff| 0.1250
+fold  0: done (41 s elapsed)
+
+SANITY SUMMARY, test part (d2, folds f0, seeds [0]) -> results/certificate/signals_d2_f0_s0.parquet
+                     n    acc    msp  stab_flip_L2  suspect_is_attacked
+condition                                                              
+clean              423  0.631  0.959         0.032                  NaN
+s_swap:watch       423  0.213  0.904         0.061                0.440
+c_swap_same:watch  423  0.631  0.953         0.037                0.496
+h_all:watch        423  0.626  0.958         0.040                0.499
+s_swap:phone       423  0.272  0.904         0.057                0.539
+c_swap_same:phone  423  0.634  0.959         0.029                0.501
+h_all:phone        423  0.629  0.953         0.041                0.489

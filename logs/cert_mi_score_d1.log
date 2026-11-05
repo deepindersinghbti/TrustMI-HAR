@@ -1,0 +1,80 @@
+check (d1, B4): the paper's certificate is reproduced exactly (largest difference 1.1e-16)
+
+d1: certificate on B4, revision 1
+  system                         lie_AUROC error_AUROC  naming% lie_acc%  normal%  ans80%  rules chosen
+  C3 (paper certificate)             0.873       0.937     83.1     72.9     93.1    91.2  {'odd one out': 8}
+  MI only                            0.876       0.598     80.9     77.6     91.8    88.0  {'lowest MI share': 8}
+  s1 + MI (no witnesses)             0.885       0.938     80.9     77.5     93.0    89.6  {'lowest MI share': 8}
+  REV3 = C3 + MI (main)              0.907       0.927     81.4     76.6     93.2    89.9  {'lowest MI share': 5, 'odd one out': 3}
+  REV3 frozen MI (ablation)          0.890       0.937     83.1     74.0     93.5    90.2  {'odd one out': 8}
+  TMC alone                          0.842       0.907     74.1     74.9     94.4    89.8  
+  ECML alone                         0.832       0.887     67.0     69.1     93.1    88.2  
+  REV3 minus C3 (paper certificate): lie +0.034 [+0.015, +0.053] 7/8 | error -0.010 [-0.033, +0.013] 1/5 | naming -1.7 [-3.3, -0.0] 0/8 | lie_acc +3.7 [-1.9, +9.3] 4/8 | normal +0.0 [-2.4, +2.5] 4/8 | ans80 -1.3 [-2.8, +0.2] 2/8
+  REV3 minus TMC alone: lie +0.065 [+0.038, +0.091] 8/8 | error +0.027 [+0.016, +0.038] 3/3 | naming +7.4 [+3.5, +11.2] 8/8 | lie_acc +1.7 [-3.1, +6.6] 5/8 | normal -1.2 [-4.1, +1.7] 3/8 | ans80 +0.1 [-2.3, +2.4] 4/8
+  REV3 minus ECML alone: lie +0.075 [+0.045, +0.104] 8/8 | error -0.003 [-0.072, +0.066] 2/5 | naming +14.4 [+11.2, +17.7] 8/8 | lie_acc +7.5 [+2.8, +12.2] 7/8 | normal +0.1 [-2.6, +2.8] 4/8 | ans80 +1.7 [-0.5, +3.9] 5/8
+
+d1: certificate on B4, revision 2 (post hoc, labelled)
+  system                         lie_AUROC error_AUROC  naming% lie_acc%  normal%  ans80%  rules chosen
+  C3 (paper certificate)             0.873       0.937     83.1     70.5     94.9    91.9  {'odd one out': 8}
+  MI only                            0.876       0.598     80.9     74.3     93.7    88.2  {'lowest MI share': 8}
+  s1 + MI (no witnesses)             0.885       0.938     80.9     75.6     94.6    91.7  {'lowest MI share': 8}
+  REV3 = C3 + MI (main)              0.907       0.927     81.4     75.5     94.0    92.5  {'lowest MI share': 5, 'odd one out': 3}
+  REV3 frozen MI (ablation)          0.890       0.937     83.1     72.9     94.4    92.6  {'odd one out': 8}
+  TMC alone                          0.842       0.907     74.1     74.9     94.4    94.5  
+  ECML alone                         0.832       0.887     67.0     69.3     92.8    90.3  
+  REV3 minus C3 (paper certificate): lie +0.034 [+0.015, +0.053] 7/8 | error -0.010 [-0.033, +0.013] 1/5 | naming -1.7 [-3.3, -0.0] 0/8 | lie_acc +4.9 [+2.3, +7.5] 8/8 | normal -0.8 [-2.4, +0.7] 2/8 | ans80 +0.6 [-0.6, +1.8] 6/8
+  REV3 minus TMC alone: lie +0.065 [+0.038, +0.091] 8/8 | error +0.027 [+0.016, +0.038] 3/3 | naming +7.4 [+3.5, +11.2] 8/8 | lie_acc +0.6 [-4.8, +6.0] 5/8 | normal -0.4 [-2.9, +2.2] 3/8 | ans80 -2.0 [-3.9, -0.1] 2/8
+  REV3 minus ECML alone: lie +0.075 [+0.045, +0.104] 8/8 | error -0.003 [-0.072, +0.066] 2/5 | naming +14.4 [+11.2, +17.7] 8/8 | lie_acc +6.1 [+1.0, +11.3] 7/8 | normal +1.2 [-0.9, +3.3] 5/8 | ans80 +2.2 [+0.2, +4.2] 6/8
+  C3 (paper certificate)         lie_AUROC 0.873 [0.838, 0.907] (n=8) | naming 83.1 [79.0, 87.2] (n=8)
+  MI only                        lie_AUROC 0.876 [0.832, 0.921] (n=8) | naming 80.9 [75.4, 86.4] (n=8)
+  s1 + MI (no witnesses)         lie_AUROC 0.885 [0.844, 0.926] (n=8) | naming 80.9 [75.4, 86.4] (n=8)
+  REV3 = C3 + MI (main)          lie_AUROC 0.907 [0.866, 0.948] (n=8) | naming 81.4 [76.3, 86.6] (n=8)
+  REV3 frozen MI (ablation)      lie_AUROC 0.890 [0.859, 0.922] (n=8) | naming 83.1 [79.0, 87.2] (n=8)
+  TMC alone                      lie_AUROC 0.842 [0.795, 0.889] (n=8) | naming 74.1 [67.9, 80.3] (n=8)
+  ECML alone                     lie_AUROC 0.832 [0.803, 0.861] (n=8) | naming 67.0 [62.1, 72.0] (n=8)
+check (d1, on tmc): the paper's certificate is reproduced exactly (largest difference 1.1e-16)
+
+d1: certificate on TMC, revision 1
+  system                         lie_AUROC error_AUROC  naming% lie_acc%  normal%  ans80%  rules chosen
+  C3 (paper certificate)             0.856       0.929     83.1     75.9     93.8    91.4  {'odd one out': 8}
+  MI only                            0.876       0.784     80.9     78.3     92.7    89.3  {'lowest MI share': 8}
+  s1 + MI (no witnesses)             0.879       0.856     80.9     78.4     92.9    89.8  {'lowest MI share': 8}
+  REV3 = C3 + MI (main)              0.902       0.869     81.4     77.9     92.9    89.5  {'lowest MI share': 5, 'odd one out': 3}
+  REV3 frozen MI (ablation)          0.877       0.918     83.1     76.2     93.9    90.1  {'odd one out': 8}
+  TMC alone                          0.842       0.907     74.1     74.9     94.4    89.8  
+  REV3 minus C3 (paper certificate): lie +0.046 [+0.021, +0.071] 7/8 | error -0.061 [-0.151, +0.029] 0/5 | naming -1.7 [-3.3, -0.0] 0/8 | lie_acc +2.0 [-0.5, +4.5] 6/8 | normal -0.8 [-2.9, +1.2] 3/8 | ans80 -1.9 [-3.4, -0.5] 1/8
+  REV3 minus TMC alone: lie +0.060 [+0.031, +0.089] 8/8 | error -0.038 [-0.106, +0.030] 1/5 | naming +7.4 [+3.5, +11.2] 8/8 | lie_acc +3.1 [+0.8, +5.3] 7/8 | normal -1.5 [-3.3, +0.4] 1/8 | ans80 -0.3 [-1.2, +0.5] 4/8
+
+d1: certificate on TMC, revision 2 (post hoc, labelled)
+  system                         lie_AUROC error_AUROC  naming% lie_acc%  normal%  ans80%  rules chosen
+  C3 (paper certificate)             0.856       0.929     83.1     75.0     92.6    93.9  {'odd one out': 8}
+  MI only                            0.876       0.784     80.9     78.5     93.6    90.0  {'lowest MI share': 8}
+  s1 + MI (no witnesses)             0.879       0.856     80.9     78.5     93.7    93.5  {'lowest MI share': 8}
+  REV3 = C3 + MI (main)              0.902       0.869     81.4     77.9     93.2    94.3  {'lowest MI share': 5, 'odd one out': 3}
+  REV3 frozen MI (ablation)          0.877       0.918     83.1     76.2     93.2    94.5  {'odd one out': 8}
+  TMC alone                          0.842       0.907     74.1     74.9     94.4    94.5  
+  REV3 minus C3 (paper certificate): lie +0.046 [+0.021, +0.071] 7/8 | error -0.061 [-0.151, +0.029] 0/5 | naming -1.7 [-3.3, -0.0] 0/8 | lie_acc +2.9 [+0.9, +4.9] 7/8 | normal +0.7 [-0.7, +2.0] 4/8 | ans80 +0.4 [-0.1, +0.9] 6/8
+  REV3 minus TMC alone: lie +0.060 [+0.031, +0.089] 8/8 | error -0.038 [-0.106, +0.030] 1/5 | naming +7.4 [+3.5, +11.2] 8/8 | lie_acc +3.0 [+0.9, +5.1] 7/8 | normal -1.1 [-2.5, +0.3] 1/8 | ans80 -0.2 [-0.9, +0.5] 2/8
+  C3 (paper certificate)         lie_AUROC 0.856 [0.816, 0.896] (n=8) | naming 83.1 [79.0, 87.2] (n=8)
+  MI only                        lie_AUROC 0.876 [0.832, 0.921] (n=8) | naming 80.9 [75.4, 86.4] (n=8)
+  s1 + MI (no witnesses)         lie_AUROC 0.879 [0.833, 0.926] (n=8) | naming 80.9 [75.4, 86.4] (n=8)
+  REV3 = C3 + MI (main)          lie_AUROC 0.902 [0.856, 0.948] (n=8) | naming 81.4 [76.3, 86.6] (n=8)
+  REV3 frozen MI (ablation)      lie_AUROC 0.877 [0.842, 0.912] (n=8) | naming 83.1 [79.0, 87.2] (n=8)
+  TMC alone                      lie_AUROC 0.842 [0.795, 0.889] (n=8) | naming 74.1 [67.9, 80.3] (n=8)
+
+d1: lie AUROC by lying sensor (rev. 1 score), mean [95% CI] over test subjects
+  lie in imu: C3 (paper certificate) 0.908 | MI only 0.879 | s1 + MI (no witnesses) 0.894 | REV3 = C3 + MI (main) 0.919 | REV3 frozen MI (ablation) 0.919 | REV3 minus C3 +0.011 [-0.009, +0.031] 6/8
+  lie in skel: C3 (paper certificate) 0.897 | MI only 0.882 | s1 + MI (no witnesses) 0.897 | REV3 = C3 + MI (main) 0.915 | REV3 frozen MI (ablation) 0.906 | REV3 minus C3 +0.018 [-0.005, +0.041] 6/8
+  lie in video: C3 (paper certificate) 0.812 | MI only 0.868 | s1 + MI (no witnesses) 0.864 | REV3 = C3 + MI (main) 0.886 | REV3 frozen MI (ablation) 0.846 | REV3 minus C3 +0.074 [+0.056, +0.092] 8/8
+
+DATASET-LEVEL MI lower bound (nats; validation person of each fold; ceiling log 17 = 2.83)
+  d1 frozen skel-imu     1.37 [1.17, 1.57]  folds 8, range 1.15 to 1.87
+  d1 frozen video-imu    0.83 [0.55, 1.11]  folds 8, range 0.21 to 1.24
+  d1 frozen video-skel   0.90 [0.66, 1.15]  folds 8, range 0.51 to 1.32
+  d1 own    skel-imu     1.22 [1.03, 1.42]  folds 8, range 0.94 to 1.69
+  d1 own    video-imu    0.80 [0.47, 1.13]  folds 8, range -0.05 to 1.17
+  d1 own    video-skel   0.88 [0.63, 1.13]  folds 8, range 0.41 to 1.21
+  d2 frozen watch-phone  0.96 [0.77, 1.15]  folds 20, range 0.06 to 1.54
+  d2 own    watch-phone  1.28 [1.12, 1.45]  folds 20, range 0.45 to 1.69
+
+saved: results/certificate/mi_d1_*.csv, mi_bound_summary.csv

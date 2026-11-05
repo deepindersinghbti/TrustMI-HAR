@@ -4,11 +4,11 @@ data/extracted/
 data/processed/*.npz
 data/features/*.npz
 data/features/mmact_v2_shards/
-runs/
+runs/**/*.pt
 __pycache__/
 *.pyc
 results/raw/
 data/processed/norm_stats/
-logs/
 results/operators/*.parquet
 results/certificate/*.parquet
+*.tmp

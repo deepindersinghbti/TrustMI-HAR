@@ -1,0 +1,24 @@
+fold  0 seed 0: clean acc 1.000 | 100.00% of 107 stored test predictions reproduced
+fold  0: r_mask hides ['imu'] completely (all seeds)
+fold  0: done (1 s elapsed)
+
+SUMMARY (d1 b4, folds f0, seeds [0]) -> results/operators/A3_d1_b4_f0_s0.parquet
+                            n    acc   flip  follows_donor   conf  conf_drop
+target op          level                                                    
+imu    clean       0      107  1.000  0.000            NaN  0.989      0.000
+       h_jitter    1      107  1.000  0.000            NaN  0.989     -0.000
+                   2      107  1.000  0.000            NaN  0.989      0.000
+                   3      107  1.000  0.000            NaN  0.989      0.000
+       h_gain      1      107  1.000  0.000            NaN  0.989      0.000
+                   2      107  1.000  0.000            NaN  0.989     -0.000
+                   3      107  1.000  0.000            NaN  0.988      0.001
+       h_rotate    1      107  1.000  0.000            NaN  0.989      0.000
+                   2      107  1.000  0.000            NaN  0.988      0.001
+                   3      107  1.000  0.000            NaN  0.988      0.001
+       h_all       1      107  1.000  0.000            NaN  0.989      0.000
+                   2      107  1.000  0.000            NaN  0.990     -0.001
+                   3      107  1.000  0.000            NaN  0.988      0.001
+       s_swap      0      107  0.495  0.505          0.299  0.800      0.189
+       c_swap_same 0      107  1.000  0.000            NaN  0.988      0.001
+       r_fill      0      107  0.729  0.271            NaN  0.751      0.238
+       r_mask      0      107  0.804  0.196            NaN  0.820      0.169

@@ -1,0 +1,26 @@
+{
+  "model": "ecml_s",
+  "dataset": "d2",
+  "fold": 15,
+  "seed": 0,
+  "epochs": 60,
+  "patience": 15,
+  "bs": 32,
+  "lr": 0.0003,
+  "wd": 0.05,
+  "d": 128,
+  "layers": 2,
+  "smoke": false,
+  "shuffle_labels": false,
+  "exp_id": "BASE_d2_ecml_s_loso_f15_s0",
+  "modalities": [
+    "watch",
+    "phone"
+  ],
+  "config_tag": "defaults_v0",
+  "data": "mmact_sensor_v1",
+  "video_features": null,
+  "split": "mmact_loso_v1",
+  "git_sha": "76e75045cd039e38d81ffeda944ec8af81555044",
+  "git_dirty": false
+}

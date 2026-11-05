@@ -1,0 +1,26 @@
+{
+  "model": "tmc_s",
+  "dataset": "d2",
+  "fold": 18,
+  "seed": 0,
+  "epochs": 60,
+  "patience": 15,
+  "bs": 32,
+  "lr": 0.0003,
+  "wd": 0.05,
+  "d": 128,
+  "layers": 2,
+  "smoke": false,
+  "shuffle_labels": false,
+  "exp_id": "BASE_d2_tmc_s_loso_f18_s0",
+  "modalities": [
+    "watch",
+    "phone"
+  ],
+  "config_tag": "defaults_v0",
+  "data": "mmact_sensor_v1",
+  "video_features": null,
+  "split": "mmact_loso_v1",
+  "git_sha": "67881fe801a9e8f6947013ae88c1473b37e30caf",
+  "git_dirty": false
+}

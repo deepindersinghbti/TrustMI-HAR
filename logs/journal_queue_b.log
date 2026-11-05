@@ -1,0 +1,96 @@
+START B 2026-11-05T12:46:41+05:30 at 6b1e059
+MI_d1v2_own_loso_f00_s0: best epoch  5 | val loss 2.013 | MI lower bound (nats) video-skel 0.75 video-imu 0.50 skel-imu 1.21 | 10s
+MI_d1v2_own_loso_f01_s0: best epoch 10 | val loss 1.940 | MI lower bound (nats) video-skel 0.54 video-imu 0.80 skel-imu 1.34 | 13s
+MI_d1v2_own_loso_f02_s0: best epoch  4 | val loss 2.256 | MI lower bound (nats) video-skel 0.25 video-imu 0.31 skel-imu 1.17 | 10s
+MI_d1v2_own_loso_f03_s0: best epoch  5 | val loss 1.586 | MI lower bound (nats) video-skel 0.98 video-imu 1.41 skel-imu 1.35 | 10s
+MI_d1v2_own_loso_f04_s0: best epoch  5 | val loss 1.790 | MI lower bound (nats) video-skel 0.68 video-imu 1.20 skel-imu 1.25 | 10s
+MI_d1v2_own_loso_f05_s0: best epoch  2 | val loss 2.226 | MI lower bound (nats) video-skel 0.25 video-imu 0.40 skel-imu 1.17 | 10s
+MI_d1v2_own_loso_f06_s0: best epoch 23 | val loss 1.943 | MI lower bound (nats) video-skel 1.05 video-imu 0.53 skel-imu 1.09 | 22s
+MI_d1v2_own_loso_f07_s0: best epoch 12 | val loss 1.284 | MI lower bound (nats) video-skel 1.66 video-imu 1.29 skel-imu 1.70 | 16s
+MI_d1v2_own_loso_f00_s1: best epoch  4 | val loss 2.112 | MI lower bound (nats) video-skel 0.57 video-imu 0.49 skel-imu 1.11 | 12s
+MI_d1v2_own_loso_f01_s1: best epoch 11 | val loss 1.891 | MI lower bound (nats) video-skel 0.67 video-imu 0.63 skel-imu 1.53 | 16s
+MI_d1v2_own_loso_f02_s1: best epoch  3 | val loss 2.226 | MI lower bound (nats) video-skel 0.60 video-imu 0.59 skel-imu 0.63 | 12s
+MI_d1v2_own_loso_f03_s1: best epoch  6 | val loss 1.621 | MI lower bound (nats) video-skel 0.87 video-imu 1.26 skel-imu 1.52 | 13s
+MI_d1v2_own_loso_f04_s1: best epoch 19 | val loss 1.762 | MI lower bound (nats) video-skel 0.95 video-imu 1.03 skel-imu 1.24 | 21s
+MI_d1v2_own_loso_f05_s1: best epoch  3 | val loss 1.827 | MI lower bound (nats) video-skel 0.91 video-imu 0.70 skel-imu 1.41 | 12s
+MI_d1v2_own_loso_f06_s1: best epoch 13 | val loss 1.406 | MI lower bound (nats) video-skel 1.71 video-imu 1.23 skel-imu 1.34 | 18s
+MI_d1v2_own_loso_f07_s1: best epoch  6 | val loss 1.254 | MI lower bound (nats) video-skel 1.60 video-imu 1.45 skel-imu 1.69 | 13s
+MI_d1v2_own_loso_f00_s2: best epoch  6 | val loss 2.036 | MI lower bound (nats) video-skel 0.71 video-imu 0.37 skel-imu 1.31 | 13s
+MI_d1v2_own_loso_f01_s2: best epoch  4 | val loss 2.006 | MI lower bound (nats) video-skel 0.75 video-imu 0.53 skel-imu 1.20 | 12s
+MI_d1v2_own_loso_f02_s2: best epoch  3 | val loss 2.321 | MI lower bound (nats) video-skel -0.21 video-imu 0.78 skel-imu 0.96 | 12s
+MI_d1v2_own_loso_f03_s2: best epoch  7 | val loss 1.425 | MI lower bound (nats) video-skel 1.36 video-imu 1.31 skel-imu 1.55 | 14s
+MI_d1v2_own_loso_f04_s2: best epoch  5 | val loss 1.535 | MI lower bound (nats) video-skel 1.24 video-imu 1.40 skel-imu 1.26 | 13s
+MI_d1v2_own_loso_f05_s2: best epoch  2 | val loss 2.128 | MI lower bound (nats) video-skel 0.49 video-imu 0.48 skel-imu 1.14 | 11s
+MI_d1v2_own_loso_f06_s2: best epoch  2 | val loss 1.800 | MI lower bound (nats) video-skel 0.96 video-imu 1.00 skel-imu 1.14 | 12s
+MI_d1v2_own_loso_f07_s2: best epoch 20 | val loss 1.025 | MI lower bound (nats) video-skel 1.65 video-imu 1.78 skel-imu 2.00 | 24s
+MI_d2v_own_loso_f00_s0: best epoch 46 | val loss 1.619 | MI lower bound (nats) watch-phone 1.20 watch-video 1.42 phone-video 1.02 | 496s
+MI_d2v_own_loso_f01_s0: best epoch 59 | val loss 1.079 | MI lower bound (nats) watch-phone 1.67 watch-video 1.96 phone-video 1.64 | 394s
+MI_d2v_own_loso_f02_s0: best epoch 44 | val loss 1.971 | MI lower bound (nats) watch-phone 0.32 watch-video 1.87 phone-video 0.40 | 451s
+MI_d2v_own_loso_f03_s0: best epoch 48 | val loss 1.040 | MI lower bound (nats) watch-phone 1.71 watch-video 1.98 phone-video 1.69 | 464s
+Traceback (most recent call last):
+  File "/home/deepinder/Research_Projects/TrustMI-HAR/scripts/train_mi.py", line 264, in <module>
+    main()
+  File "/home/deepinder/Research_Projects/TrustMI-HAR/scripts/train_mi.py", line 247, in main
+    state, ep, log = train(model, Xtr, ctr, Xva, cva, mods, args, dev, log_every=args.log_every)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/deepinder/Research_Projects/TrustMI-HAR/scripts/train_mi.py", line 170, in train
+    opt.zero_grad(set_to_none=True); loss.backward()
+                                     ^^^^^^^^^^^^^^^
+  File "/home/deepinder/Research_Projects/TrustMI-HAR/trustmi-env/lib/python3.12/site-packages/torch/_tensor.py", line 623, in backward
+    torch.autograd.backward(
+  File "/home/deepinder/Research_Projects/TrustMI-HAR/trustmi-env/lib/python3.12/site-packages/torch/autograd/__init__.py", line 395, in backward
+    _engine_run_backward(
+  File "/home/deepinder/Research_Projects/TrustMI-HAR/trustmi-env/lib/python3.12/site-packages/torch/autograd/graph.py", line 979, in _engine_run_backward
+    return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: one of the variables needed for gradient computation has been modified by an inplace operation: [torch.cuda.FloatTensor [128]] is at version 32; expected version 0 instead. Hint: enable anomaly detection to find the operation that failed to compute its gradient, with torch.autograd.set_detect_anomaly(True, check_nan=False).
+MI_d2v_own_loso_f05_s0: best epoch 57 | val loss 1.350 | MI lower bound (nats) watch-phone 1.54 watch-video 1.36 phone-video 1.55 | 502s
+START B 2026-11-05T13:49:48+05:30 at 6fbaff2
+MI_d2v_own_loso_f04_s0: best epoch 44 | val loss 1.365 | MI lower bound (nats) watch-phone 1.48 watch-video 1.57 phone-video 1.35 | 511s
+MI_d2v_own_loso_f06_s0: best epoch 32 | val loss 1.577 | MI lower bound (nats) watch-phone 1.27 watch-video 1.49 phone-video 1.01 | 404s
+MI_d2v_own_loso_f07_s0: best epoch 53 | val loss 1.411 | MI lower bound (nats) watch-phone 1.29 watch-video 1.63 phone-video 1.35 | 511s
+MI_d2v_own_loso_f08_s0: best epoch 51 | val loss 1.693 | MI lower bound (nats) watch-phone 0.90 watch-video 1.25 phone-video 1.28 | 504s
+MI_d2v_own_loso_f09_s0: best epoch 48 | val loss 1.144 | MI lower bound (nats) watch-phone 1.61 watch-video 1.75 phone-video 1.71 | 516s
+MI_d2v_own_loso_f10_s0: best epoch 40 | val loss 1.750 | MI lower bound (nats) watch-phone 0.97 watch-video 1.43 phone-video 0.85 | 500s
+MI_d2v_own_loso_f11_s0: best epoch 44 | val loss 1.237 | MI lower bound (nats) watch-phone 1.55 watch-video 1.79 phone-video 1.45 | 651s
+MI_d2v_own_loso_f12_s0: best epoch 51 | val loss 1.027 | MI lower bound (nats) watch-phone 1.67 watch-video 2.00 phone-video 1.75 | 654s
+MI_d2v_own_loso_f13_s0: best epoch 52 | val loss 1.296 | MI lower bound (nats) watch-phone 1.34 watch-video 1.71 phone-video 1.55 | 654s
+MI_d2v_own_loso_f14_s0: best epoch 50 | val loss 1.161 | MI lower bound (nats) watch-phone 1.56 watch-video 1.87 phone-video 1.59 | 641s
+MI_d2v_own_loso_f15_s0: best epoch 52 | val loss 1.075 | MI lower bound (nats) watch-phone 1.66 watch-video 1.91 phone-video 1.71 | 657s
+MI_d2v_own_loso_f16_s0: best epoch 16 | val loss 1.741 | MI lower bound (nats) watch-phone 0.81 watch-video 1.43 phone-video 1.04 | 353s
+MI_d2v_own_loso_f17_s0: best epoch 58 | val loss 1.043 | MI lower bound (nats) watch-phone 1.63 watch-video 2.05 phone-video 1.69 | 647s
+MI_d2v_own_loso_f18_s0: best epoch 37 | val loss 1.486 | MI lower bound (nats) watch-phone 1.25 watch-video 1.70 phone-video 1.09 | 567s
+MI_d2v_own_loso_f19_s0: best epoch 26 | val loss 2.201 | MI lower bound (nats) watch-phone 1.24 watch-video 0.20 phone-video 0.46 | 449s
+MI_d2v_own_loso_f00_s1: best epoch 15 | val loss 1.609 | MI lower bound (nats) watch-phone 1.12 watch-video 1.47 phone-video 1.09 | 324s
+MI_d2v_own_loso_f01_s1: best epoch 58 | val loss 1.037 | MI lower bound (nats) watch-phone 1.71 watch-video 1.99 phone-video 1.69 | 646s
+MI_d2v_own_loso_f02_s1: best epoch  9 | val loss 2.179 | MI lower bound (nats) watch-phone 0.30 watch-video 1.39 phone-video 0.27 | 269s
+MI_d2v_own_loso_f03_s1: best epoch 54 | val loss 1.037 | MI lower bound (nats) watch-phone 1.77 watch-video 1.95 phone-video 1.66 | 646s
+MI_d2v_own_loso_f04_s1: best epoch 57 | val loss 1.337 | MI lower bound (nats) watch-phone 1.48 watch-video 1.62 phone-video 1.38 | 644s
+MI_d2v_own_loso_f05_s1: best epoch 58 | val loss 1.424 | MI lower bound (nats) watch-phone 1.56 watch-video 1.34 phone-video 1.32 | 647s
+MI_d2v_own_loso_f06_s1: best epoch 49 | val loss 1.544 | MI lower bound (nats) watch-phone 1.28 watch-video 1.50 phone-video 1.09 | 644s
+MI_d2v_own_loso_f07_s1: best epoch 49 | val loss 1.426 | MI lower bound (nats) watch-phone 1.23 watch-video 1.60 phone-video 1.39 | 643s
+MI_d2v_own_loso_f08_s1: best epoch 41 | val loss 1.683 | MI lower bound (nats) watch-phone 0.85 watch-video 1.30 phone-video 1.30 | 611s
+MI_d2v_own_loso_f09_s1: best epoch 58 | val loss 1.166 | MI lower bound (nats) watch-phone 1.54 watch-video 1.72 phone-video 1.74 | 648s
+MI_d2v_own_loso_f10_s1: best epoch 34 | val loss 1.873 | MI lower bound (nats) watch-phone 0.72 watch-video 1.45 phone-video 0.71 | 542s
+MI_d2v_own_loso_f11_s1: best epoch 47 | val loss 1.223 | MI lower bound (nats) watch-phone 1.52 watch-video 1.78 phone-video 1.53 | 643s
+MI_d2v_own_loso_f12_s1: best epoch 59 | val loss 0.963 | MI lower bound (nats) watch-phone 1.76 watch-video 2.03 phone-video 1.82 | 654s
+MI_d2v_own_loso_f13_s1: best epoch 49 | val loss 1.255 | MI lower bound (nats) watch-phone 1.38 watch-video 1.66 phone-video 1.70 | 710s
+MI_d2v_own_loso_f14_s1: best epoch 44 | val loss 1.123 | MI lower bound (nats) watch-phone 1.65 watch-video 1.83 phone-video 1.65 | 783s
+MI_d2v_own_loso_f15_s1: best epoch 52 | val loss 1.092 | MI lower bound (nats) watch-phone 1.64 watch-video 1.91 phone-video 1.68 | 804s
+MI_d2v_own_loso_f16_s1: best epoch 39 | val loss 1.716 | MI lower bound (nats) watch-phone 0.82 watch-video 1.64 phone-video 0.89 | 734s
+MI_d2v_own_loso_f17_s1: best epoch 44 | val loss 1.050 | MI lower bound (nats) watch-phone 1.66 watch-video 2.01 phone-video 1.68 | 788s
+MI_d2v_own_loso_f18_s1: best epoch 56 | val loss 1.545 | MI lower bound (nats) watch-phone 1.11 watch-video 1.70 phone-video 1.05 | 779s
+MI_d2v_own_loso_f19_s1: best epoch 33 | val loss 2.162 | MI lower bound (nats) watch-phone 1.34 watch-video 0.28 phone-video 0.39 | 635s
+MI_d2v_own_loso_f00_s2: best epoch 17 | val loss 1.800 | MI lower bound (nats) watch-phone 0.87 watch-video 1.31 phone-video 0.91 | 416s
+MI_d2v_own_loso_f01_s2: best epoch 51 | val loss 1.063 | MI lower bound (nats) watch-phone 1.68 watch-video 2.02 phone-video 1.61 | 775s
+MI_d2v_own_loso_f02_s2: best epoch 14 | val loss 1.934 | MI lower bound (nats) watch-phone 0.61 watch-video 1.52 phone-video 0.57 | 388s
+MI_d2v_own_loso_f03_s2: best epoch 50 | val loss 1.054 | MI lower bound (nats) watch-phone 1.71 watch-video 1.99 phone-video 1.64 | 781s
+MI_d2v_own_loso_f04_s2: best epoch 55 | val loss 1.382 | MI lower bound (nats) watch-phone 1.48 watch-video 1.60 phone-video 1.27 | 781s
+MI_d2v_own_loso_f05_s2: best epoch 48 | val loss 1.440 | MI lower bound (nats) watch-phone 1.45 watch-video 1.37 phone-video 1.36 | 778s
+MI_d2v_own_loso_f06_s2: best epoch 30 | val loss 1.540 | MI lower bound (nats) watch-phone 1.27 watch-video 1.53 phone-video 1.08 | 595s
+MI_d2v_own_loso_f07_s2: best epoch 56 | val loss 1.401 | MI lower bound (nats) watch-phone 1.28 watch-video 1.60 phone-video 1.43 | 807s
+MI_d2v_own_loso_f08_s2: best epoch 57 | val loss 1.670 | MI lower bound (nats) watch-phone 0.96 watch-video 1.23 phone-video 1.30 | 801s
+MI_d2v_own_loso_f09_s2: best epoch 59 | val loss 1.132 | MI lower bound (nats) watch-phone 1.65 watch-video 1.75 phone-video 1.71 | 818s
+MI_d2v_own_loso_f10_s2: best epoch 23 | val loss 1.760 | MI lower bound (nats) watch-phone 0.92 watch-video 1.45 phone-video 0.85 | 522s
+MI_d2v_own_loso_f11_s2: best epoch 28 | val loss 1.178 | MI lower bound (nats) watch-phone 1.63 watch-video 1.82 phone-video 1.52 | 597s
+MI_d2v_own_loso_f12_s2: best epoch 55 | val loss 0.991 | MI lower bound (nats) watch-phone 1.77 watch-video 2.02 phone-video 1.73 | 815s

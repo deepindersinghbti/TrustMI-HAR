@@ -1,0 +1,27 @@
+{
+  "model": "tmc",
+  "dataset": "d1v2",
+  "fold": 1,
+  "seed": 1,
+  "epochs": 60,
+  "patience": 15,
+  "bs": 32,
+  "lr": 0.0003,
+  "wd": 0.05,
+  "d": 128,
+  "layers": 2,
+  "smoke": false,
+  "shuffle_labels": false,
+  "exp_id": "BASE_d1v2_tmc_loso_f01_s1",
+  "modalities": [
+    "video",
+    "skel",
+    "imu"
+  ],
+  "config_tag": "defaults_v0",
+  "data": "utd_mhad_v1",
+  "video_features": "video_r2plus1d18_v2",
+  "split": "utd_mhad_loso_v1",
+  "git_sha": "6b1e0595fbc7d5d012dcd0be1cea2b5fe69da1a0",
+  "git_dirty": false
+}

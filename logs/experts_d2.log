@@ -1,0 +1,151 @@
+fold  0 val  seed 0: fused clean | max |logit diff| 0.1250
+fold  0 val  seed 1: fused clean | max |logit diff| 0.1250
+fold  0 val  seed 2: fused clean | max |logit diff| 0.0625
+fold  0 test seed 0: fused clean | max |logit diff| 0.1250
+fold  0 test seed 1: fused clean | max |logit diff| 0.1250
+fold  0 test seed 2: fused clean | max |logit diff| 0.0625
+fold  0: done (5 s elapsed)
+fold  1 val  seed 0: fused clean | max |logit diff| 0.0625
+fold  1 val  seed 1: fused clean | max |logit diff| 0.0625
+fold  1 val  seed 2: fused clean | max |logit diff| 0.0625
+fold  1 test seed 0: fused clean | max |logit diff| 0.0625
+fold  1 test seed 1: fused clean | max |logit diff| 0.0625
+fold  1 test seed 2: fused clean | max |logit diff| 0.1250
+fold  1: done (9 s elapsed)
+fold  2 val  seed 0: fused clean | max |logit diff| 0.1250
+fold  2 val  seed 1: fused clean | max |logit diff| 0.0625
+fold  2 val  seed 2: fused clean | max |logit diff| 0.1250
+fold  2 test seed 0: fused clean | max |logit diff| 0.1250
+fold  2 test seed 1: fused clean | max |logit diff| 0.1250
+fold  2 test seed 2: fused clean | max |logit diff| 0.0625
+fold  2: done (13 s elapsed)
+fold  3 val  seed 0: fused clean | max |logit diff| 0.1250
+fold  3 val  seed 1: fused clean | max |logit diff| 0.1250
+fold  3 val  seed 2: fused clean | max |logit diff| 0.1250
+fold  3 test seed 0: fused clean | max |logit diff| 0.1250
+fold  3 test seed 1: fused clean | max |logit diff| 0.1250
+fold  3 test seed 2: fused clean | max |logit diff| 0.0625
+fold  3: done (18 s elapsed)
+fold  4 val  seed 0: fused clean | max |logit diff| 0.1250
+fold  4 val  seed 1: fused clean | max |logit diff| 0.1250
+fold  4 val  seed 2: fused clean | max |logit diff| 0.1250
+fold  4 test seed 0: fused clean | max |logit diff| 0.1250
+fold  4 test seed 1: fused clean | max |logit diff| 0.1250
+fold  4 test seed 2: fused clean | max |logit diff| 0.1250
+fold  4: done (22 s elapsed)
+fold  5 val  seed 0: fused clean | max |logit diff| 0.0625
+fold  5 val  seed 1: fused clean | max |logit diff| 0.1250
+fold  5 val  seed 2: fused clean | max |logit diff| 0.1250
+fold  5 test seed 0: fused clean | max |logit diff| 0.1250
+fold  5 test seed 1: fused clean | max |logit diff| 0.1250
+fold  5 test seed 2: fused clean | max |logit diff| 0.0625
+fold  5: done (27 s elapsed)
+fold  6 val  seed 0: fused clean | max |logit diff| 0.1250
+fold  6 val  seed 1: fused clean | max |logit diff| 0.1250
+fold  6 val  seed 2: fused clean | max |logit diff| 0.1250
+fold  6 test seed 0: fused clean | max |logit diff| 0.1250
+fold  6 test seed 1: fused clean | max |logit diff| 0.0938
+fold  6 test seed 2: fused clean | max |logit diff| 0.1250
+fold  6: done (31 s elapsed)
+fold  7 val  seed 0: fused clean | max |logit diff| 0.1250
+fold  7 val  seed 1: fused clean | max |logit diff| 0.1250
+fold  7 val  seed 2: fused clean | max |logit diff| 0.1250
+fold  7 test seed 0: fused clean | max |logit diff| 0.1250
+fold  7 test seed 1: fused clean | max |logit diff| 0.0625
+fold  7 test seed 2: fused clean | max |logit diff| 0.1250
+fold  7: done (36 s elapsed)
+fold  8 val  seed 0: fused clean | max |logit diff| 0.0625
+fold  8 val  seed 1: fused clean | max |logit diff| 0.1250
+fold  8 val  seed 2: fused clean | max |logit diff| 0.1250
+fold  8 test seed 0: fused clean | max |logit diff| 0.1250
+fold  8 test seed 1: fused clean | max |logit diff| 0.1250
+fold  8 test seed 2: fused clean | max |logit diff| 0.1250
+fold  8: done (40 s elapsed)
+fold  9 val  seed 0: fused clean | max |logit diff| 0.1250
+fold  9 val  seed 1: fused clean | max |logit diff| 0.1250
+fold  9 val  seed 2: fused clean | max |logit diff| 0.0625
+fold  9 test seed 0: fused clean | max |logit diff| 0.0625
+fold  9 test seed 1: fused clean | max |logit diff| 0.0625
+fold  9 test seed 2: fused clean | max |logit diff| 0.0625
+fold  9: done (45 s elapsed)
+fold 10 val  seed 0: fused clean | max |logit diff| 0.0625
+fold 10 val  seed 1: fused clean | max |logit diff| 0.0625
+fold 10 val  seed 2: fused clean | max |logit diff| 0.0625
+fold 10 test seed 0: fused clean | max |logit diff| 0.0625
+fold 10 test seed 1: fused clean | max |logit diff| 0.0625
+fold 10 test seed 2: fused clean | max |logit diff| 0.0625
+fold 10: done (49 s elapsed)
+fold 11 val  seed 0: fused clean | max |logit diff| 0.0625
+fold 11 val  seed 1: fused clean | max |logit diff| 0.0625
+fold 11 val  seed 2: fused clean | max |logit diff| 0.0625
+fold 11 test seed 0: fused clean | max |logit diff| 0.1250
+fold 11 test seed 1: fused clean | max |logit diff| 0.1250
+fold 11 test seed 2: fused clean | max |logit diff| 0.0625
+fold 11: done (54 s elapsed)
+fold 12 val  seed 0: fused clean | max |logit diff| 0.0938
+fold 12 val  seed 1: fused clean | max |logit diff| 0.0625
+fold 12 val  seed 2: fused clean | max |logit diff| 0.0625
+fold 12 test seed 0: fused clean | max |logit diff| 0.0625
+fold 12 test seed 1: fused clean | max |logit diff| 0.1250
+fold 12 test seed 2: fused clean | max |logit diff| 0.0625
+fold 12: done (59 s elapsed)
+fold 13 val  seed 0: fused clean | max |logit diff| 0.1250
+fold 13 val  seed 1: fused clean | max |logit diff| 0.1250
+fold 13 val  seed 2: fused clean | max |logit diff| 0.1250
+fold 13 test seed 0: fused clean | max |logit diff| 0.1250
+fold 13 test seed 1: fused clean | max |logit diff| 0.1250
+fold 13 test seed 2: fused clean | max |logit diff| 0.1250
+fold 13: done (63 s elapsed)
+fold 14 val  seed 0: fused clean | max |logit diff| 0.0625
+fold 14 val  seed 1: fused clean | max |logit diff| 0.0625
+fold 14 val  seed 2: fused clean | max |logit diff| 0.1250
+fold 14 test seed 0: fused clean | max |logit diff| 0.1250
+fold 14 test seed 1: fused clean | max |logit diff| 0.0625
+fold 14 test seed 2: fused clean | max |logit diff| 0.0625
+fold 14: done (68 s elapsed)
+fold 15 val  seed 0: fused clean | max |logit diff| 0.1250
+fold 15 val  seed 1: fused clean | max |logit diff| 0.1250
+fold 15 val  seed 2: fused clean | max |logit diff| 0.1250
+fold 15 test seed 0: fused clean | max |logit diff| 0.1250
+fold 15 test seed 1: fused clean | max |logit diff| 0.0625
+fold 15 test seed 2: fused clean | max |logit diff| 0.1250
+fold 15: done (72 s elapsed)
+fold 16 val  seed 0: fused clean | max |logit diff| 0.1250
+fold 16 val  seed 1: fused clean | max |logit diff| 0.1250
+fold 16 val  seed 2: fused clean | max |logit diff| 0.0625
+fold 16 test seed 0: fused clean | max |logit diff| 0.0625
+fold 16 test seed 1: fused clean | max |logit diff| 0.1250
+fold 16 test seed 2: fused clean | max |logit diff| 0.0625
+fold 16: done (77 s elapsed)
+fold 17 val  seed 0: fused clean | max |logit diff| 0.1250
+fold 17 val  seed 1: fused clean | max |logit diff| 0.1250
+fold 17 val  seed 2: fused clean | max |logit diff| 0.0625
+fold 17 test seed 0: fused clean | max |logit diff| 0.1250
+fold 17 test seed 1: fused clean | max |logit diff| 0.0625
+fold 17 test seed 2: fused clean | max |logit diff| 0.0625
+fold 17: done (81 s elapsed)
+fold 18 val  seed 0: fused clean | max |logit diff| 0.0625
+fold 18 val  seed 1: fused clean | max |logit diff| 0.1250
+fold 18 val  seed 2: fused clean | max |logit diff| 0.0625
+fold 18 test seed 0: fused clean | max |logit diff| 0.0625
+fold 18 test seed 1: fused clean | max |logit diff| 0.0625
+fold 18 test seed 2: fused clean | max |logit diff| 0.0625
+fold 18: done (86 s elapsed)
+fold 19 val  seed 0: fused clean | max |logit diff| 0.0625
+fold 19 val  seed 1: fused clean | max |logit diff| 0.0625
+fold 19 val  seed 2: fused clean | max |logit diff| 0.1250
+fold 19 test seed 0: fused clean | max |logit diff| 0.0625
+fold 19 test seed 1: fused clean | max |logit diff| 0.0625
+fold 19 test seed 2: fused clean | max |logit diff| 0.0625
+fold 19: done (90 s elapsed)
+
+SANITY (d2, test part) -> results/certificate/experts_d2_all_s0-1-2.parquet
+                   exp_disagree  exp_js
+condition                              
+clean                     0.524   0.319
+s_swap:watch              0.963   0.638
+c_swap_same:watch         0.536   0.326
+h_all:watch               0.530   0.321
+s_swap:phone              0.949   0.628
+c_swap_same:phone         0.532   0.327
+h_all:phone               0.525   0.321

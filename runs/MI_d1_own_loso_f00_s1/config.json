@@ -1,0 +1,26 @@
+{
+  "dataset": "d1",
+  "version": "own",
+  "fold": 0,
+  "seed": 1,
+  "k": 16,
+  "epochs": 60,
+  "patience": 15,
+  "bs": 32,
+  "lr": 0.0003,
+  "wd": 0.05,
+  "anchors_per_epoch": 0,
+  "log_every": 0,
+  "smoke": false,
+  "exp_id": "MI_d1_own_loso_f00_s1",
+  "modalities": [
+    "video",
+    "skel",
+    "imu"
+  ],
+  "pos_stretch_p": 0.5,
+  "val_seed": 12345,
+  "git_sha": "f288d8ce45f55d04d6e551ba80bd1491f924b6e7",
+  "git_dirty": false,
+  "trainable": 1549633
+}

@@ -1,0 +1,26 @@
+{
+  "model": "b4s",
+  "dataset": "d2",
+  "fold": 11,
+  "seed": 2,
+  "epochs": 60,
+  "patience": 15,
+  "bs": 32,
+  "lr": 0.0003,
+  "wd": 0.05,
+  "d": 128,
+  "layers": 2,
+  "smoke": false,
+  "shuffle_labels": false,
+  "exp_id": "BASE_d2_b4s_loso_f11_s2",
+  "modalities": [
+    "watch",
+    "phone"
+  ],
+  "config_tag": "defaults_v0",
+  "data": "mmact_sensor_v1",
+  "video_features": null,
+  "split": "mmact_loso_v1",
+  "git_sha": "2f8ed053400d05eb79cd283277c9132f5178a4d6",
+  "git_dirty": false
+}

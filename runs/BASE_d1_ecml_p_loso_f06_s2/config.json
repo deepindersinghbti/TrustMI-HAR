@@ -1,0 +1,27 @@
+{
+  "model": "ecml_p",
+  "dataset": "d1",
+  "fold": 6,
+  "seed": 2,
+  "epochs": 60,
+  "patience": 15,
+  "bs": 32,
+  "lr": 0.003,
+  "wd": 1e-05,
+  "d": 128,
+  "layers": 2,
+  "smoke": false,
+  "shuffle_labels": false,
+  "exp_id": "BASE_d1_ecml_p_loso_f06_s2",
+  "modalities": [
+    "video",
+    "skel",
+    "imu"
+  ],
+  "config_tag": "defaults_v0",
+  "data": "utd_mhad_v1",
+  "video_features": "video_r2plus1d18_v1",
+  "split": "utd_mhad_loso_v1",
+  "git_sha": "67881fe801a9e8f6947013ae88c1473b37e30caf",
+  "git_dirty": false
+}

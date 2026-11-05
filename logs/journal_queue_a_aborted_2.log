@@ -1,0 +1,17 @@
+START A 2026-11-05T13:02:10+05:30 at 6b1e059
+BASE_d1v2_b4_noimu_loso_f01_s1: best epoch 21 | test acc 0.704 macro-F1 0.652 | 6s
+BASE_d1v2_b4_noimu_loso_f02_s1: best epoch  8 | test acc 0.731 macro-F1 0.697 | 4s
+BASE_d1v2_b4_noimu_loso_f03_s1: best epoch 32 | test acc 0.704 macro-F1 0.670 | 7s
+BASE_d1v2_b4_noimu_loso_f04_s1: best epoch 22 | test acc 0.769 macro-F1 0.731 | 6s
+BASE_d1v2_b4_noimu_loso_f05_s1: best epoch  9 | test acc 0.776 macro-F1 0.736 | 4s
+BASE_d1v2_b4_noimu_loso_f06_s1: best epoch 15 | test acc 0.741 macro-F1 0.700 | 5s
+BASE_d1v2_b4_noimu_loso_f07_s1: best epoch  6 | test acc 0.757 macro-F1 0.725 | 4s
+BASE_d1v2_b4_noimu_loso_f00_s2: best epoch  8 | test acc 0.850 macro-F1 0.832 | 4s
+BASE_d1v2_b4_noimu_loso_f01_s2: best epoch 35 | test acc 0.694 macro-F1 0.656 | 8s
+BASE_d1v2_b4_noimu_loso_f02_s2: best epoch 15 | test acc 0.787 macro-F1 0.765 | 5s
+BASE_d1v2_b4_noimu_loso_f03_s2: best epoch 22 | test acc 0.704 macro-F1 0.657 | 6s
+BASE_d1v2_b4_noimu_loso_f04_s2: best epoch 13 | test acc 0.778 macro-F1 0.736 | 5s
+BASE_d1v2_b4_noimu_loso_f05_s2: best epoch  8 | test acc 0.692 macro-F1 0.658 | 4s
+BASE_d1v2_b4_noimu_loso_f06_s2: best epoch  9 | test acc 0.704 macro-F1 0.671 | 4s
+BASE_d1v2_b4_noimu_loso_f07_s2: best epoch  5 | test acc 0.794 macro-F1 0.762 | 3s
+BASE_d1v2_b4_noskel_loso_f00_s0: best epoch  9 | test acc 0.953 macro-F1 0.947 | 4s

@@ -1,0 +1,141 @@
+fold  0 seed 0: clean acc 0.631 | max |logit diff| 0.1250 (median 0.00195) | 423/423 preds identical
+fold  0 seed 1: clean acc 0.622 | max |logit diff| 0.1250 (median 0.00342) | 422/423 preds identical, changed preds had stored top-2 gaps [0.0312]
+fold  0 seed 2: clean acc 0.622 | max |logit diff| 0.0625 (median 0.00000) | 423/423 preds identical
+fold  0: r_mask hides ['watch', 'phone'] completely (all seeds)
+fold  0: done (6 s elapsed)
+fold  1 seed 0: clean acc 0.769 | max |logit diff| 0.0625 (median 0.00000) | 294/294 preds identical
+fold  1 seed 1: clean acc 0.786 | max |logit diff| 0.0625 (median 0.00000) | 293/294 preds identical, changed preds had stored top-2 gaps [0.0312]
+fold  1 seed 2: clean acc 0.820 | max |logit diff| 0.1250 (median 0.00000) | 294/294 preds identical
+fold  1: r_mask hides ['watch', 'phone'] completely (all seeds)
+fold  1: done (10 s elapsed)
+fold  2 seed 0: clean acc 0.937 | max |logit diff| 0.1250 (median 0.00293) | 429/429 preds identical
+fold  2 seed 1: clean acc 0.923 | max |logit diff| 0.1250 (median 0.00195) | 429/429 preds identical
+fold  2 seed 2: clean acc 0.937 | max |logit diff| 0.0625 (median 0.00195) | 429/429 preds identical
+fold  2: r_mask hides ['watch', 'phone'] completely (all seeds)
+fold  2: done (16 s elapsed)
+fold  3 seed 0: clean acc 0.642 | max |logit diff| 0.1250 (median 0.00195) | 433/433 preds identical
+fold  3 seed 1: clean acc 0.628 | max |logit diff| 0.1250 (median 0.00195) | 433/433 preds identical
+fold  3 seed 2: clean acc 0.617 | max |logit diff| 0.0625 (median 0.00098) | 433/433 preds identical
+fold  3: r_mask hides ['watch', 'phone'] completely (all seeds)
+fold  3: done (21 s elapsed)
+fold  4 seed 0: clean acc 0.886 | max |logit diff| 0.1250 (median 0.00195) | 430/430 preds identical
+fold  4 seed 1: clean acc 0.891 | max |logit diff| 0.1250 (median 0.00391) | 430/430 preds identical
+fold  4 seed 2: clean acc 0.916 | max |logit diff| 0.1250 (median 0.00195) | 430/430 preds identical
+fold  4: r_mask hides ['watch', 'phone'] completely (all seeds)
+fold  4: done (26 s elapsed)
+fold  5 seed 0: clean acc 0.864 | max |logit diff| 0.1250 (median 0.00391) | 433/433 preds identical
+fold  5 seed 1: clean acc 0.831 | max |logit diff| 0.1250 (median 0.00195) | 433/433 preds identical
+fold  5 seed 2: clean acc 0.868 | max |logit diff| 0.0625 (median 0.00195) | 433/433 preds identical
+fold  5: r_mask hides ['watch', 'phone'] completely (all seeds)
+fold  5: done (32 s elapsed)
+fold  6 seed 0: clean acc 0.741 | max |logit diff| 0.1250 (median 0.00391) | 421/421 preds identical
+fold  6 seed 1: clean acc 0.694 | max |logit diff| 0.0938 (median 0.00195) | 421/421 preds identical
+fold  6 seed 2: clean acc 0.789 | max |logit diff| 0.1250 (median 0.00391) | 421/421 preds identical
+fold  6: r_mask hides ['watch', 'phone'] completely (all seeds)
+fold  6: done (37 s elapsed)
+fold  7 seed 0: clean acc 0.768 | max |logit diff| 0.1250 (median 0.00195) | 426/426 preds identical
+fold  7 seed 1: clean acc 0.791 | max |logit diff| 0.0625 (median 0.00098) | 426/426 preds identical
+fold  7 seed 2: clean acc 0.786 | max |logit diff| 0.1250 (median 0.00195) | 426/426 preds identical
+fold  7: r_mask hides ['watch', 'phone'] completely (all seeds)
+fold  7: done (42 s elapsed)
+fold  8 seed 0: clean acc 0.752 | max |logit diff| 0.1250 (median 0.00195) | 415/415 preds identical
+fold  8 seed 1: clean acc 0.769 | max |logit diff| 0.1250 (median 0.00391) | 414/415 preds identical, changed preds had stored top-2 gaps [0.0312]
+fold  8 seed 2: clean acc 0.761 | max |logit diff| 0.1250 (median 0.00195) | 415/415 preds identical
+fold  8: r_mask hides ['watch', 'phone'] completely (all seeds)
+fold  8: done (48 s elapsed)
+fold  9 seed 0: clean acc 0.782 | max |logit diff| 0.0625 (median 0.00293) | 402/403 preds identical, changed preds had stored top-2 gaps [0.0]
+fold  9 seed 1: clean acc 0.779 | max |logit diff| 0.0625 (median 0.00195) | 402/403 preds identical, changed preds had stored top-2 gaps [0.0625]
+fold  9 seed 2: clean acc 0.764 | max |logit diff| 0.0625 (median 0.00098) | 402/403 preds identical, changed preds had stored top-2 gaps [0.0]
+fold  9: r_mask hides ['watch', 'phone'] completely (all seeds)
+fold  9: done (53 s elapsed)
+fold 10 seed 0: clean acc 0.819 | max |logit diff| 0.0625 (median 0.00098) | 441/441 preds identical
+fold 10 seed 1: clean acc 0.832 | max |logit diff| 0.0625 (median 0.00000) | 441/441 preds identical
+fold 10 seed 2: clean acc 0.782 | max |logit diff| 0.0625 (median 0.00000) | 441/441 preds identical
+fold 10: r_mask hides ['watch', 'phone'] completely (all seeds)
+fold 10: done (58 s elapsed)
+fold 11 seed 0: clean acc 0.659 | max |logit diff| 0.1250 (median 0.00195) | 445/446 preds identical, changed preds had stored top-2 gaps [0.0]
+fold 11 seed 1: clean acc 0.643 | max |logit diff| 0.1250 (median 0.00195) | 445/446 preds identical, changed preds had stored top-2 gaps [0.0]
+fold 11 seed 2: clean acc 0.621 | max |logit diff| 0.0625 (median 0.00195) | 446/446 preds identical
+fold 11: r_mask hides ['watch', 'phone'] completely (all seeds)
+fold 11: done (64 s elapsed)
+fold 12 seed 0: clean acc 0.809 | max |logit diff| 0.0625 (median 0.00000) | 433/434 preds identical, changed preds had stored top-2 gaps [0.0]
+fold 12 seed 1: clean acc 0.839 | max |logit diff| 0.1250 (median 0.00195) | 434/434 preds identical
+fold 12 seed 2: clean acc 0.790 | max |logit diff| 0.0625 (median 0.00000) | 434/434 preds identical
+fold 12: r_mask hides ['watch', 'phone'] completely (all seeds)
+fold 12: done (69 s elapsed)
+fold 13 seed 0: clean acc 0.926 | max |logit diff| 0.1250 (median 0.00195) | 462/462 preds identical
+fold 13 seed 1: clean acc 0.937 | max |logit diff| 0.1250 (median 0.00195) | 462/462 preds identical
+fold 13 seed 2: clean acc 0.924 | max |logit diff| 0.1250 (median 0.00195) | 462/462 preds identical
+fold 13: r_mask hides ['watch', 'phone'] completely (all seeds)
+fold 13: done (75 s elapsed)
+fold 14 seed 0: clean acc 0.788 | max |logit diff| 0.1250 (median 0.00195) | 444/444 preds identical
+fold 14 seed 1: clean acc 0.775 | max |logit diff| 0.0625 (median 0.00000) | 444/444 preds identical
+fold 14 seed 2: clean acc 0.773 | max |logit diff| 0.0625 (median 0.00000) | 444/444 preds identical
+fold 14: r_mask hides ['watch', 'phone'] completely (all seeds)
+fold 14: done (81 s elapsed)
+fold 15 seed 0: clean acc 0.866 | max |logit diff| 0.1250 (median 0.00391) | 397/397 preds identical
+fold 15 seed 1: clean acc 0.861 | max |logit diff| 0.0625 (median 0.00281) | 397/397 preds identical
+fold 15 seed 2: clean acc 0.902 | max |logit diff| 0.1250 (median 0.00195) | 397/397 preds identical
+fold 15: r_mask hides ['watch', 'phone'] completely (all seeds)
+fold 15: done (86 s elapsed)
+fold 16 seed 0: clean acc 0.829 | max |logit diff| 0.0625 (median 0.00024) | 457/457 preds identical
+fold 16 seed 1: clean acc 0.877 | max |logit diff| 0.1250 (median 0.00317) | 457/457 preds identical
+fold 16 seed 2: clean acc 0.836 | max |logit diff| 0.0625 (median 0.00000) | 457/457 preds identical
+fold 16: r_mask hides ['watch', 'phone'] completely (all seeds)
+fold 16: done (92 s elapsed)
+fold 17 seed 0: clean acc 0.664 | max |logit diff| 0.1250 (median 0.00391) | 456/456 preds identical
+fold 17 seed 1: clean acc 0.634 | max |logit diff| 0.0625 (median 0.00000) | 455/456 preds identical, changed preds had stored top-2 gaps [0.0312]
+fold 17 seed 2: clean acc 0.647 | max |logit diff| 0.0625 (median 0.00000) | 456/456 preds identical
+fold 17: r_mask hides ['watch', 'phone'] completely (all seeds)
+fold 17: done (97 s elapsed)
+fold 18 seed 0: clean acc 0.900 | max |logit diff| 0.0625 (median 0.00195) | 430/430 preds identical
+fold 18 seed 1: clean acc 0.891 | max |logit diff| 0.0625 (median 0.00098) | 430/430 preds identical
+fold 18 seed 2: clean acc 0.912 | max |logit diff| 0.0625 (median 0.00098) | 430/430 preds identical
+fold 18: r_mask hides ['watch', 'phone'] completely (all seeds)
+fold 18: done (103 s elapsed)
+fold 19 seed 0: clean acc 0.753 | max |logit diff| 0.0625 (median 0.00000) | 396/397 preds identical, changed preds had stored top-2 gaps [0.0312]
+fold 19 seed 1: clean acc 0.771 | max |logit diff| 0.0625 (median 0.00000) | 397/397 preds identical
+fold 19 seed 2: clean acc 0.786 | max |logit diff| 0.0625 (median 0.00195) | 396/397 preds identical, changed preds had stored top-2 gaps [0.0]
+fold 19: r_mask hides ['watch', 'phone'] completely (all seeds)
+fold 19: done (108 s elapsed)
+
+SUMMARY (d2 b4s, folds all, seeds [0, 1, 2]) -> results/operators/A3_d2_b4s_all_s0-1-2.parquet
+                              n    acc   flip  follows_donor   conf  conf_drop
+target op          level                                                      
+watch  clean       0      25413  0.790  0.000            NaN  0.931      0.000
+       h_jitter    1      25413  0.790  0.004            NaN  0.931      0.000
+                   2      25413  0.791  0.010            NaN  0.931     -0.000
+                   3      25413  0.790  0.023            NaN  0.931      0.000
+       h_gain      1      25413  0.790  0.006            NaN  0.931     -0.000
+                   2      25413  0.790  0.012            NaN  0.931     -0.000
+                   3      25413  0.789  0.025            NaN  0.932     -0.000
+       h_rotate    1      25413  0.790  0.009            NaN  0.931      0.000
+                   2      25413  0.789  0.023            NaN  0.931      0.000
+                   3      25413  0.784  0.047            NaN  0.929      0.002
+       h_all       1      25413  0.789  0.012            NaN  0.931     -0.000
+                   2      25413  0.789  0.028            NaN  0.930      0.001
+                   3      25413  0.780  0.064            NaN  0.928      0.003
+       s_swap      0      25413  0.228  0.734          0.305  0.851      0.080
+       c_swap_same 0      25413  0.787  0.163            NaN  0.930      0.002
+       r_fill      0      25413  0.263  0.712            NaN  0.730      0.201
+       r_mask      0      25413  0.353  0.587            NaN  0.838      0.093
+phone  clean       0      25413  0.790  0.000            NaN  0.931      0.000
+       h_jitter    1      25413  0.790  0.002            NaN  0.931      0.000
+                   2      25413  0.791  0.005            NaN  0.931     -0.000
+                   3      25413  0.790  0.011            NaN  0.931      0.000
+       h_gain      1      25413  0.790  0.004            NaN  0.931      0.000
+                   2      25413  0.790  0.009            NaN  0.931     -0.000
+                   3      25413  0.790  0.016            NaN  0.931      0.000
+       h_rotate    1      25413  0.790  0.008            NaN  0.931     -0.000
+                   2      25413  0.791  0.019            NaN  0.931     -0.000
+                   3      25413  0.788  0.042            NaN  0.930      0.002
+       h_angle     1      25413  0.790  0.013            NaN  0.931      0.000
+                   2      25413  0.790  0.029            NaN  0.931      0.001
+                   3      25413  0.781  0.062            NaN  0.928      0.003
+       h_all       1      25413  0.791  0.016            NaN  0.931     -0.000
+                   2      25413  0.788  0.039            NaN  0.930      0.002
+                   3      25413  0.774  0.085            NaN  0.925      0.006
+       s_swap      0      25413  0.369  0.596          0.185  0.853      0.078
+       c_swap_same 0      25413  0.789  0.152            NaN  0.930      0.001
+       r_fill      0      25413  0.358  0.631            NaN  0.752      0.179
+       r_mask      0      25413  0.437  0.539            NaN  0.806      0.125

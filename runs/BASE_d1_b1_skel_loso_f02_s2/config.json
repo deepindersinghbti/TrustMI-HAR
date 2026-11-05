@@ -1,0 +1,24 @@
+{
+  "model": "b1_skel",
+  "fold": 2,
+  "seed": 2,
+  "epochs": 60,
+  "patience": 15,
+  "bs": 32,
+  "lr": 0.0003,
+  "wd": 0.05,
+  "d": 128,
+  "layers": 2,
+  "smoke": false,
+  "shuffle_labels": false,
+  "exp_id": "BASE_d1_b1_skel_loso_f02_s2",
+  "modalities": [
+    "skel"
+  ],
+  "config_tag": "defaults_v0",
+  "data": "utd_mhad_v1",
+  "video_features": "video_r2plus1d18_v1",
+  "split": "utd_mhad_loso_v1",
+  "git_sha": "4f5ef9d4802146431d14584b78dd8b0d62ef242b",
+  "git_dirty": false
+}

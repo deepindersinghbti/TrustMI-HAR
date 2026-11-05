@@ -1,0 +1,25 @@
+{
+  "model": "b1_phone",
+  "dataset": "d2",
+  "fold": 12,
+  "seed": 0,
+  "epochs": 60,
+  "patience": 15,
+  "bs": 32,
+  "lr": 0.0003,
+  "wd": 0.05,
+  "d": 128,
+  "layers": 2,
+  "smoke": false,
+  "shuffle_labels": false,
+  "exp_id": "BASE_d2_b1_phone_loso_f12_s0",
+  "modalities": [
+    "phone"
+  ],
+  "config_tag": "defaults_v0",
+  "data": "mmact_sensor_v1",
+  "video_features": null,
+  "split": "mmact_loso_v1",
+  "git_sha": "2f8ed053400d05eb79cd283277c9132f5178a4d6",
+  "git_dirty": false
+}
