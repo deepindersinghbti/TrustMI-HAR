@@ -9,6 +9,8 @@
 \usepackage{multirow}
 \usepackage{textcomp}
 \usepackage{xcolor}
+\usepackage{orcidlink}
+\hypersetup{hidelinks}
 
 % Figure placeholder: reserves space only. Replace each with \includegraphics once the figure PDF exists.
 \newcommand{\figplaceholder}[2]{\fbox{\parbox[c][#1][c]{0.95\linewidth}{\centering\small Placeholder: #2}}}
@@ -17,21 +19,37 @@
 
 \title{TrustMI-HAR: Witness and Mutual-Information Certificates for Detecting and Naming a Misleading Sensor in Multimodal Human Activity Recognition}
 
-\author{\IEEEauthorblockN{Author Name 1}
-\IEEEauthorblockA{Department, Institution\\
-City, Country\\
-email@institution}
-\and
-\IEEEauthorblockN{Author Name 2}
-\IEEEauthorblockA{Department, Institution\\
-City, Country\\
-email@institution}
+\author{
+\IEEEauthorblockN{
+Deepinder Singh\,\orcidlink{0009-0005-7238-3930}\IEEEauthorrefmark{1},
+Vishwanath Bijalwan\,\orcidlink{0000-0002-8661-5430}\IEEEauthorrefmark{1},
+Raj Kumar\IEEEauthorrefmark{1},\\
+Vijay Bhaskar Semwal\,\orcidlink{0000-0003-0767-6057}\IEEEauthorrefmark{2},
+and Youngshik Kim\IEEEauthorrefmark{3}
+}
+\IEEEauthorblockA{
+\IEEEauthorrefmark{1}Amity School of Engineering \& Technology,
+Amity University Punjab, Mohali, India
+}
+\IEEEauthorblockA{
+\IEEEauthorrefmark{2}Maulana Azad National Institute of Technology,
+Bhopal, Madhya Pradesh, India\\
+\texttt{vsemwal@gmail.com}
+}
+\IEEEauthorblockA{
+\IEEEauthorrefmark{3}Department of Mechanical Engineering,
+Hanbat National University, Daejeon, South Korea
+}
+\IEEEauthorblockA{
+Corresponding author: Vishwanath Bijalwan
+(\texttt{vishwanath.bijalwan@gmail.com})
+}
 }
 
 \maketitle
 
 \begin{abstract}
-Multimodal human activity recognition (HAR) systems are usually trusted more when their sensors agree. We show that this trust is misplaced when one sensor carries a real but wrong recording. On UTD-MHAD, replacing one of three sensors with the same person's recording of a different action lowers a fusion transformer from 95.0\% to 60.9\% accuracy, and its confidence barely separates these clips from normal ones (AUROC 0.728). We propose TrustMI-HAR, a per-prediction certificate that checks the fused answer with unimodal witness models, each trained on one sensor, and with a label-free contrastive matcher that estimates the pointwise mutual information (MI) between every pair of sensors of the clip. It combines confidence, witness disagreement and support, and the lowest pairwise MI into a trust score, names the suspected sensor, and decides whether to use the answer, drop that sensor, or abstain, with all choices fitted on validation subjects under leave-one-subject-out evaluation. On UTD-MHAD (8 subjects, 3 sensors) and MMAct (20 subjects, 2 sensors), the certificate detects planted lies with AUROC 0.907 and 0.908, against 0.842 and 0.688 for trusted multi-view classification (TMC) and 0.832 and 0.688 for evidential conflictive multi-view learning (ECML); adding MI to the witnesses improves detection for 7 of 8 and 20 of 20 test subjects. It names the lying sensor in 81.4\% of UTD-MHAD lie clips (chance 33.3\%; TMC 74.1\%). Applied on top of TMC without retraining it, the certificate raises accuracy on UTD-MHAD lie clips from 74.9\% to 77.9\% and lie detection on MMAct from 0.688 to 0.907. MI does not help to detect the fused model's natural mistakes, which occur while the sensors agree.
+Multimodal human activity recognition (HAR) systems are usually trusted more when their sensors agree. We show that this trust is misplaced when one sensor carries a real but wrong recording: on UTD-MHAD, replacing one of three sensors with the same person's recording of a different action lowers a fusion transformer from 95.0\% to 60.9\% accuracy, while its confidence barely flags these clips (AUROC 0.728). We propose TrustMI-HAR, a per-prediction certificate that checks the fused answer with unimodal witness models and with a label-free contrastive estimate of the pointwise mutual information (MI) between every pair of sensors. It combines confidence, witness disagreement and support, and the lowest pairwise MI into a trust score, names the suspected sensor, and decides whether to use the answer, drop that sensor, or abstain; all choices are fitted on validation subjects under leave-one-subject-out evaluation. On UTD-MHAD and MMAct, the certificate detects planted lies with AUROC 0.907 and 0.908, against 0.842 and 0.688 for trusted multi-view classification (TMC) and 0.832 and 0.688 for evidential conflictive multi-view learning (ECML); adding MI to the witnesses improves detection for 27 of 28 test subjects. It names the lying sensor in 81.4\% of UTD-MHAD lie clips (chance 33.3\%). On top of TMC, it raises accuracy on UTD-MHAD lie clips from 74.9\% to 77.9\% and lie detection on MMAct from 0.688 to 0.907. MI does not help to detect the fused model's natural mistakes, which occur while the sensors agree.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -39,10 +57,10 @@ human activity recognition, multimodal fusion, sensor fault detection, uncertain
 \end{IEEEkeywords}
 
 \section{Introduction}
+Human Activity Recognition (HAR) is the automated identification of activities such as walking, sitting, and climbing stairs from wearable sensor signals or video recordings\cite{T1,T2}. By tracking when and how often these activities occur, HAR can help monitor daily mobility and assess changes in activity patterns during rehabilitation\cite{T3,T4,T5}.
+Wearable and camera-based sensors are combined in HAR because each sensor fails in different situations \cite{Ref1,Ref2,Ref3}. A common assumption behind such fusion is that agreement between sensors is a sign of a reliable answer and that more sensors make the system safer. That assumption breaks when one sensor delivers a recording that is valid as a signal but describes a different action, for example a swapped, mislabeled, delayed or tampered stream. Such a recording is not noise and is not missing; it is confident evidence for the wrong class.
 
-Wearable and camera-based sensors are combined in HAR because each sensor fails in different situations \cite{wang2019survey,chen2015utd,kong2019mmact}. A common assumption behind such fusion is that agreement between sensors is a sign of a reliable answer and that more sensors make the system safer. That assumption breaks when one sensor delivers a recording that is valid as a signal but describes a different action, for example a swapped, mislabeled, delayed or tampered stream. Such a recording is not noise and is not missing; it is confident evidence for the wrong class.
-
-We study this case directly. In our experiments a fusion transformer trained on UTD-MHAD is right on 95.0\% of normal clips but only 60.9\% of clips in which one sensor carries the same subject's recording of a different action. Its maximum softmax probability (MSP), the standard confidence score \cite{hendrycks2017baseline}, separates these lie clips from normal ones with an AUROC of only 0.728. The uncertainty of evidential multi-view methods \cite{sensoy2018evidential,han2021tmc,xu2024ecml} is designed to rise when views conflict, yet in our tests it also leaves much of the gap open.
+In our experiments a fusion transformer on UTD-MHAD is right on 95.0\% of normal clips but only 60.9\% of clips in which one sensor carries the same subject's recording of a different action, and its maximum softmax probability (MSP) \cite{Ref4} separates these clips from normal ones with an AUROC of only 0.728. The uncertainty of evidential multi-view methods \cite{Ref5,Ref6,Ref7} is designed to rise when views conflict, yet it also leaves much of this gap open.
 
 We propose TrustMI-HAR, a certificate that accompanies every prediction of a multimodal model. It uses two kinds of evidence that the other sensors cannot influence: unimodal witnesses, one small model per sensor, which report the action each sensor shows, and a contrastive matcher, trained without action labels to recognize which recordings of different sensors belong together, which estimates the pointwise mutual information (MI) of each sensor pair of a clip. Sensors of one activity share much information on average, which fusion exploits; but high MI on average is not enough, since the fused model never checks it clip by clip, and a substituted stream shares little information with the rest. The certificate answers three questions: should this answer be trusted, which sensor is the likely cause if not, and should the system use the answer, drop that sensor, or abstain. It needs no change to the main model, so it can also be placed on top of an existing trust-aware fusion method.
 
@@ -50,25 +68,25 @@ Our contributions are as follows.
 \begin{itemize}
 \item A counterfactual test bench for multimodal HAR with a semantic swap (the lie) and two controls that keep the meaning fixed (a same-action swap and physically bounded harmless perturbations), so that detection of meaning conflicts can be separated from sensitivity to any change.
 \item A certificate built from unimodal witnesses and a label-free contrastive estimate of pointwise cross-sensor MI, which detects a misleading sensor, names it, and maps the result to a use, drop or abstain decision, with every threshold and weight fitted on validation subjects only.
-\item A leave-one-subject-out evaluation on UTD-MHAD and MMAct against confidence baselines and against TMC \cite{han2021tmc} and ECML \cite{xu2024ecml}, re-implemented and checked numerically against the authors' code, including the certificate applied on top of TMC and an ablation that separates the contribution of MI from that of the witnesses.
+\item A leave-one-subject-out evaluation on UTD-MHAD and MMAct against confidence baselines and against TMC \cite{Ref6} and ECML \cite{Ref7}, re-implemented and checked numerically against the authors' code, including the certificate applied on top of TMC and an ablation that separates the contribution of MI from that of the witnesses.
 \end{itemize}
 
 \section{Related Work}
 
 \subsection{Multimodal HAR}
-Deep models for sensor-based HAR are reviewed in \cite{wang2019survey}. UTD-MHAD \cite{chen2015utd} provides synchronized video, skeleton and inertial data, and MMAct \cite{kong2019mmact} provides video, keypoints, acceleration, gyroscope and orientation for 20 subjects. Work on these datasets has mostly aimed at accuracy under clean conditions.
+Deep models for sensor-based HAR are reviewed in \cite{Ref1}. UTD-MHAD \cite{Ref2} provides synchronized video, skeleton and inertial data, and MMAct \cite{Ref3} provides video, keypoints, acceleration, gyroscope and orientation for 20 subjects. Work on these datasets has mostly aimed at accuracy under clean conditions.
 
 \subsection{Robustness of fusion to a faulty source}
-Ma et al. \cite{ma2022missing} showed that multimodal transformers are sensitive to missing modalities. Yang et al. \cite{yang2021defending} showed that fusion models can be broken by an adversarial perturbation of a single source and proposed a robust fusion layer trained with an odd-one-out network. Our setting differs in two ways: the faulty input is a real recording of another action rather than a norm-bounded perturbation, and our certificate is computed at test time from separately trained unimodal models without retraining or modifying the fused model.
+Ma et al. \cite{Ref8} showed that multimodal transformers are sensitive to missing modalities. Yang et al. \cite{Ref9} showed that fusion models can be broken by an adversarial perturbation of a single source and proposed a robust fusion layer trained with an odd-one-out network. Our setting differs in two ways: the faulty input is a real recording of another action rather than a norm-bounded perturbation, and our certificate is computed at test time from separately trained unimodal models without retraining or modifying the fused model.
 
 \subsection{Uncertainty-aware fusion}
-Evidential deep learning \cite{sensoy2018evidential} places a Dirichlet distribution on class probabilities. TMC \cite{han2021tmc} combines per-view Dirichlet opinions with Dempster's rule, and ECML \cite{xu2024ecml} averages per-view evidence and adds a conflict term during training. Quality-aware fusion \cite{zhang2023qmf} weights modalities by estimated uncertainty. These methods change how views are fused; our certificate instead judges the output of any fused model and points to the responsible sensor.
+Evidential deep learning \cite{Ref5} places a Dirichlet distribution on class probabilities. TMC \cite{Ref6} combines per-view Dirichlet opinions with Dempster's rule, and ECML \cite{Ref7} averages per-view evidence and adds a conflict term during training. Quality-aware fusion \cite{Ref10} weights modalities by estimated uncertainty. These methods change how views are fused; our certificate instead judges the output of any fused model and points to the responsible sensor.
 
 \subsection{Mutual information estimation}
-Contrastive InfoNCE objectives bound the MI between two variables from below \cite{oord2018cpc,poole2019variational} and are widely used to learn which samples of two modalities belong together \cite{radford2021clip}. We use such a critic as a per-clip test of whether the sensors of a clip share the information that real recordings share.
+Contrastive InfoNCE objectives bound the MI between two variables from below \cite{Ref18,Ref19} and are widely used to learn which samples of two modalities belong together \cite{Ref20}. We use such a critic as a per-clip test of whether the sensors of a clip share the information that real recordings share.
 
 \subsection{Error detection and abstention}
-MSP \cite{hendrycks2017baseline}, predictive entropy and the energy score \cite{liu2020energy} are standard label-free scores for detecting errors and unusual inputs, and selective classification \cite{geifman2017selective} abstains on the least confident inputs. We use these as baselines and evaluate abstention at fixed coverage.
+MSP \cite{Ref4}, predictive entropy and the energy score \cite{Ref11} are standard label-free scores for detecting errors and unusual inputs, and selective classification \cite{Ref12} abstains on the least confident inputs. We use these as baselines and evaluate abstention at fixed coverage.
 
 \section{Problem Setting and Counterfactual Test Bench}
 
@@ -91,7 +109,7 @@ Fig.~\ref{fig:pipeline} gives an overview of the certificate.
 For each sensor $m$ we train a witness $g_m$ that sees only $x_m$ and outputs $q_m=g_m(x_m)$. Because a witness never sees the other sensors, a lie in sensor $m$ can change only $q_m$, while the other witnesses still report what their own sensors show.
 
 \subsection{Cross-sensor mutual information}
-For each sensor $m$, an encoder with the witness architecture (without its classification head) and a projection give a unit vector $z_m(x_m)\in\mathbb{R}^{64}$, and $h(x_m,x_n)=z_m^{\top}z_n/t$ scores how well two recordings match, with a learned temperature $t$. The matcher is trained with the InfoNCE loss $\mathcal{L}$ \cite{oord2018cpc}: sensor $m$ of a training clip must pick the clip's own sensor $n$ among $K+1$ candidates, the true partner and $K=16$ recordings of the same subject and recording group of any action, so that the person and the sensor placement cannot reveal a mismatch. On MMAct every candidate is resampled to the clip's length like a lie donor, and with probability 0.5 the true partner is resampled to a random length and back, so that neither length nor resampling reveals a mismatch. No labels are used. The loss bounds the information that two sensors share beyond the person and the group \cite{poole2019variational},
+For each sensor $m$, an encoder with the witness architecture (without its classification head) and a projection give a unit vector $z_m(x_m)\in\mathbb{R}^{64}$, and $h(x_m,x_n)=z_m^{\top}z_n/t$ scores how well two recordings match, with a learned temperature $t$. The matcher is trained with the InfoNCE loss $\mathcal{L}$ \cite{Ref18}: sensor $m$ of a training clip must pick the clip's own sensor $n$ among $K+1$ candidates, the true partner and $K=16$ recordings of the same subject and recording group of any action, so that the person and the sensor placement cannot reveal a mismatch. On MMAct every candidate is resampled to the clip's length like a lie donor, and with probability 0.5 the true partner is resampled to a random length and back, so that neither length nor resampling reveals a mismatch. No labels are used. The loss bounds the information that two sensors share beyond the person and the group \cite{Ref19},
 \begin{equation}
 I(X_m;X_n\mid \text{subject},\text{group})\geq \log(K+1)-\mathcal{L}. \label{eq:bound}
 \end{equation}
@@ -109,7 +127,7 @@ s_2 &= \frac{2}{M(M-1)}\sum_{m<n}\mathrm{JS}(q_m,q_n), \label{eq:s2}\\
 s_3 &= 1-\min_m q_m[\hat{y}], \label{eq:s3}\\
 s_4 &= -\min_{m<n} i_{mn}(x), \label{eq:s4}
 \end{align}
-where $\mathrm{JS}$ is the Jensen-Shannon divergence \cite{lin1991divergence}. $s_1$ is the fused model's own doubt, $s_2$ measures how much the witnesses disagree with each other, $s_3$ is high when at least one witness gives little probability to the fused answer, and $s_4$ is high when some pair of sensors shares little information. $s_2$ is itself an MI: $\mathrm{JS}(q_m,q_n)$ equals the MI between the predicted label and a fair choice between the two witnesses \cite{lin1991divergence}. It compares the witnesses' answers, whereas $s_4$ compares the sensors' contents. The trust score is
+where $\mathrm{JS}$ is the Jensen-Shannon divergence \cite{Ref13}. $s_1$ is the fused model's own doubt, $s_2$ measures how much the witnesses disagree with each other, $s_3$ is high when at least one witness gives little probability to the fused answer, and $s_4$ is high when some pair of sensors shares little information. $s_2$ is itself an MI: $\mathrm{JS}(q_m,q_n)$ equals the MI between the predicted label and a fair choice between the two witnesses \cite{Ref13}. It compares the witnesses' answers, whereas $s_4$ compares the sensors' contents. The trust score is
 \begin{equation}
 T(x)=w_0+\sum_{i=1}^{4} w_i\,\frac{s_i-\mu_i}{\sigma_i},
 \end{equation}
@@ -142,15 +160,15 @@ Because the certificate only reads the main model's output, the fused model $f$ 
 \section{Experimental Setup}
 
 \subsection{Datasets}
-UTD-MHAD \cite{chen2015utd} has 861 trials of 27 actions by 8 subjects. We use three sensors: the inertial unit (3-axis accelerometer and gyroscope, resampled to 100 samples at 50 Hz), the Kinect skeleton (20 joints, 40 frames, centred on the hip and scaled by mean spine length), and RGB video, represented by four 512-dimensional tokens from an R(2+1)D-18 network \cite{tran2018closer} pre-trained on Kinetics-400 \cite{kay2017kinetics} applied to 32 uniformly sampled frames at 112 by 112 pixels. The inertial unit is worn on the right wrist for actions 1 to 21 and on the right thigh for actions 22 to 27.
+UTD-MHAD \cite{Ref2} has 861 trials of 27 actions by 8 subjects. We use three sensors: the inertial unit (3-axis accelerometer and gyroscope, resampled to 100 samples at 50 Hz), the Kinect skeleton (20 joints, 40 frames, centred on the hip and scaled by mean spine length), and RGB video, represented by four 512-dimensional tokens from an R(2+1)D-18 network \cite{Ref14} pre-trained on Kinetics-400 \cite{Ref15} applied to 32 uniformly sampled frames at 112 by 112 pixels. The inertial unit is worn on the right wrist for actions 1 to 21 and on the right thigh for actions 22 to 27.
 
-MMAct \cite{kong2019mmact} (V1, trimmed sensor data) has 35 action classes in our processed version and 20 subjects. We use two sensors: the smartwatch accelerometer (3 channels) and the phone (accelerometer, gyroscope, and sine and cosine of pitch and roll, 10 channels), at 50 Hz in 15 s windows that are centre-cropped or zero-padded with padding masked in the model. After an audit, 8,471 clips with both sensors are used; 247 clips without watch data and 263 clips with inconsistent stream lengths or sampling rates are excluded.
+MMAct \cite{Ref3} (V1, trimmed sensor data) has 35 action classes in our processed version and 20 subjects. We use two sensors: the smartwatch accelerometer (3 channels) and the phone (accelerometer, gyroscope, and sine and cosine of pitch and roll, 10 channels), at 50 Hz in 15 s windows that are centre-cropped or zero-padded with padding masked in the model. After an audit, 8,471 clips with both sensors are used; 247 clips without watch data and 263 clips with inconsistent stream lengths or sampling rates are excluded.
 
 \subsection{Models and training}
-All models share one architecture: per-sensor encoders (three 1-D convolution layers for inertial streams, two-layer MLPs for skeleton frames and video tokens), learned sensor-type and position embeddings, a class token, and a 2-layer pre-norm transformer encoder (width 128, 4 heads) over the tokens of all sensors \cite{vaswani2017attention}. The fused model (B4) uses all sensors; each witness is the same network with one sensor. Training uses AdamW \cite{loshchilov2019adamw} (learning rate $3\times10^{-4}$, weight decay 0.05, batch 32, cosine schedule), at most 60 epochs with early stopping on validation macro-F1 (patience 15), gradient clipping at 1.0, and three random seeds per fold. The MI matcher is trained per fold and seed with the same settings and early stopping on the validation InfoNCE loss; on MMAct each epoch uses 1000 random training clips. As an ablation, the matcher reuses the frozen witness encoders and trains only the projections.
+All models share one architecture: per-sensor encoders (three 1-D convolution layers for inertial streams, two-layer MLPs for skeleton frames and video tokens), learned sensor-type and position embeddings, a class token, and a 2-layer pre-norm transformer encoder (width 128, 4 heads) over the tokens of all sensors \cite{Ref16}. The fused model (B4) uses all sensors; each witness is the same network with one sensor. Training uses AdamW \cite{Ref17} (learning rate $3\times10^{-4}$, weight decay 0.05, batch 32, cosine schedule), at most 60 epochs with early stopping on validation macro-F1 (patience 15), gradient clipping at 1.0, and three random seeds per fold. The MI matcher is trained per fold and seed with the same settings and early stopping on the validation InfoNCE loss; on MMAct each epoch uses 1000 random training clips. As an ablation, the matcher reuses the frozen witness encoders and trains only the projections.
 
 \subsection{Baselines}
-Label-free scores of the fused model: $1-$MSP \cite{hendrycks2017baseline}, entropy, and energy \cite{liu2020energy}. Trust-aware fusion: TMC \cite{han2021tmc} and ECML \cite{xu2024ecml}, re-implemented with the same per-sensor networks as our witnesses. On random inputs our fusion rules matched the official implementations exactly and the losses matched to within $1.5\times10^{-7}$. Each method was also trained with the optimizer settings of its paper; a rule fixed in advance (higher mean validation lie AUROC) selected our shared protocol for both. TMC and ECML are scored with the same procedure as the certificate, using a logistic combination of $1-$MSP, their uncertainty $u$ and their conflict measure, and their best of three naming rules chosen on validation.
+Label-free scores of the fused model: $1-$MSP \cite{Ref4}, entropy, and energy \cite{Ref11}. Trust-aware fusion: TMC \cite{Ref6} and ECML \cite{Ref7}, re-implemented with the same per-sensor networks as our witnesses. On random inputs our fusion rules matched the official implementations exactly and the losses matched to within $1.5\times10^{-7}$. Each method was also trained with the optimizer settings of its paper; a rule fixed in advance (higher mean validation lie AUROC) selected our shared protocol for both. TMC and ECML are scored with the same procedure as the certificate, using a logistic combination of $1-$MSP, their uncertainty $u$ and their conflict measure, and their best of three naming rules chosen on validation.
 
 \subsection{Protocol and metrics}
 We use leave-one-subject-out evaluation: in fold $k$ subject $k$ is the test subject, the next subject is the validation subject, and the rest are used for training. Every weight, threshold, backup and rule is fitted on the validation subject and applied unchanged to the test subject. Results are computed per test subject with the three seeds pooled and summarized as mean and 95\% t-interval across subjects; comparisons use paired per-subject differences and the number of subjects that improve. Lie AUROC treats lie clips as positives and normal, same-action-swap and harmless clips as negatives. On UTD-MHAD lies are planted in each of the three sensors in turn. We also report naming accuracy on lie clips, accuracy on normal and lie clips after the decision step, and accuracy when answering the 80\% least suspicious clips.
@@ -223,7 +241,14 @@ Signals computed inside the fused model (answer stability under harmless perturb
 
 \subsection{Naming the misleading sensor}
 
-Without MI, the odd-one-out rule is chosen on validation in all 8 folds and names the lying sensor in 83.1\% [79.0, 87.2] of UTD-MHAD lie clips (chance 33.3\%): 86.5\% for the inertial unit, 78.8\% for the skeleton and 84.1\% for video. The lowest MI share alone names 80.9\%. With both candidates, validation chose the MI rule in 5 folds and the odd-one-out rule in 3; the certificate then names 81.4\% [76.3, 86.6], 1.7 points below the witness rule ($[-3.3, -0.0]$), so MI does not improve naming. TMC and ECML name the sensor in 74.1\% and 67.0\% of clips; the certificate is better for all 8 subjects, by 7.4 [3.5, 11.2] and 14.4 [11.2, 17.7] points. On MMAct, naming between two sensors is at chance level, as expected.
+Without MI, the odd-one-out rule is chosen on validation in all 8 folds and names the lying sensor in 83.1\% [79.0, 87.2] of UTD-MHAD lie clips (chance 33.3\%): 86.5\% for the inertial unit, 78.8\% for the skeleton and 84.1\% for video (Fig.~\ref{fig:confusion}). The lowest MI share alone names 80.9\%. With both candidates, validation chose the MI rule in 5 folds and the odd-one-out rule in 3; the certificate then names 81.4\% [76.3, 86.6], 1.7 points below the witness rule ($[-3.3, -0.0]$), so MI does not improve naming. TMC and ECML name the sensor in 74.1\% and 67.0\% of clips; the certificate is better for all 8 subjects, by 7.4 [3.5, 11.2] and 14.4 [11.2, 17.7] points. On MMAct, naming between two sensors is at chance level, as expected.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.62\linewidth]{figs/naming_matrix.pdf}
+\caption{Which sensor the witness odd-one-out rule names, by the sensor that actually carries the lie (UTD-MHAD, all folds and seeds, \% of each row).}
+\label{fig:confusion}
+\end{figure}
 
 \subsection{Use, drop or abstain}
 
@@ -289,66 +314,36 @@ Future work will add MMAct video as a third sensor so that naming can be tested 
 Agreement between sensors is not a sufficient basis for trust in multimodal HAR: a single real but wrong stream can mislead a fusion transformer while its confidence stays high, and high MI between sensors on average does not protect a single prediction. TrustMI-HAR attaches to each prediction a certificate from unimodal witnesses and label-free pointwise cross-sensor MI that detects misleading sensors better than confidence, TMC and ECML for every test subject, names them on UTD-MHAD, and improves TMC when placed on top of it.
 
 \begin{thebibliography}{99}
+\bibitem{T1}Semwal, V., Kim, Y., Bijalwan, V. \& Bijalwan, A. Deep Learning-Based Biomechanical Analysis of Safe and Fall Conditions in Squat Jumps Using Force Plate Data. {\em 2026 IEEE International Conference On Interdisciplinary Approaches In Technology And Management For Social Innovation (IATMSI)}. \textbf{4} pp. 1-6 (2026)
 
-\bibitem{wang2019survey}
-J. Wang, Y. Chen, S. Hao, X. Peng, and L. Hu, ``Deep learning for sensor-based activity recognition: A survey,'' \textit{Pattern Recognition Letters}, vol. 119, pp. 3-11, 2019.
+\bibitem{T2}Bijalwan, V., Baek, H., Khan, A., Mohamed, S. \& Kim, Y. PER-HDL: Physiotherapy exercise recognition with RGB-D Kinect sensor and hybrid deep learning models. {\em Rehabilitation Robotics And Healthcare Devices}. pp. 153-174 (2025)
 
-\bibitem{chen2015utd}
-C. Chen, R. Jafari, and N. Kehtarnavaz, ``UTD-MHAD: A multimodal dataset for human action recognition utilizing a depth camera and a wearable inertial sensor,'' in \textit{Proc. IEEE Int. Conf. Image Processing (ICIP)}, 2015, pp. 168-172.
+\bibitem{T3}Khan, A., Khan, F., Dwivedi, A., Semwal, V., Martha, S. \& Bijalwan, V. EEG-based motion intention detection for robotic rehabilitation: Evaluating classification and regression algorithms. {\em SN Computer Science}. \textbf{5}, 1057 (2024)
 
-\bibitem{kong2019mmact}
-Q. Kong, Z. Wu, Z. Deng, M. Klinkigt, B. Tong, and T. Murakami, ``MMAct: A large-scale dataset for cross modal human action understanding,'' in \textit{Proc. IEEE/CVF Int. Conf. Computer Vision (ICCV)}, 2019, pp. 8658-8667.
+\bibitem{T4}Sain, M., Singha, J. \& Bijalwan, V. Dynamic Hand Gesture Recognition Using mYOLO-CSRT and HGCNN for Human–Machine Interaction. {\em Machine Intelligence Techniques For Data Analysis And Signal Processing: Proceedings Of The 4th International Conference MISP 2022, Volume 1}. pp. 631-642 (2023)
 
-\bibitem{hendrycks2017baseline}
-D. Hendrycks and K. Gimpel, ``A baseline for detecting misclassified and out-of-distribution examples in neural networks,'' in \textit{Proc. Int. Conf. Learning Representations (ICLR)}, 2017.
+\bibitem{T5}Bijalwan, V., Khan, A., Baek, H., Jeon, S. \& Kim, Y. Interpretable human activity recognition with temporal convolutional networks and model-agnostic explanations. {\em IEEE Sensors Journal}. \textbf{24}, 27607-27617 (2024)
 
-\bibitem{sensoy2018evidential}
-M. Sensoy, L. Kaplan, and M. Kandemir, ``Evidential deep learning to quantify classification uncertainty,'' in \textit{Advances in Neural Information Processing Systems (NeurIPS)}, 2018, pp. 3179-3189.
-
-\bibitem{han2021tmc}
-Z. Han, C. Zhang, H. Fu, and J. T. Zhou, ``Trusted multi-view classification,'' in \textit{Proc. Int. Conf. Learning Representations (ICLR)}, 2021.
-
-\bibitem{xu2024ecml}
-C. Xu, J. Si, Z. Guan, W. Zhao, Y. Wu, and X. Gao, ``Reliable conflictive multi-view learning,'' in \textit{Proc. AAAI Conf. Artificial Intelligence}, vol. 38, no. 14, 2024, pp. 16129-16137.
-
-\bibitem{ma2022missing}
-M. Ma, J. Ren, L. Zhao, D. Testuggine, and X. Peng, ``Are multimodal transformers robust to missing modality?'' in \textit{Proc. IEEE/CVF Conf. Computer Vision and Pattern Recognition (CVPR)}, 2022, doi: 10.1109/CVPR52688.2022.01764.
-
-\bibitem{yang2021defending}
-K. Yang, W.-Y. Lin, M. Barman, F. Condessa, and Z. Kolter, ``Defending multimodal fusion models against single-source adversaries,'' in \textit{Proc. IEEE/CVF Conf. Computer Vision and Pattern Recognition (CVPR)}, 2021, pp. 3340-3349.
-
-\bibitem{zhang2023qmf}
-Q. Zhang, H. Wu, C. Zhang, Q. Hu, H. Fu, J. T. Zhou, and X. Peng, ``Provable dynamic fusion for low-quality multimodal data,'' in \textit{Proc. Int. Conf. Machine Learning (ICML)}, 2023, pp. 41753-41769.
-
-\bibitem{liu2020energy}
-W. Liu, X. Wang, J. Owens, and Y. Li, ``Energy-based out-of-distribution detection,'' in \textit{Advances in Neural Information Processing Systems (NeurIPS)}, 2020.
-
-\bibitem{geifman2017selective}
-Y. Geifman and R. El-Yaniv, ``Selective classification for deep neural networks,'' in \textit{Advances in Neural Information Processing Systems (NeurIPS)}, 2017, pp. 4878-4887.
-
-\bibitem{oord2018cpc}
-A. van den Oord, Y. Li, and O. Vinyals, ``Representation learning with contrastive predictive coding,'' arXiv:1807.03748, 2018.
-
-\bibitem{poole2019variational}
-B. Poole, S. Ozair, A. van den Oord, A. A. Alemi, and G. Tucker, ``On variational bounds of mutual information,'' in \textit{Proc. Int. Conf. Machine Learning (ICML)}, 2019, pp. 5171-5180.
-
-\bibitem{radford2021clip}
-A. Radford et al., ``Learning transferable visual models from natural language supervision,'' in \textit{Proc. Int. Conf. Machine Learning (ICML)}, 2021, pp. 8748-8763.
-
-\bibitem{lin1991divergence}
-J. Lin, ``Divergence measures based on the Shannon entropy,'' \textit{IEEE Trans. Information Theory}, vol. 37, no. 1, pp. 145-151, 1991.
-
-\bibitem{tran2018closer}
-D. Tran, H. Wang, L. Torresani, J. Ray, Y. LeCun, and M. Paluri, ``A closer look at spatiotemporal convolutions for action recognition,'' in \textit{Proc. IEEE/CVF Conf. Computer Vision and Pattern Recognition (CVPR)}, 2018, pp. 6450-6459.
-
-\bibitem{kay2017kinetics}
-W. Kay et al., ``The Kinetics human action video dataset,'' arXiv:1705.06950, 2017.
-
-\bibitem{vaswani2017attention}
-A. Vaswani et al., ``Attention is all you need,'' in \textit{Advances in Neural Information Processing Systems (NeurIPS)}, 2017.
-
-\bibitem{loshchilov2019adamw}
-I. Loshchilov and F. Hutter, ``Decoupled weight decay regularization,'' in \textit{Proc. Int. Conf. Learning Representations (ICLR)}, 2019.
+\bibitem{Ref1}Wang, J., Chen, Y., Hao, S., Peng, X. \& Hu, L. Deep learning for sensor-based activity recognition: A survey. {\em Pattern Recognition Letters}. \textbf{119} pp. 3-11 (2019)
+\bibitem{Ref2}Chen, C., Jafari, R. \& Kehtarnavaz, N. UTD-MHAD: A multimodal dataset for human action recognition utilizing a depth camera and a wearable inertial sensor. {\em 2015 IEEE International Conference On Image Processing (ICIP)}. pp. 168-172 (2015)
+\bibitem{Ref3}Kong, Q., Wu, Z., Deng, Z., Klinkigt, M., Tong, B. \& Murakami, T. MMAct: A large-scale dataset for cross modal human action understanding. In 2019 IEEE. {\em CVF International Conference On Computer Vision (ICCV)}. pp. 8657-8666 (2019)
+\bibitem{Ref4}Hendrycks, D. \& Gimpel, K. A baseline for detecting misclassified and out-of-distribution examples in neural networks. {\em ArXiv Preprint ArXiv:1610.02136}. (2016)
+\bibitem{Ref5}Sensoy, M., Kaplan, L. \& Kandemir, M. Evidential deep learning to quantify classification uncertainty. {\em Advances In Neural Information Processing Systems}. \textbf{31} (2018)
+\bibitem{Ref6}Han, Z., Zhang, C., Fu, H. \& Zhou, J. Trusted Multi-View Classification.  (2021), https://arxiv.org/abs/2102.02051
+\bibitem{Ref7}Xu, C., Si, J., Guan, Z., Zhao, W., Wu, Y. \& Gao, X. Reliable conflictive multi-view learning. {\em Proceedings Of The AAAI Conference On Artificial Intelligence}. \textbf{38}, 16129-16137 (2024)
+\bibitem{Ref8}Ma, M., Ren, J., Zhao, L., Testuggine, D. \& Peng, X. Are multimodal transformers robust to missing modality?. {\em 2022 IEEE/CVF Conference On Computer Vision And Pattern Recognition (CVPR)}. pp. 18156-18165 (2022)
+\bibitem{Ref9}Yang, K., Lin, W., Barman, M., Condessa, F. \& Kolter, Z. Defending multimodal fusion models against single-source adversaries. {\em 2021 IEEE/CVF Conference On Computer Vision And Pattern Recognition (CVPR)}. pp. 3339-3348 (2021)
+\bibitem{Ref10}Zhang, Q., Wu, H., Zhang, C., Hu, Q., Fu, H., Zhou, J. \& Peng, X. Provable dynamic fusion for low-quality multimodal data. {\em International Conference On Machine Learning}. pp. 41753-41769 (2023)
+\bibitem{Ref18}Oord, A., Li, Y. \& Vinyals, O. Representation learning with contrastive predictive coding. {\em ArXiv Preprint ArXiv:1807.03748}. (2018)
+\bibitem{Ref19}Poole, B., Ozair, S., Oord, A., Alemi, A. \& Tucker, G. On variational bounds of mutual information. {\em International Conference On Machine Learning}. pp. 5171-5180 (2019)
+\bibitem{Ref20}Radford, A., Kim, J., Hallacy, C., Ramesh, A., Goh, G., Agarwal, S., Sastry, G., Askell, A., Mishkin, P., Clark, J. \& Others Learning transferable visual models from natural language supervision. {\em International Conference On Machine Learning}. pp. 8748-8763 (2021)
+\bibitem{Ref11}Liu, W., Wang, X., Owens, J. \& Li, Y. Energy-based out-of-distribution detection. {\em Advances In Neural Information Processing Systems}. \textbf{33} pp. 21464-21475 (2020)
+\bibitem{Ref12}Geifman, Y. \& El-Yaniv, R. Selective classification for deep neural networks. {\em Advances In Neural Information Processing Systems}. \textbf{30} (2017)
+\bibitem{Ref13}Lin, J. Divergence measures based on the Shannon entropy. {\em IEEE Transactions On Information Theory}. \textbf{37}, 145-151 (1991)
+\bibitem{Ref14}Tran, D., Wang, H., Torresani, L., Ray, J., LeCun, Y. \& Paluri, M. A closer look at spatiotemporal convolutions for action recognition. {\em 2018 IEEE/CVF Conference On Computer Vision And Pattern Recognition}. pp. 6450-6459 (2018)
+\bibitem{Ref15}Kay, W., Carreira, J., Simonyan, K., Zhang, B., Hillier, C., Vijayanarasimhan, S., Viola, F., Green, T., Back, T., Natsev, P. \& Others The kinetics human action video dataset. {\em ArXiv Preprint ArXiv:1705.06950}. (2017)
+\bibitem{Ref16}Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A., Kaiser, Ł. \& Polosukhin, I. Attention is all you need. {\em Advances In Neural Information Processing Systems}. \textbf{30} (2017)
+\bibitem{Ref17}Loshchilov, I. Decoupled weight decay regularization. {\em ArXiv Preprint ArXiv:1711.05101}. (2017)
 
 \end{thebibliography}
 
