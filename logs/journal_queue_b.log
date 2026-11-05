@@ -97,3 +97,5 @@ MI_d2v_own_loso_f12_s2: best epoch 55 | val loss 0.991 | MI lower bound (nats) w
 MI_d2v_own_loso_f13_s2: best epoch 47 | val loss 1.291 | MI lower bound (nats) watch-phone 1.35 watch-video 1.68 phone-video 1.59 | 830s
 WARNING: uncommitted changes; this run is not reproducible from 68166fc6
 MI_d2v_own_loso_f14_s2: best epoch 44 | val loss 1.156 | MI lower bound (nats) watch-phone 1.64 watch-video 1.86 phone-video 1.53 | 804s
+WARNING: uncommitted changes; this run is not reproducible from 8e64a271
+MI_d2v_own_loso_f15_s2: best epoch 49 | val loss 1.121 | MI lower bound (nats) watch-phone 1.57 watch-video 1.93 phone-video 1.64 | 754s

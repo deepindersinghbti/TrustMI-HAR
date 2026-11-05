@@ -478,3 +478,17 @@ WARNING: uncommitted changes; this run is not reproducible from 8e64a271
 BASE_d2v_b4s3_loso_f17_s2: best epoch  7 | test acc 0.761 macro-F1 0.766 | 157s
 WARNING: uncommitted changes; this run is not reproducible from 8e64a271
 BASE_d2v_b4s3_loso_f18_s2: best epoch 19 | test acc 0.909 macro-F1 0.913 | 233s
+WARNING: uncommitted changes; this run is not reproducible from 8e64a271
+BASE_d2v_b4s3_loso_f19_s2: best epoch 28 | test acc 0.856 macro-F1 0.843 | 294s
+WARNING: uncommitted changes; this run is not reproducible from fd54ffa2
+BASE_d2v_b4s_nowatch_loso_f00_s0: best epoch 21 | test acc 0.833 macro-F1 0.856 | 108s
+WARNING: uncommitted changes; this run is not reproducible from fd54ffa2
+BASE_d2v_b4s_nowatch_loso_f01_s0: best epoch 33 | test acc 0.884 macro-F1 0.849 | 136s
+WARNING: uncommitted changes; this run is not reproducible from fd54ffa2
+BASE_d2v_b4s_nowatch_loso_f02_s0: best epoch  8 | test acc 0.911 macro-F1 0.923 | 70s
+WARNING: uncommitted changes; this run is not reproducible from fd54ffa2
+BASE_d2v_b4s_nowatch_loso_f03_s0: best epoch 37 | test acc 0.829 macro-F1 0.845 | 152s
+WARNING: uncommitted changes; this run is not reproducible from fd54ffa2
+BASE_d2v_b4s_nowatch_loso_f04_s0: best epoch 16 | test acc 0.879 macro-F1 0.890 | 93s
+WARNING: uncommitted changes; this run is not reproducible from fd54ffa2
+BASE_d2v_b4s_nowatch_loso_f05_s0: best epoch  5 | test acc 0.868 macro-F1 0.852 | 62s
