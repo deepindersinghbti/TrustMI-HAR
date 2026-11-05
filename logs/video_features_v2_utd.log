@@ -1,6 +1,0 @@
-    208/861 videos | 30.6 videos/s | ~0.4 min left in this batch
-    400/861 videos | 44.0 videos/s | ~0.2 min left in this batch
-    608/861 videos | 52.9 videos/s | ~0.1 min left in this batch
-    800/861 videos | 58.4 videos/s | ~0.0 min left in this batch
-    861/861 videos | 59.6 videos/s | ~0.0 min left in this batch
-UTD-MHAD: 861 videos in 15 s | tokens (861, 4, 512) | decoded frames min/max 32/96 -> data/features/video_r2plus1d18_v2.npz

@@ -4,7 +4,7 @@ data/extracted/
 data/processed/*.npz
 data/features/*.npz
 data/features/mmact_v2_shards/
-runs/**/*.pt
+runs/
 __pycache__/
 *.pyc
 results/raw/
@@ -12,3 +12,4 @@ data/processed/norm_stats/
 results/operators/*.parquet
 results/certificate/*.parquet
 *.tmp
+logs/
