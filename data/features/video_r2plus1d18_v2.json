@@ -1,0 +1,31 @@
+{
+  "model": "torchvision r2plus1d_18",
+  "weights": "KINETICS400_V1",
+  "frozen": true,
+  "frames_per_clip": 32,
+  "sampling": "evenly spaced over each clip (np.linspace + round)",
+  "input": "whole frame, no crop, aspect kept, height 112 (cv2.INTER_AREA)",
+  "normalisation": {
+    "mean": [
+      0.43216,
+      0.394666,
+      0.37645
+    ],
+    "std": [
+      0.22803,
+      0.22145,
+      0.216989
+    ]
+  },
+  "decisions": "docs/data_audit_mmact_video.md",
+  "torch": "2.13.0+cu129",
+  "opencv": "5.0.0",
+  "dataset": "UTD-MHAD",
+  "window": "whole clip",
+  "tokens_shape": [
+    861,
+    4,
+    512
+  ],
+  "replaces": "video_r2plus1d18_v1 (centre crop 112x112) for the journal version"
+}
