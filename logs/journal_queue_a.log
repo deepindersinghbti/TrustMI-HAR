@@ -470,3 +470,5 @@ BASE_d2v_b4s3_loso_f11_s2: best epoch 13 | test acc 0.813 macro-F1 0.818 | 200s
 BASE_d2v_b4s3_loso_f12_s2: best epoch 18 | test acc 0.871 macro-F1 0.861 | 235s
 BASE_d2v_b4s3_loso_f13_s2: best epoch 57 | test acc 0.933 macro-F1 0.933 | 412s
 BASE_d2v_b4s3_loso_f14_s2: best epoch 36 | test acc 0.914 macro-F1 0.924 | 360s
+WARNING: uncommitted changes; this run is not reproducible from 6fbaff22
+BASE_d2v_b4s3_loso_f15_s2: best epoch 31 | test acc 0.927 macro-F1 0.928 | 319s
