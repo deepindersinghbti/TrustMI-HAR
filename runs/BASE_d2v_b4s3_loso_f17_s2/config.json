@@ -1,0 +1,27 @@
+{
+  "model": "b4s3",
+  "dataset": "d2v",
+  "fold": 17,
+  "seed": 2,
+  "epochs": 60,
+  "patience": 15,
+  "bs": 32,
+  "lr": 0.0003,
+  "wd": 0.05,
+  "d": 128,
+  "layers": 2,
+  "smoke": false,
+  "shuffle_labels": false,
+  "exp_id": "BASE_d2v_b4s3_loso_f17_s2",
+  "modalities": [
+    "watch",
+    "phone",
+    "video"
+  ],
+  "config_tag": "defaults_v0",
+  "data": "mmact_sensor_v1 (main3 clips)",
+  "video_features": "mmact_video_r2plus1d18_v2",
+  "split": "mmact_loso_v1",
+  "git_sha": "8e64a271fdd9baab3abac2acfe72c4d2a7a460d2",
+  "git_dirty": true
+}

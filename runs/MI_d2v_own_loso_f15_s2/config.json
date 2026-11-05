@@ -1,0 +1,27 @@
+{
+  "dataset": "d2v",
+  "version": "own",
+  "fold": 15,
+  "seed": 2,
+  "k": 16,
+  "epochs": 60,
+  "patience": 15,
+  "bs": 32,
+  "lr": 0.0003,
+  "wd": 0.05,
+  "anchors_per_epoch": 1000,
+  "log_every": 0,
+  "smoke": false,
+  "gpu_mem_fraction": 0.78,
+  "exp_id": "MI_d2v_own_loso_f15_s2",
+  "modalities": [
+    "watch",
+    "phone",
+    "video"
+  ],
+  "pos_stretch_p": 0.5,
+  "val_seed": 12345,
+  "git_sha": "8e64a271fdd9baab3abac2acfe72c4d2a7a460d2",
+  "git_dirty": true,
+  "trainable": 1734593
+}
