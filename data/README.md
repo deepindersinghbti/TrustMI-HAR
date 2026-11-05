@@ -79,3 +79,18 @@ all processing reads from it and writes to data/extracted/ or data/processed/.
 - Main clips only; no_watch clips of the test subject form a separate test set.
 - Folds testing subjects 1-10 contain 33 classes (no heavy/light carrying): macro-F1 is computed
   over the classes present in each test fold.
+
+### MMAct video audit (scripts/audit_mmact_video.py; full notes: docs/data_audit_mmact_video.md)
+- Extracted 2026-11-05 to data/extracted/MMAct/subjectN/camK/sceneS/sessionM/<action>.mp4
+  (streamed from the zip, never writing the per-subject .tar.gz); 35,162 videos, 89.03 GB, all exit codes 0.
+- H.264, 1920x1080, 29.97 fps; up to 4 synchronised camera views per sensor clip; video and sensor
+  cover the same span.
+- Main clips: 7,860 with all 4 views, 586 with 1-3, 25 with none (subject 8, scene 2, session 5 -> no_video).
+  All 247 no_watch clips have all 4 views.
+- 3-sensor clip set = column status3 in data/processed/mmact_video_clips.csv: main3 8,432 (main clips with
+  video and video/sensor length within 0.9-1.1, same 10% rule as excluded_length) | no_watch3 247 |
+  no_video 25 | excluded_video_length 14. 2- vs 3-sensor comparisons are scored on main3 only.
+- Decisions fixed before any result: video sensor = mean of per-view features over available views;
+  32 evenly spaced frames; one rule for all datasets: whole frame, no crop, aspect kept, height 112
+  (MMAct 112x199, UTD-MHAD 112x149). UTD-MHAD video features are therefore re-extracted as v2;
+  the conference v1 features (center crop) are kept.
