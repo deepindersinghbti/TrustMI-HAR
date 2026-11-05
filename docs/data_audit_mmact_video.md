@@ -81,9 +81,25 @@ every frame to exactly 128x171 and then center-crops 112x112, keeping the centra
    video and the sensor clearly do not cover the same stretch of time (dataset trimming errors), so a planted lie
    could not be told apart from the clip's own mismatch. Encoded as column `status3` in
    `data/processed/mmact_video_clips.csv`; clips already excluded on the sensor side keep `excluded_sensor`.
-8. **Like-for-like comparisons:** whenever 2-sensor (watch + phone) and 3-sensor (watch + phone + video)
-   results are compared, both are scored on the same `main3` clips (8,432). The 2-sensor models are not
-   retrained; the filter is applied at scoring time.
+8. **Like-for-like comparisons (revised 5 Nov, before any video result):** every MMAct model of the journal
+   version, with 1, 2 or 3 sensors, is trained AND scored on the same `main3` clips (8,432) with the same
+   per-fold normalisation (dataset `d2v`). This includes the single-sensor watch and phone witnesses and the
+   watch + phone model (which is also the backup when video is dropped), so every comparison, witness and
+   backup uses identical training and test clips. The conference runs (`d2`, 8,471 clips) are kept unchanged
+   for reproducing the conference paper; they are not mixed with `d2v` results. The first version of this
+   decision (keep the 2-sensor models, filter at scoring time) was dropped because those models were
+   normalised with `d2` statistics, so `d2v` inputs would not have matched them exactly.
+9. **Same time window as the sensors:** the MMAct sensor loader (`src/trustmi/data/mmact.py`) centre-crops clips
+   longer than 15 s to their middle 15 s. A video longer than 15 s therefore also uses only its centred 15 s
+   (the 32 frames are spread over that window), so all three MMAct sensors see the same moment. UTD-MHAD clips
+   are all short and use the whole clip. The window used is stored per view (`view_win_start`, `view_win_end`).
+10. **Dataset names in the code** (`scripts/train.py`): `d1` / `d2` = conference versions (unchanged);
+   `d1v2` = UTD-MHAD with v2 (whole-frame) video features; `d2v` = MMAct `main3` with video as a 3rd sensor.
+   New names mean new run IDs (e.g. `BASE_d2v_b4s3_...`), so no conference result is skipped or overwritten.
+
+Implementation: `scripts/extract_video_features_v2.py` -> `data/features/video_r2plus1d18_v2.npz` (UTD-MHAD,
+same arrays as v1) and `data/features/mmact_video_r2plus1d18_v2.npz` (MMAct: per-clip `tokens`/`pooled` = mean
+over views, plus all `view_*` arrays; clips keyed by the same `trial` names as `mmact_sensor_v1.npz`).
 
 ## 7. Script check (`scripts/audit_mmact_video.py`)
 Reads every video header (resolution, fps, frame count) and its first frame, matches videos to the sensor clips

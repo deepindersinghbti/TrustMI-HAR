@@ -1,6 +1,7 @@
 import os
 os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
 import argparse, json, platform, random, subprocess, sys, time
+from functools import partial
 from pathlib import Path
 import numpy as np, pandas as pd, torch, torch.nn.functional as F
 from sklearn.metrics import f1_score
@@ -21,12 +22,21 @@ MODELS = dict(b1_video=["video"], b1_skel=["skel"], b1_imu=["imu"],
               tmc=["video", "skel", "imu"], ecml=["video", "skel", "imu"],   # literature baselines (E)
               tmc_s=["watch", "phone"], ecml_s=["watch", "phone"],
               tmc_p=["video", "skel", "imu"], ecml_p=["video", "skel", "imu"],   # E fairness check: papers' optimiser settings
-              tmc_sp=["watch", "phone"], ecml_sp=["watch", "phone"])
+              tmc_sp=["watch", "phone"], ecml_sp=["watch", "phone"],
+              # journal (D): MMAct with video as a 3rd sensor (dataset d2v); b1_video also runs on d2v
+              b4s3=["watch", "phone", "video"],
+              b4s_nowatch=["phone", "video"], b4s_nophone=["watch", "video"],   # backups (drop = option A)
+              tmc_s3=["watch", "phone", "video"], ecml_s3=["watch", "phone", "video"])
 EVIDENTIAL = ("tmc", "ecml")                # method = model name before any "_s"
 DATASETS = dict(d1=dict(cls=UTDMHAD, n_classes=27, data="utd_mhad_v1",
                         video_features="video_r2plus1d18_v1", split="utd_mhad_loso_v1"),
                 d2=dict(cls=MMAct, n_classes=35, data="mmact_sensor_v1",
-                        video_features=None, split="mmact_loso_v1"))
+                        video_features=None, split="mmact_loso_v1"),
+                # journal versions (new names, so conference run IDs and results are never overwritten)
+                d1v2=dict(cls=partial(UTDMHAD, video="v2"), n_classes=27, data="utd_mhad_v1",
+                          video_features="video_r2plus1d18_v2", split="utd_mhad_loso_v1"),
+                d2v=dict(cls=partial(MMAct, video=True), n_classes=35, data="mmact_sensor_v1 (main3 clips)",
+                         video_features="mmact_video_r2plus1d18_v2", split="mmact_loso_v1"))
 
 
 def set_seed(s):

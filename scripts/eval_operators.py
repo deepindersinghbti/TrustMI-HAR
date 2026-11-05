@@ -6,6 +6,7 @@ Before evaluating each fold it checks, for every seed:
 Results: results/operators/A3_<dataset>_<model>_<folds>.parquet
 """
 import argparse, json, sys, time
+from functools import partial
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -22,11 +23,14 @@ DATA = dict(d1=dict(n_classes=27, n_folds=8, targets=["imu"]),
 
 
 def dataset_cls(name):
-    if name == "d1":
+    """Loader class for a dataset name; d1v2 / d2v are the journal versions (scripts/train.py DATASETS)."""
+    if name in ("d1", "d1v2"):
         from trustmi.data.utd import UTDMHAD
-        return UTDMHAD
-    from trustmi.data.mmact import MMAct
-    return MMAct
+        return UTDMHAD if name == "d1" else partial(UTDMHAD, video="v2")
+    if name in ("d2", "d2v"):
+        from trustmi.data.mmact import MMAct
+        return MMAct if name == "d2" else partial(MMAct, video=True)
+    raise ValueError(f"unknown dataset {name!r}")
 
 
 def load_model(run, mods, n_classes):

@@ -7,14 +7,15 @@ from torch.utils.data import Dataset
 
 ROOT = Path(__file__).resolve().parents[3]
 TENSORS = ROOT / "data/processed/utd_mhad_v1.npz"
-VIDEO = ROOT / "data/features/video_r2plus1d18_v1.npz"
+VIDEO = dict(v1=ROOT / "data/features/video_r2plus1d18_v1.npz",   # conference: centre crop 112x112
+             v2=ROOT / "data/features/video_r2plus1d18_v2.npz")   # journal: whole frame (docs/data_audit_mmact_video.md)
 SPLITS = ROOT / "splits/utd_mhad_loso_v1.json"
 EPS = 1e-6
 
 
-def _load_all():
+def _load_all(video="v1"):
     m = np.load(TENSORS, allow_pickle=True)
-    v = np.load(VIDEO, allow_pickle=True)
+    v = np.load(VIDEO[video], allow_pickle=True)
     split = json.loads(SPLITS.read_text())
     trials = m["trial"]
     if not (trials == v["trial"]).all():
@@ -40,17 +41,19 @@ def fit_stats(data, train_idx):
 
 
 class UTDMHAD(Dataset):
-    def __init__(self, fold, part, stats_dir=ROOT / "data/processed/norm_stats"):
+    def __init__(self, fold, part, stats_dir=ROOT / "data/processed/norm_stats", video="v1"):
         assert part in ("train", "val", "test")
-        data, split = _load_all()
+        data, split = _load_all(video)
         f = split["folds"][fold]
-        self.fold, self.part = fold, part
+        self.fold, self.part, self.video = fold, part, video
         self.idx = np.array(f[part])
         train_idx = np.array(f["train"])
         stats = fit_stats(data, train_idx)
 
         stats_dir = Path(stats_dir); stats_dir.mkdir(parents=True, exist_ok=True)
-        np.savez(stats_dir / f"utd_v1_fold{fold}.npz",
+        tag = "utd_v1" if video == "v1" else f"utd_v1_video{video}"     # v1 file name unchanged
+        self.stats_file = stats_dir / f"{tag}_fold{fold}.npz"            # read by trustmi.operators
+        np.savez(self.stats_file,
                  **{f"{k}_{s}": v[i] for k, v in stats.items()
                     for i, s in enumerate(("mean", "std"))},
                  train_subjects=np.array(f["train_subjects"]))

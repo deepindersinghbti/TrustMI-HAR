@@ -31,10 +31,12 @@ import torch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src")); sys.path.insert(0, str(ROOT / "scripts"))
 from trustmi.mi import MIMatcher, sensor_encoder, info_nce_candidates, resample_to
+from trustmi.operators import VARIABLE_LENGTH
 
-MODS = dict(d1=["video", "skel", "imu"], d2=["watch", "phone"])          # same order as B4 / B4s
+MODS = dict(d1=["video", "skel", "imu"], d2=["watch", "phone"],          # same order as B4 / B4s
+            d1v2=["video", "skel", "imu"], d2v=["watch", "phone", "video"])   # journal (D): as B4 / B4s3
 WITNESS = dict(imu="b1_imu", skel="b1_skel", video="b1_video", watch="b1_watch", phone="b1_phone")
-N_CLASSES = dict(d1=27, d2=35)
+N_CLASSES = dict(d1=27, d2=35, d1v2=27, d2v=35)
 POS_STRETCH_P = 0.5
 VAL_SEED = 12345
 
@@ -90,6 +92,8 @@ def gather(X, C, lens_info, mods):
         src, dst, detour = (None if a is None else torch.as_tensor(a, device=flat.device) for a in lens_info)
         s, d = src.reshape(-1), dst.reshape(-1)
         for m in mods:
+            if m not in VARIABLE_LENGTH:     # video tokens: fixed size (32 frames over the clip), never stretched
+                continue
             x = batch[m]
             if detour is not None:                               # true partner: there and back again
                 pos = torch.zeros_like(src, dtype=torch.bool); pos[:, 0] = detour >= 0

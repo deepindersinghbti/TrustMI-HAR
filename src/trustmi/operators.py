@@ -58,19 +58,32 @@ LAYOUTS = {
     ("d2", "watch"): Layout(accel=(0, 1, 2)),                                 # m/s^2
     ("d2", "phone"): Layout(accel=(0, 1, 2), gyro=(3, 4, 5), ang_sin=(6, 7), ang_cos=(8, 9)),
 }
+# journal datasets share the sensors (and their physics) of the conference ones
+BASE_DATASET = {"d1v2": "d1", "d2v": "d2"}
+# sensors whose tensors are padded time series with a per-clip valid length `len` (MMAct);
+# video tokens are fixed-size (32 frames spread over the clip) and are never cut or stretched
+VARIABLE_LENGTH = ("watch", "phone")
 
 
-def _stats_for(modality, fold, train_subjects):
-    """Find the ONE saved normalisation file for this fold that holds `modality`, check its subjects."""
-    hits = []
-    for f in sorted(STATS_DIR.glob(f"*_fold{fold}.npz")):
+def _stats_for(modality, fold, train_subjects, path=None):
+    """The saved normalisation file for this fold that holds `modality`, with its subjects checked.
+    path: the file the loader wrote (dataset.stats_file). Without it, the ONE file in STATS_DIR holding
+    `modality` is searched for (older behaviour; ambiguous once journal loaders have written their files)."""
+    if path is not None:
+        f = Path(path)
         z = np.load(f)
-        if f"{modality}_mean" in z.files:
-            hits.append((f, z))
-    if len(hits) != 1:
-        raise RuntimeError(f"expected 1 stats file with '{modality}_mean' for fold {fold}, "
-                           f"found {[str(h[0].name) for h in hits]}")
-    f, z = hits[0]
+        if f"{modality}_mean" not in z.files:
+            raise RuntimeError(f"{f.name} holds no '{modality}_mean'")
+    else:
+        hits = []
+        for f in sorted(STATS_DIR.glob(f"*_fold{fold}.npz")):
+            z = np.load(f)
+            if f"{modality}_mean" in z.files:
+                hits.append((f, z))
+        if len(hits) != 1:
+            raise RuntimeError(f"expected 1 stats file with '{modality}_mean' for fold {fold}, "
+                               f"found {[str(h[0].name) for h in hits]}")
+        f, z = hits[0]
     if "train_subjects" in z.files:
         saved = set(np.asarray(z["train_subjects"]).tolist())
         if saved != set(np.asarray(train_subjects).tolist()):
@@ -110,12 +123,14 @@ class OperatorBank:
 
     def __init__(self, dataset, modality, ds, train_ds, fold, seed=0):
         self.dataset, self.modality, self.ds, self.fold, self.seed = dataset, modality, ds, fold, seed
-        self.layout = LAYOUTS.get((dataset, modality), Layout(generic=True))
+        base = BASE_DATASET.get(dataset, dataset)
+        self.layout = LAYOUTS.get((base, modality), Layout(generic=True))
         x = np.asarray(ds.x[modality], dtype=np.float64)                # normalised input
         self.shape = x.shape                                            # e.g. skeleton (N, 40, 20, 3)
         self.x = x.reshape(x.shape[0], x.shape[1], -1)                  # always (N, T, C) inside the bank
         self.N, self.T, self.C = self.x.shape
-        self.lens = (np.asarray(ds.x["len"]).astype(int) if "len" in ds.x
+        varlen = "len" in ds.x and modality in VARIABLE_LENGTH
+        self.lens = (np.asarray(ds.x["len"]).astype(int) if varlen
                      else np.full(self.N, self.T, int))
         self.y = np.asarray(ds.y).astype(int)
         self.subject = np.asarray(ds.subject)
@@ -132,7 +147,8 @@ class OperatorBank:
         tr_subjects = np.unique(np.asarray(train_ds.subject))
         if set(tr_subjects) & set(np.unique(self.subject)):
             raise RuntimeError("train_ds and ds share subjects: the clip range would leak")
-        self.mu, self.sd, self.stats_file = _stats_for(modality, fold, tr_subjects)
+        self.mu, self.sd, self.stats_file = _stats_for(modality, fold, tr_subjects,
+                                                       getattr(train_ds, "stats_file", None))
         # physical range over VALID training samples, per channel
         xt = np.asarray(train_ds.x[modality], dtype=np.float64)
         lt = (np.asarray(train_ds.x["len"]).astype(int) if "len" in train_ds.x
@@ -141,7 +157,7 @@ class OperatorBank:
         phys = xt[valid] * self.sd + self.mu
         self.lo, self.hi = phys.min(0), phys.max(0)
         if self.layout.ang_sin:
-            self.angle_unit = _mmact_angle_unit() if dataset == "d2" else "rad"
+            self.angle_unit = _mmact_angle_unit() if base == "d2" else "rad"
 
     # ---------------------------------------------------------------- helpers
     def _rng(self, op, level, i):
