@@ -202,7 +202,12 @@ def main():
     ap.add_argument("--anchors-per-epoch", type=int, default=0, help="clips per epoch (0 = all training clips)")
     ap.add_argument("--log-every", type=int, default=0, help="print every N epochs (0 = only the final line)")
     ap.add_argument("--smoke", action="store_true")
+    ap.add_argument("--gpu-mem-fraction", type=float, default=0.0,
+                    help="cap this process's GPU memory (0 = no cap); lets MI share the GPU safely. "
+                         "Changes only memory handling, never the results")
     args = ap.parse_args()
+    if args.gpu_mem_fraction:
+        torch.cuda.set_per_process_memory_fraction(args.gpu_mem_fraction)
 
     torch.backends.cudnn.benchmark = False
     torch.use_deterministic_algorithms(True, warn_only=True)

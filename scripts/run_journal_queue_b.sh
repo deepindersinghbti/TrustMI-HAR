@@ -13,6 +13,10 @@ if [ -n "$(git status --porcelain --untracked-files=no)" ]; then
 fi
 source trustmi-env/bin/activate
 declare -A SENSORS=( [d1v2]="video skel imu" [d2v]="watch phone video" )
+# Sharing the GPU with queue A (2026-11-05): a 3-sensor MMAct MI run needs > 7 GB, a queue A run ~1.5-2 GB.
+# MI is capped at 78% of the GPU so it can never take queue A's memory; if MI needs more, IT fails, not A.
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+MI_MEM=0.78
 
 train () {   # dataset version n_folds extra-args...
   local d=$1 v=$2 nf=$3; shift 3
@@ -28,7 +32,8 @@ train () {   # dataset version n_folds extra-args...
         done
         if [ -n "$missing" ]; then echo "skip $id: witnesses not trained yet:$missing"; continue; fi
       fi
-      python scripts/train_mi.py --dataset "$d" --version "$v" --fold "$f" --seed "$s" "$@" \
+      python scripts/train_mi.py --dataset "$d" --version "$v" --fold "$f" --seed "$s" \
+        --gpu-mem-fraction "$MI_MEM" "$@" \
         || echo "$(date -Is) FAILED $id" >> runs/failures.txt
     done
   done
