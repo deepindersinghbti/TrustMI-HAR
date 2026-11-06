@@ -24,6 +24,7 @@ import torch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src")); sys.path.insert(0, str(ROOT / "scripts"))
 from trustmi.mi import pairwise_pmi, mi_signals, resample_to
+from trustmi.device import DEVICE, autocast
 
 BANK_K, BANK_SEED = 64, 777
 
@@ -37,7 +38,7 @@ def embed_all(model, X, mods, lens=None, bs=256):
         b = {m: X[m][a:a + bs] for m in mods}
         if lens is not None:
             b["len"] = lens[a:a + bs]
-        with torch.autocast("cuda", dtype=torch.bfloat16, enabled=X[mods[0]].is_cuda):
+        with autocast():
             z = model.embed(b)
         for m in mods:
             out[m].append(z[m].float())
@@ -94,7 +95,7 @@ def main():
     folds = list(range(C["n_folds"])) if args.folds == "all" else [int(f) for f in args.folds.split(",")]
     seeds = [int(s) for s in args.seeds.split(",")]
     attack = args.attack.split(",") if args.attack else C["sensors"]
-    DS, dev = dataset_cls(dname), "cuda"
+    DS, dev = dataset_cls(dname), DEVICE
     tag = "all" if args.folds == "all" else "f" + "-".join(map(str, folds))
     suffix = f"_att-{'-'.join(attack)}" if args.attack else ""
     out = ROOT / "results/certificate" / f"mi_{dname}_{args.version}_{tag}_s{'-'.join(map(str, seeds))}{suffix}.parquet"

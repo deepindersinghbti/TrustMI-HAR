@@ -26,6 +26,7 @@ from cert_score import auroc
 from eval_operators import dataset_cls
 from trustmi.models.evidential import EvidentialLateFusion, fuse_tmc, fuse_ecml
 from trustmi.operators import OperatorBank
+from trustmi.device import DEVICE, autocast
 
 # run name -> (method, sensors in the order train.py used; ECML's fusion order depends on it)
 METHODS = dict(d1=dict(tmc=("tmc", ["video", "skel", "imu"]), ecml=("ecml", ["video", "skel", "imu"])),
@@ -39,7 +40,7 @@ def load_ev(run, method, mods, K):
     ck = torch.load(run / "ckpt_best.pt", map_location="cpu", weights_only=False)
     sd = ck.get("model", ck.get("state_dict", ck)) if isinstance(ck, dict) else ck
     model.load_state_dict(sd)                    # strict: any mismatch stops here
-    return model.cuda().eval()
+    return model.to(DEVICE).eval()
 
 
 @torch.no_grad()
@@ -48,10 +49,10 @@ def evidences(model, x, lens=None, bs=256):
     n = len(next(iter(x.values())))
     out = [[] for _ in model.mods]
     for a in range(0, n, bs):
-        b = {m: v[a:a + bs].cuda() for m, v in x.items()}
+        b = {m: v[a:a + bs].to(DEVICE) for m, v in x.items()}
         if lens is not None:
-            b["len"] = lens[a:a + bs].cuda()
-        with torch.autocast("cuda", dtype=torch.bfloat16):
+            b["len"] = lens[a:a + bs].to(DEVICE)
+        with autocast():
             ev = model.evidences(b)
         for i, e in enumerate(ev):
             out[i].append(e.float().cpu())

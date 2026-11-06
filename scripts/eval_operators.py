@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from trustmi.models.fusion import FusionTransformer
 from trustmi.operators import OperatorBank, OPS, LEVELS, FAMILY
+from trustmi.device import DEVICE, autocast
 
 MODELS = dict(b4=["video", "skel", "imu"], b4s=["watch", "phone"])
 DATA = dict(d1=dict(n_classes=27, n_folds=8, targets=["imu"]),
@@ -39,7 +40,7 @@ def load_model(run, mods, n_classes):
     ck = torch.load(run / "ckpt_best.pt", map_location="cpu", weights_only=False)
     sd = ck.get("model", ck.get("state_dict", ck)) if isinstance(ck, dict) else ck
     model.load_state_dict(sd)                    # strict: any architecture mismatch stops here
-    return model.cuda().eval()
+    return model.to(DEVICE).eval()
 
 
 @torch.no_grad()
@@ -47,12 +48,12 @@ def predict(model, x, lens=None, absent=None, bs=256):
     n = len(next(iter(x.values())))
     out = []
     for a in range(0, n, bs):
-        b = {m: v[a:a + bs].cuda() for m, v in x.items()}
+        b = {m: v[a:a + bs].to(DEVICE) for m, v in x.items()}
         if lens is not None:
-            b["len"] = lens[a:a + bs].cuda()
+            b["len"] = lens[a:a + bs].to(DEVICE)
         if absent is not None:
-            b["absent"] = {m: v[a:a + bs].cuda() for m, v in absent.items()}
-        with torch.autocast("cuda", dtype=torch.bfloat16):     # same precision as train.py's evaluation
+            b["absent"] = {m: v[a:a + bs].to(DEVICE) for m, v in absent.items()}
+        with autocast():                                        # same precision as train.py's evaluation (bf16)
             out.append(model(b).float().cpu())
     return torch.cat(out)
 

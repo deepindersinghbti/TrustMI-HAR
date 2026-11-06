@@ -1,0 +1,12 @@
+# CPU-only environment for the Windows laptop (no NVIDIA GPU): scoring and analysis scripts only.
+# Training and video feature extraction need the desktop GPU (use requirements.txt there).
+# Versions match the desktop trustmi-env (6 Nov 2026). If a pin has no Windows wheel, drop that pin.
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.13.0
+numpy==2.5.3
+pandas==3.0.5
+pyarrow==25.0.1
+scipy==1.18.1
+scikit-learn==1.9.1
+matplotlib
+pytest
