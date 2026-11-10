@@ -19,7 +19,10 @@ from trustmi.operators import OperatorBank, OPS, LEVELS, FAMILY
 from trustmi.device import DEVICE, autocast
 
 MODELS = dict(b4=["video", "skel", "imu"], b4s=["watch", "phone"],
-              b4s3=["watch", "phone", "video"])                       # journal: MMAct with video (d2v)
+              b4s3=["watch", "phone", "video"],                       # journal: MMAct with video (d2v)
+              # journal ablation: the same fused models trained with sensor dropout (see train.py)
+              b4_sd50=["video", "skel", "imu"], b4_sd25=["video", "skel", "imu"],
+              b4s3_sd50=["watch", "phone", "video"], b4s3_sd25=["watch", "phone", "video"])
 DATA = dict(d1=dict(n_classes=27, n_folds=8, targets=["imu"]),
             d2=dict(n_classes=35, n_folds=20, targets=["watch", "phone"]),
             # journal datasets: EVERY sensor is a target. Sensors without a physical model (skeleton, video)

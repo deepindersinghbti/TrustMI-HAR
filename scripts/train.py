@@ -12,6 +12,7 @@ from trustmi.data.utd import UTDMHAD
 from trustmi.data.mmact import MMAct
 from trustmi.models.fusion import FusionTransformer
 from trustmi.models.evidential import EvidentialLateFusion
+from trustmi import sensor_dropout as SD
 
 MODELS = dict(b1_video=["video"], b1_skel=["skel"], b1_imu=["imu"],
               b4=["video", "skel", "imu"],
@@ -26,7 +27,11 @@ MODELS = dict(b1_video=["video"], b1_skel=["skel"], b1_imu=["imu"],
               # journal (D): MMAct with video as a 3rd sensor (dataset d2v); b1_video also runs on d2v
               b4s3=["watch", "phone", "video"],
               b4s_nowatch=["phone", "video"], b4s_nophone=["watch", "video"],   # backups (drop = option A)
-              tmc_s3=["watch", "phone", "video"], ecml_s3=["watch", "phone", "video"])
+              tmc_s3=["watch", "phone", "video"], ecml_s3=["watch", "phone", "video"],
+              # journal ablation: the main fused models trained with sensor dropout (trustmi/sensor_dropout.py);
+              # the rate is part of the name: _sd50 = 0.50 (main ablation), _sd25 = 0.25 (sensitivity)
+              b4_sd50=["video", "skel", "imu"], b4_sd25=["video", "skel", "imu"],
+              b4s3_sd50=["watch", "phone", "video"], b4s3_sd25=["watch", "phone", "video"])
 EVIDENTIAL = ("tmc", "ecml")                # method = model name before any "_s"
 DATASETS = dict(d1=dict(cls=UTDMHAD, n_classes=27, data="utd_mhad_v1",
                         video_features="video_r2plus1d18_v1", split="utd_mhad_loso_v1"),
@@ -150,7 +155,9 @@ def main():
     sha, dirty = git_info()
     if dirty:
         print(f"WARNING: uncommitted changes; this run is not reproducible from {sha[:8]}")
-    cfg = vars(args) | dict(exp_id=exp_id, modalities=mods, config_tag="defaults_v0",
+    sd_rate = SD.rate_of(args.model)                       # 0.0 for every model without sensor dropout
+    sd_gen = torch.Generator().manual_seed(SD.SEED_OFFSET + args.seed)
+    cfg = vars(args) | dict(exp_id=exp_id, modalities=mods, config_tag="defaults_v0", sensor_dropout=sd_rate,
                             data=D["data"], video_features=D["video_features"],
                             split=D["split"], git_sha=sha, git_dirty=dirty)
     (run / "config.json").write_text(json.dumps(cfg, indent=2))
@@ -166,6 +173,8 @@ def main():
         model.train()
         total, n = 0.0, 0
         for xb, yb in batches(Xtr, ytr, args.bs, gen):
+            if sd_rate:                                    # hide one sensor of some clips (training only)
+                xb = xb | {"absent": {m: v.cuda() for m, v in SD.absent_mask(len(yb), mods, sd_rate, sd_gen).items()}}
             with torch.autocast("cuda", dtype=torch.bfloat16):
                 loss = model.loss(xb, yb, ep) if method in EVIDENTIAL else F.cross_entropy(model(xb), yb)
             opt.zero_grad(set_to_none=True)
