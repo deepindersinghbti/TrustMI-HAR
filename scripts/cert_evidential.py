@@ -30,7 +30,9 @@ from trustmi.device import DEVICE, autocast
 
 # run name -> (method, sensors in the order train.py used; ECML's fusion order depends on it)
 METHODS = dict(d1=dict(tmc=("tmc", ["video", "skel", "imu"]), ecml=("ecml", ["video", "skel", "imu"])),
-               d2=dict(tmc_s=("tmc", ["watch", "phone"]), ecml_s=("ecml", ["watch", "phone"])))
+               d2=dict(tmc_s=("tmc", ["watch", "phone"]), ecml_s=("ecml", ["watch", "phone"])),
+               d1v2=dict(tmc=("tmc", ["video", "skel", "imu"]), ecml=("ecml", ["video", "skel", "imu"])),   # journal
+               d2v=dict(tmc_s3=("tmc", ["watch", "phone", "video"]), ecml_s3=("ecml", ["watch", "phone", "video"])))
 PAPER = dict(tmc="tmc_p", ecml="ecml_p", tmc_s="tmc_sp", ecml_s="ecml_sp")   # --paper-settings run names
 
 
@@ -101,7 +103,7 @@ def main():
     DS = dataset_cls(dname)
     out_dir = ROOT / "results/certificate"; out_dir.mkdir(parents=True, exist_ok=True)
     tag = "all" if args.folds == "all" else "f" + "-".join(map(str, folds))
-    attack = args.attack.split(",") if args.attack else C["sensors"]
+    attack = args.attack.split(",") if args.attack else C.get("attack", C["sensors"])
     suffix = (f"_att-{'-'.join(attack)}" if args.attack else "") + ("_paper" if args.paper_settings else "")
     out = out_dir / f"evidential_{dname}_{tag}_s{'-'.join(map(str, seeds))}{suffix}.parquet"
     rows, t0 = [], time.time()

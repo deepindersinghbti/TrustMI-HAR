@@ -28,8 +28,11 @@ from cert_conditions import build_conditions
 from cert_evidential import load_ev, METHODS as EV_METHODS
 
 EXPERTS = dict(d1=dict(imu="b1_imu", skel="b1_skel", video="b1_video"),
-               d2=dict(watch="b1_watch", phone="b1_phone"))
-EXTRA_MODS = dict(b4_noimu=["video", "skel"], b4_noskel=["video", "imu"], b4_novideo=["skel", "imu"])  # as in train.py
+               d2=dict(watch="b1_watch", phone="b1_phone"),
+               d1v2=dict(imu="b1_imu", skel="b1_skel", video="b1_video"),          # journal
+               d2v=dict(watch="b1_watch", phone="b1_phone", video="b1_video"))
+EXTRA_MODS = dict(b4_noimu=["video", "skel"], b4_noskel=["video", "imu"], b4_novideo=["skel", "imu"],  # as in train.py
+                  b4s_nowatch=["phone", "video"], b4s_nophone=["watch", "video"], b4s=["watch", "phone"])  # d2v backups
 
 
 def js(p, q):
@@ -55,7 +58,7 @@ def main():
     DS = dataset_cls(dname)
     out_dir = ROOT / "results/certificate"; out_dir.mkdir(parents=True, exist_ok=True)
     tag = "all" if args.folds == "all" else "f" + "-".join(map(str, folds))
-    attack = args.attack.split(",") if args.attack else C["sensors"]
+    attack = args.attack.split(",") if args.attack else C.get("attack", C["sensors"])
     suffix = (f"_att-{'-'.join(attack)}" if args.attack else "") + (f"_main-{args.main}" if args.main else "")
     out = out_dir / f"experts_{dname}_{tag}_s{'-'.join(map(str, seeds))}{suffix}.parquet"
     rows, t0 = [], time.time()

@@ -25,6 +25,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src")); sys.path.insert(0, str(ROOT / "scripts"))
 from trustmi.mi import pairwise_pmi, mi_signals, resample_to
 from trustmi.device import DEVICE, autocast
+from trustmi.operators import VARIABLE_LENGTH
 
 BANK_K, BANK_SEED = 64, 777
 
@@ -55,7 +56,10 @@ class Bank:
     def at_length(self, L):
         if L not in self.cache:
             dst = torch.full_like(self.lens_b, L)
-            Xs = {m: resample_to(self.Xb[m], self.lens_b, dst) for m in self.mods}
+            # only padded time series are stretched; video tokens are fixed-size and stay as they are
+            # (exactly as the lie donors in trustmi.operators and the candidates in train_mi.gather)
+            Xs = {m: resample_to(self.Xb[m], self.lens_b, dst) if m in VARIABLE_LENGTH else self.Xb[m]
+                  for m in self.mods}
             self.cache[L] = embed_all(self.model, Xs, self.mods, dst)
         return self.cache[L]
 
@@ -79,7 +83,7 @@ def clip_mi(model, X, mods, bank, lens=None):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--dataset", choices=["d1", "d2"], required=True)
+    ap.add_argument("--dataset", choices=["d1", "d2", "d1v2", "d2v"], required=True)
     ap.add_argument("--version", choices=["own", "frozen"], required=True)
     ap.add_argument("--folds", default="all")
     ap.add_argument("--seeds", default="0,1,2")
@@ -94,7 +98,7 @@ def main():
     C, dname, mods = CFG[args.dataset], args.dataset, MODS[args.dataset]
     folds = list(range(C["n_folds"])) if args.folds == "all" else [int(f) for f in args.folds.split(",")]
     seeds = [int(s) for s in args.seeds.split(",")]
-    attack = args.attack.split(",") if args.attack else C["sensors"]
+    attack = args.attack.split(",") if args.attack else C.get("attack", C["sensors"])
     DS, dev = dataset_cls(dname), DEVICE
     tag = "all" if args.folds == "all" else "f" + "-".join(map(str, folds))
     suffix = f"_att-{'-'.join(attack)}" if args.attack else ""

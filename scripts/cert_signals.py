@@ -24,8 +24,14 @@ sys.path.insert(0, str(ROOT / "src")); sys.path.insert(0, str(ROOT / "scripts"))
 from eval_operators import load_model, predict, dataset_cls, LOGIT_TOL, MODELS as FUSED
 from trustmi.operators import OperatorBank, LEVELS
 
+# sensors = the sensors with a physical model (they get harmless changes);
+# attack  = the sensors lies are planted in by default (absent: the same as `sensors`, the conference setup)
 CFG = dict(d1=dict(model="b4", n_classes=27, n_folds=8, sensors=["imu"]),
-           d2=dict(model="b4s", n_classes=35, n_folds=20, sensors=["watch", "phone"]))
+           d2=dict(model="b4s", n_classes=35, n_folds=20, sensors=["watch", "phone"]),
+           # journal datasets: lies in EVERY sensor by default, so no --attack flag (and no _att- suffix) is needed
+           d1v2=dict(model="b4", n_classes=27, n_folds=8, sensors=["imu"], attack=["imu", "skel", "video"]),
+           d2v=dict(model="b4s3", n_classes=35, n_folds=20, sensors=["watch", "phone"],
+                    attack=["watch", "phone", "video"]))
 BACKUP_MODS = dict(b1_skel=["skel"], b1_phone=["phone"], b1_watch=["watch"])
 K = 8               # harmless draws per sensor and level (fixed in advance, not tuned)
 DRAW_SEED0 = 1000   # draws use bank seeds 1000..1000+K-1, independent of the h_all condition (seed 0)
@@ -65,7 +71,8 @@ def main():
     mods = FUSED[C["model"]]
     folds = list(range(C["n_folds"])) if args.folds == "all" else [int(f) for f in args.folds.split(",")]
     seeds = [int(s) for s in args.seeds.split(",")]
-    backups = {s: b for s, b in json.load(open(ROOT / "configs/backups.json"))[dname].items()}
+    # journal datasets have no entry here: their backup answers are stored by cert_experts.py (--extra-models)
+    backups = {s: b for s, b in json.load(open(ROOT / "configs/backups.json")).get(dname, {}).items()}
     DS = dataset_cls(dname)
     out_dir = ROOT / "results/certificate"; out_dir.mkdir(parents=True, exist_ok=True)
     tag = "all" if args.folds == "all" else "f" + "-".join(map(str, folds))
@@ -92,6 +99,12 @@ def main():
                     conds[f"{op}:{sen}"] = ({sen: xn}, np.array([i["donor_y"] for i in info]), avail, sen)
                 xn, _, avail, _ = banks[sen].apply("h_all", level=2)
                 conds[f"h_all:{sen}"] = ({sen: xn}, np.full(N, -1), avail, sen)
+            for sen in C.get("attack", []):                  # journal: lies in the non-physical sensors too
+                if sen not in C["sensors"]:
+                    bank = OperatorBank(dname, sen, ds, tr, fold)
+                    for op in ("s_swap", "c_swap_same"):
+                        xn, _, avail, info = bank.apply(op)
+                        conds[f"{op}:{sen}"] = ({sen: xn}, np.array([i["donor_y"] for i in info]), avail, sen)
 
             for cname, (repl, donor_y, avail, attacked) in conds.items():
                 inp = dict(base); inp.update({k: torch.from_numpy(v) for k, v in repl.items()})

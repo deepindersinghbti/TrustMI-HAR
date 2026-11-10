@@ -18,9 +18,14 @@ from trustmi.models.fusion import FusionTransformer
 from trustmi.operators import OperatorBank, OPS, LEVELS, FAMILY
 from trustmi.device import DEVICE, autocast
 
-MODELS = dict(b4=["video", "skel", "imu"], b4s=["watch", "phone"])
+MODELS = dict(b4=["video", "skel", "imu"], b4s=["watch", "phone"],
+              b4s3=["watch", "phone", "video"])                       # journal: MMAct with video (d2v)
 DATA = dict(d1=dict(n_classes=27, n_folds=8, targets=["imu"]),
-            d2=dict(n_classes=35, n_folds=20, targets=["watch", "phone"]))
+            d2=dict(n_classes=35, n_folds=20, targets=["watch", "phone"]),
+            # journal datasets: EVERY sensor is a target. Sensors without a physical model (skeleton, video)
+            # get swap / same-action swap / removal only; the harmless operators are skipped for them.
+            d1v2=dict(n_classes=27, n_folds=8, targets=["imu", "skel", "video"]),
+            d2v=dict(n_classes=35, n_folds=20, targets=["watch", "phone", "video"]))
 
 
 def dataset_cls(name):
@@ -129,6 +134,8 @@ def main():
 
         for t, bank in banks.items():
             for op in OPS:
+                if op.startswith("h_") and bank.layout.generic:   # no physical model: no harmless change
+                    continue
                 for lv in (sorted(LEVELS) if op.startswith("h_") else [0]):
                     xn, absent, avail, info = bank.apply(op, level=lv or 2)
                     if not avail.any():
