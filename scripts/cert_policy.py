@@ -30,12 +30,18 @@ from cert_score import fmt, fit_logreg, load as load_merged
 RES = ROOT / "results/certificate"
 BACKUPS = json.load(open(ROOT / "configs/backups.json"))
 COVERAGES = (1.0, 0.9, 0.8)
-EXP = {"d1": ["imu", "skel", "video"], "d2": ["watch", "phone"]}
+EXP = {"d1": ["imu", "skel", "video"], "d2": ["watch", "phone"],
+       "d1v2": ["imu", "skel", "video"], "d2v": ["watch", "phone", "video"]}      # journal datasets
+JOURNAL = ("d1v2", "d2v")
+TAG = "all_s0-1-2"                                  # journal result files: <name>_<ds>_<TAG>.parquet
 BUDGET = 0.05                                       # revision 2: max drop rate on normal validation clips
 REV = 1
 
 
 def load(ds):
+    if ds in JOURNAL:                               # stand-alone experts file, lies in every sensor
+        df = pd.read_parquet(RES / f"experts_{ds}_{TAG}.parquet")
+        return df.assign(pred=df.pred_fused)
     if ds == "d1":
         df = pd.read_parquet(RES / "experts_d1_all_s0-1-2_att-imu-skel-video.parquet")
         return df.assign(pred=df.pred_fused)

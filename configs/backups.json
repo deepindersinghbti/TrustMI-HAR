@@ -1,5 +1,5 @@
 {
-  "_note": "Certificate option A: the model that answers when a sensor is dropped. Chosen per sensor by validation accuracy with a rule fixed in advance (multi-sensor candidate must beat the single-sensor candidate by more than 1 point on validation, else the single-sensor model); test accuracy never used. UTD-MHAD: scripts/choose_backups_d1.py.",
+  "_note": "Certificate option A: the model that answers when a sensor is dropped. Chosen per sensor by validation accuracy with a rule fixed in advance (multi-sensor candidate must beat the single-sensor candidate by more than 1 point on validation, else the single-sensor model); test accuracy never used. UTD-MHAD: scripts/choose_backups_d1.py. Journal datasets d1v2 / d2v: scripts/choose_backups_journal.py, same rule; the single-sensor candidate is the best remaining sensor on validation.",
   "d1": {
     "imu": "b1_skel",
     "skel": "b4_noskel",
@@ -23,6 +23,50 @@
         "b4_novideo": 97.3,
         "b1_imu": 90.7
       }
+    },
+    "d1v2": {
+      "imu": {
+        "b4_noimu": 78.1,
+        "b1_skel": 79.6,
+        "b1_video": 55.2
+      },
+      "skel": {
+        "b4_noskel": 91.3,
+        "b1_imu": 90.7,
+        "b1_video": 55.2
+      },
+      "video": {
+        "b4_novideo": 97.3,
+        "b1_imu": 90.7,
+        "b1_skel": 79.6
+      }
+    },
+    "d2v": {
+      "watch": {
+        "b4s_nowatch": 87.8,
+        "b1_phone": 59.5,
+        "b1_video": 84.7
+      },
+      "phone": {
+        "b4s_nophone": 90.8,
+        "b1_watch": 77.4,
+        "b1_video": 84.7
+      },
+      "video": {
+        "b4s": 82.2,
+        "b1_watch": 77.4,
+        "b1_phone": 59.5
+      }
     }
+  },
+  "d1v2": {
+    "imu": "b1_skel",
+    "skel": "b1_imu",
+    "video": "b4_novideo"
+  },
+  "d2v": {
+    "watch": "b4s_nowatch",
+    "phone": "b4s_nophone",
+    "video": "b4s"
   }
 }

@@ -32,6 +32,12 @@ from cert_score import auroc, fit_logreg, tq, MIN_CLASS
 RES = ROOT / "results/certificate"
 SENS = CP.EXP                                     # same sensor order as cert_policy.py (matters only for ties)
 EVFILE = {"d1": "evidential_d1_all_s0-1-2_att-imu-skel-video", "d2": "evidential_d2_all_s0-1-2"}
+
+
+def can_name(ds):
+    """Naming the lying sensor (and so dropping it) needs at least three sensors: with two, the witnesses
+    can only say that the two disagree, not which one is wrong."""
+    return len(SENS[ds]) >= 3
 EV_RULES = {"most uncertain": ("ev_u", "max"), "most in conflict": ("ev_cdeg", "max"),
             "least supports the answer": ("ev_supp", "min")}
 OUR_RULES = {"odd one out": ("exp_div", "max")}
@@ -85,7 +91,7 @@ def per_subject(df, ds, feats, rules, drop_answer, rev):
         ok = ev_.sum() >= MIN_CLASS and (~ev_).sum() >= MIN_CLASS
         r["error_auroc"] = auroc(fit_apply(Xv[cv], ev_, Xt[ct])[1], et, MIN_CLASS) if ok else np.nan
         r["error_auroc_msp"] = auroc(Xt[ct, 0], et, MIN_CLASS)
-        if ds == "d1":                                                   # NAMING, then use / drop
+        if can_name(ds):                                                 # NAMING, then use / drop
             L = va[lv]
             acc = {q: np.mean(name(L, ds, rules, q) == L.attacked.to_numpy()) for q in rules}
             rule = max(acc, key=acc.get)
