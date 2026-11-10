@@ -1,0 +1,121 @@
+fold,subject,system,lie_in,auroc
+0,1,C3 (paper certificate),imu,0.9695461030075407
+0,1,C3 (paper certificate),skel,0.965955299346862
+0,1,C3 (paper certificate),video,0.9288652089944779
+0,1,MI only,imu,0.9577750604128453
+0,1,MI only,skel,0.9520676235673179
+0,1,MI only,video,0.950316864160868
+0,1,s1 + MI (no witnesses),imu,0.9635950738055725
+0,1,s1 + MI (no witnesses),skel,0.9575314680564048
+0,1,s1 + MI (no witnesses),video,0.948649566677342
+0,1,REV3 = C3 + MI (main),imu,0.9872050931182733
+0,1,REV3 = C3 + MI (main),skel,0.983418250987471
+0,1,REV3 = C3 + MI (main),video,0.9697188497782436
+0,1,REV3 frozen MI (ablation),imu,0.9755126600091226
+0,1,REV3 frozen MI (ablation),skel,0.9722537630651876
+0,1,REV3 frozen MI (ablation),video,0.9383818091827525
+1,2,C3 (paper certificate),imu,0.8591735253772291
+1,2,C3 (paper certificate),skel,0.8525891632373114
+1,2,C3 (paper certificate),video,0.747395595183661
+1,2,MI only,imu,0.8634183051364122
+1,2,MI only,skel,0.8569415866483767
+1,2,MI only,video,0.8158169486358787
+1,2,s1 + MI (no witnesses),imu,0.866651425087639
+1,2,s1 + MI (no witnesses),skel,0.8659217344916933
+1,2,s1 + MI (no witnesses),video,0.8120103642737387
+1,2,REV3 = C3 + MI (main),imu,0.897267946959305
+1,2,REV3 = C3 + MI (main),skel,0.8932975156226185
+1,2,REV3 = C3 + MI (main),video,0.8283264746227709
+1,2,REV3 frozen MI (ablation),imu,0.8698273891175126
+1,2,REV3 frozen MI (ablation),skel,0.8688881268099375
+1,2,REV3 frozen MI (ablation),video,0.7826245999085505
+2,3,C3 (paper certificate),imu,0.9317310623380582
+2,3,C3 (paper certificate),skel,0.9038808870598994
+2,3,C3 (paper certificate),video,0.8285989178478891
+2,3,MI only,imu,0.8607434080170706
+2,3,MI only,skel,0.8616874333180917
+2,3,MI only,video,0.8795372275567749
+2,3,s1 + MI (no witnesses),imu,0.8746970736168267
+2,3,s1 + MI (no witnesses),skel,0.8595412284712696
+2,3,s1 + MI (no witnesses),video,0.8495294162475232
+2,3,REV3 = C3 + MI (main),imu,0.9458600060966316
+2,3,REV3 = C3 + MI (main),skel,0.9220278920896204
+2,3,REV3 = C3 + MI (main),video,0.9047172687090382
+2,3,REV3 frozen MI (ablation),imu,0.9427907331199512
+2,3,REV3 frozen MI (ablation),skel,0.9073712086572169
+2,3,REV3 frozen MI (ablation),video,0.8684651729919219
+3,4,C3 (paper certificate),imu,0.9036789361377838
+3,4,C3 (paper certificate),skel,0.8781130925163847
+3,4,C3 (paper certificate),video,0.7950903063557384
+3,4,MI only,imu,0.8134754610577656
+3,4,MI only,skel,0.8117731672001219
+3,4,MI only,video,0.7996199131229995
+3,4,s1 + MI (no witnesses),imu,0.8259392623075751
+3,4,s1 + MI (no witnesses),skel,0.8233539094650206
+3,4,s1 + MI (no witnesses),video,0.7984110653863741
+3,4,REV3 = C3 + MI (main),imu,0.8464315653101662
+3,4,REV3 = C3 + MI (main),skel,0.8410570035055632
+3,4,REV3 = C3 + MI (main),video,0.8214658588629782
+3,4,REV3 frozen MI (ablation),imu,0.865971269623533
+3,4,REV3 frozen MI (ablation),skel,0.8505544124371285
+3,4,REV3 frozen MI (ablation),video,0.8142508763907941
+4,5,C3 (paper certificate),imu,0.8983996342021033
+4,5,C3 (paper certificate),skel,0.895288446883097
+4,5,C3 (paper certificate),video,0.764437585733882
+4,5,MI only,imu,0.8626543209876543
+4,5,MI only,skel,0.8600823045267489
+4,5,MI only,video,0.8409007773205304
+4,5,s1 + MI (no witnesses),imu,0.8797744246303917
+4,5,s1 + MI (no witnesses),skel,0.8817748818777625
+4,5,s1 + MI (no witnesses),video,0.8466830513641214
+4,5,REV3 = C3 + MI (main),imu,0.9004515317786923
+4,5,REV3 = C3 + MI (main),skel,0.8996837372351776
+4,5,REV3 = C3 + MI (main),video,0.8587467611644566
+4,5,REV3 frozen MI (ablation),imu,0.9309118274653254
+4,5,REV3 frozen MI (ablation),skel,0.9176859472641365
+4,5,REV3 frozen MI (ablation),video,0.8481633897271758
+5,6,C3 (paper certificate),imu,0.9012024339825895
+5,6,C3 (paper certificate),skel,0.8787259440416921
+5,6,C3 (paper certificate),video,0.8338020787841733
+5,6,MI only,imu,0.9090575596121933
+5,6,MI only,skel,0.8934433866130957
+5,6,MI only,video,0.9101386826603003
+5,6,s1 + MI (no witnesses),imu,0.9072524529070952
+5,6,s1 + MI (no witnesses),skel,0.9055929193233762
+5,6,s1 + MI (no witnesses),video,0.902452421851496
+5,6,REV3 = C3 + MI (main),imu,0.9469842101687678
+5,6,REV3 = C3 + MI (main),skel,0.9316951504740831
+5,6,REV3 = C3 + MI (main),video,0.9324074882813638
+5,6,REV3 frozen MI (ablation),imu,0.9349637522927766
+5,6,REV3 frozen MI (ablation),skel,0.9064741219514563
+5,6,REV3 frozen MI (ablation),video,0.8750613833328481
+6,7,C3 (paper certificate),imu,0.9008592440176802
+6,7,C3 (paper certificate),skel,0.8985291876238378
+6,7,C3 (paper certificate),video,0.7144261545496113
+6,7,MI only,imu,0.822756630086877
+6,7,MI only,skel,0.820007430269776
+6,7,MI only,video,0.7726146928821825
+6,7,s1 + MI (no witnesses),imu,0.8346040999847584
+6,7,s1 + MI (no witnesses),skel,0.8328741807651273
+6,7,s1 + MI (no witnesses),video,0.7609396433470508
+6,7,REV3 = C3 + MI (main),imu,0.8584095412284712
+6,7,REV3 = C3 + MI (main),skel,0.8582285474775186
+6,7,REV3 = C3 + MI (main),video,0.7701798506325255
+6,7,REV3 frozen MI (ablation),imu,0.8713725041914342
+6,7,REV3 frozen MI (ablation),skel,0.8654473403444597
+6,7,REV3 frozen MI (ablation),video,0.7480776558451455
+7,8,C3 (paper certificate),imu,0.9049232829650333
+7,8,C3 (paper certificate),skel,0.9175124465018779
+7,8,C3 (paper certificate),video,0.8418745936083695
+7,8,MI only,imu,0.9136130278238759
+7,8,MI only,skel,0.924972583728807
+7,8,MI only,video,0.9112595956949175
+7,8,s1 + MI (no witnesses),imu,0.923649809299211
+7,8,s1 + MI (no witnesses),skel,0.9366582234256267
+7,8,s1 + MI (no witnesses),video,0.9136518473229103
+7,8,REV3 = C3 + MI (main),imu,0.9389175182694267
+7,8,REV3 = C3 + MI (main),skel,0.9485078755058666
+7,8,REV3 = C3 + MI (main),video,0.9305228016032453
+7,8,REV3 frozen MI (ablation),imu,0.9258101144204735
+7,8,REV3 frozen MI (ablation),skel,0.9332925728593473
+7,8,REV3 frozen MI (ablation),video,0.8832464747042439
