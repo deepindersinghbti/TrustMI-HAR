@@ -168,7 +168,7 @@ def report(stored, versions, names, label):
 
 
 def write(out, trial, versions, extra):
-    V.save_atomic(out, trial=np.asarray(trial), **{k: v.astype(np.float32) for k, v in versions.items()},
+    V.save_atomic(out, trial=np.asarray(trial).astype(str), **{k: v.astype(np.float32) for k, v in versions.items()},
                   **extra.pop("arrays", {}))
     meta = dict(plan="docs/plan_faults_2026-11-11.md (section 5, option A)", base="extract_video_features_v2.py",
                 frames_per_clip=T, gap_frames={lv: min(max(1, int(round(GAP[lv] * T))), T - 1) for lv in GAP},
@@ -178,15 +178,15 @@ def write(out, trial, versions, extra):
 
 
 def run_utd(model, args):
-    trials = np.load(V.UTD_META, allow_pickle=True)["trial"]
+    trials = np.load(V.UTD_META, allow_pickle=True)["trial"].astype(str)
+    stored = np.load(V.UTD_OUT, allow_pickle=True)           # as trustmi.data.utd opens it (trial names are objects)
+    if not (stored["trial"].astype(str) == trials).all():   # checked before any work, not after
+        raise SystemExit("stored UTD-MHAD features are in a different trial order: stop and paste this")
     t0 = time.time()
     tok, info = embed_all(model, [V.UTD_ROOT / f"{t}_color.avi" for t in trials], trials, None, UTD_FAULTS,
                           args.workers, args.batch)
     names = [key(*f) for f in UTD_FAULTS]
     versions = {"clean": tok[:, 0], **{k: tok[:, j + 1] for j, k in enumerate(names)}}
-    stored = np.load(V.UTD_OUT)
-    if not (stored["trial"] == trials).all():
-        raise SystemExit("stored UTD-MHAD features are in a different trial order: stop and paste this")
     print(f"UTD-MHAD: {len(trials)} videos in {time.time() - t0:.0f} s")
     summ = report(stored["tokens"].astype(np.float32), versions, names, "UTD-MHAD")
     gaps = np.array([[gap_map(lv, t)[1] for lv in (1, 2, 3)] for t in trials])
@@ -200,6 +200,11 @@ def run_mmact(model, args):
     vids = pd.read_csv(V.MM_INDEX).merge(clips[V.KEY + ["status3"]], on=V.KEY)
     vids["trial"] = [f"s{a:02d}_sc{b}_se{c}_{d}" for a, b, c, d in vids[V.KEY].itertuples(index=False)]
     names = [key(*f) for f in MM_FAULTS]
+    order = clips.sort_values(V.KEY)
+    expect = np.array([f"s{a:02d}_sc{b}_se{c}_{d}" for a, b, c, d in order[V.KEY].itertuples(index=False)])
+    stored = np.load(V.MM_OUT, allow_pickle=True)            # checked before any work, not after
+    if not (stored["trial"].astype(str) == expect).all():
+        raise SystemExit("stored MMAct features are in a different clip order: stop and paste this")
     MM_SHARDS.mkdir(parents=True, exist_ok=True)
     for s in args.subjects or sorted(vids.subject.unique()):
         shard = MM_SHARDS / f"subject{s:02d}.npz"
@@ -231,9 +236,7 @@ def run_mmact(model, args):
     trial = np.array([f"s{a:02d}_sc{b}_se{c}_{d}" for a, b, c, d in clips[V.KEY].itertuples(index=False)])
     per = np.stack([tok[r].mean(0) for r in rows])                                # (clips, nv, 4, 512)
     versions = {"clean": per[:, 0], **{k: per[:, j + 1] for j, k in enumerate(names)}}
-    stored = np.load(V.MM_OUT)
-    if not (stored["trial"] == trial).all():
-        raise SystemExit("stored MMAct features are in a different clip order: stop and paste this")
+    assert (trial == expect).all()
     summ = report(stored["tokens"].astype(np.float32), versions, names, "MMAct")
     gaps = np.array([[gap_map(lv, t)[1] for lv in (1, 2, 3)] for t in trial])
     dirs = np.array([[shift_dir(lv, t) for lv in (1, 2, 3)] for t in trial])
