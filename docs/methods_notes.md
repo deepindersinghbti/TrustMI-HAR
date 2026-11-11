@@ -82,6 +82,10 @@ Audit: `docs/data_audit_weargait.md` (`scripts/audit_weargait.py`). Plan: `docs/
 - Only clean clips are used for training, validation and testing. Real-dropout clips never enter training or any
   fitting; they form an extra test set for the test people of each fold.
 
+- Built: 36,318 clips (32,735 clean, 3,583 real-dropout). Clean class shares: Standing 38.8%, Walk 37.9%,
+  TandemWalk 7.8%, Turn 7.6%, Sitting 5.9%, TurnToSit 2.2%. Four people (2 with Parkinson's disease, 2
+  controls) have no clean clip and appear only in the real-dropout test set.
+
 ### C.4 Loader (`src/trustmi/data/weargait.py`)
 - Per-channel normalisation with mean and standard deviation from the training people's clean clips only.
 - In real-dropout clips, missing samples are set to the training mean (zero after normalisation): the same
@@ -93,3 +97,17 @@ Audit: `docs/data_audit_weargait.md` (`scripts/audit_weargait.py`). Plan: `docs/
   bugs were each caught.
 - Folds and loader: tests on the built data (person-wise folds, balance, no clip lost or duplicated, train-only
   statistics, finite inputs, missing samples equal to the training mean).
+
+### C.6 Models (`scripts/train.py`, `scripts/train_mi.py`, `src/trustmi/models/fusion.py`)
+- Every model of the other datasets is trained with the same architecture and settings (AdamW, learning rate
+  3e-4, weight decay 0.05, cosine schedule, batch 32, at most 60 epochs, early stopping on validation macro-F1
+  with patience 15, bf16, gradient clipping at 1.0); only the input sizes differ. Each sensor group uses the
+  same convolutional IMU encoder as the MMAct devices (stride 4: 100 samples -> 25 tokens).
+- Models: three single-sensor witnesses; the fused model over the three groups (main); three backups (fused
+  without one group); TMC and ECML over the three groups; the fused model trained with 50% sensor dropout; a
+  shuffled-label control of the fused model (seed 0). Three seeds per fold.
+- MI matchers as for MMAct (InfoNCE over every sensor pair, 16 wrong partners from the same person,
+  1,000 anchors per epoch). Wrong partners and swap donors never come from the same labelled segment as the
+  anchor, since clips of one segment overlap in time.
+- Backups for the drop action chosen by the existing rule (validation accuracy, 1-point margin in favour of the
+  single-sensor model).

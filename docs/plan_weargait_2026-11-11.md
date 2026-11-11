@@ -94,3 +94,25 @@ days of GPU time, then the benches and scoring (a few hours).
 - No change to the method, the architecture or the training settings.
 - No use of the walkway, foot-pressure or clinical data, nor of the real-world tasks (FreeWalk, door frame).
 - No Parkinson's-vs-control classification: the people's group is used only for balanced folds and reporting.
+
+## 7. Implementation notes (11 Nov, after building the clips, before any model was trained)
+Consequences of the plan meeting the data and the code; nothing measured changes.
+1. **Built data** (`logs/build_weargait.log`): 36,318 clips, 32,735 clean and 3,583 real-dropout. Class shares
+   of the clean clips: Standing 38.8%, Walk 37.9%, TandemWalk 7.8%, Turn 7.6%, Sitting 5.9%, TurnToSit 2.2%.
+   Every fold holds all 6 classes and 10 Parkinson's people (`logs/splits_weargait.log`).
+2. **Four people (2 Parkinson's, 2 controls) have no clean clip**, only real-dropout clips. They stay in their
+   folds and therefore appear only in the real-dropout test set.
+3. **Real-dropout clips are unevenly spread over folds** (12 in fold 7, 678 in fold 6); that test is reported
+   pooled over clips and per fold, never as a mean over folds alone.
+4. **Overlapping clips.** Clips of one labelled segment overlap by 1 s. They are therefore never swap donors
+   (same-action control) or MI wrong partners for each other. This follows from the existing rule that a donor
+   or wrong partner is a different recording of the same person; it applies only to datasets with segments.
+5. **Swap donors** follow the existing rule (same person, same group); the group is the cohort, which is the same
+   for all clips of a person, so any other segment of the same person can be a donor.
+6. **Harmless changes on multi-IMU sensors.** Each IMU of a sensor group gets its own random mounting rotation
+   (the IMUs are mounted separately); gain and jitter apply per channel, as for the other datasets. No orientation
+   channels are used, so the orientation-offset change does not apply.
+7. **Models, names:** witnesses `b1_arms`, `b1_trunk`, `b1_legs`; main `b4w`; backups `b4w_noarms`,
+   `b4w_notrunk`, `b4w_nolegs`; `tmc_w`, `ecml_w`; sensor-dropout model `b4w_sd50`; shuffled-label control for
+   `b4w`; MI matchers (own, the main one, and frozen) with 1,000 anchors per epoch as for MMAct.
+   Backups chosen with the existing rule (`scripts/choose_backups_journal.py --datasets d3`).
