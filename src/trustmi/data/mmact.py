@@ -122,3 +122,97 @@ class MMAct(Dataset):
 
     def __getitem__(self, i):
         return {**{k: v[i] for k, v in self.x.items()}, "y": self.y[i], "index": int(self.idx[i])}
+
+
+# ---------------------------------------------------------------- journal: the clips without a watch
+# docs/plan_nowatch_2026-11-11.md, step 1. New code only: nothing above this line is changed.
+NOWATCH_STATUS, NOWATCH_STATUS3, N_NOWATCH = "no_watch", "no_watch3", 247   # docs/data_audit_mmact_video.md
+NOWATCH_CLIP0 = 100_000      # clip id of a no-watch clip = NOWATCH_CLIP0 + its row in mmact_sensor_v1.npz
+                             # (main clip ids are rows of the main3 set, < 8,432: the two never clash)
+
+
+def _window_rows(d, rows):
+    """Windows for ANY rows of mmact_sensor_v1.npz, built exactly as _windows() builds the main clips
+    (tests/test_nowatch.py checks this on the main clips). A stream that was never recorded stays NaN."""
+    X, start, length = d["X"], d["start"], d["length"]
+    watch = np.zeros((len(rows), T, 3), np.float32)
+    phone = np.zeros((len(rows), T, 10), np.float32)
+    lens = np.zeros(len(rows), np.int64)
+    for r, i in enumerate(rows):
+        L = int(length[i])
+        a, n = start[i] + max(0, (L - T) // 2), min(L, T)
+        x = X[a: a + n]
+        ang = x[:, 10:12]                                   # pitch, roll (orient_1, orient_2)
+        watch[r, :n] = x[:, 0:3]
+        phone[r, :n] = np.concatenate([x[:, 3:9], np.sin(ang), np.cos(ang)], axis=1)
+        lens[r] = n
+    return dict(watch=watch, phone=phone), lens
+
+
+def nowatch_rows(fold=None):
+    """Rows of mmact_sensor_v1.npz with status 'no_watch' (all, or those of the fold's TEST person)."""
+    split = json.loads(SPLITS.read_text())
+    with np.load(TENSORS) as d:
+        status, subject = d["status"], d["subject"]
+    keep = status == NOWATCH_STATUS
+    if fold is not None:
+        keep &= np.isin(subject, split["folds"][fold]["test"])
+    return np.flatnonzero(keep)
+
+
+def nowatch_folds():
+    """The folds whose test person has at least one no-watch clip."""
+    split = json.loads(SPLITS.read_text())
+    return [f["fold"] for f in split["folds"] if len(nowatch_rows(f["fold"]))]
+
+
+class MMActNoWatch:
+    """The no-watch clips of one fold's TEST person, as the video=True models expect them.
+
+    watch  0 everywhere after normalisation (= the training mean): exactly the r_fill rule of trustmi.operators
+    phone  normalised with the SAME train-only statistics as MMAct(fold, part, video=True); padding 0
+    video  matched by clip NAME in the video feature file (status3 'no_watch3'), same normalisation
+    Same attributes as MMAct (x, y, subject, group = scene, trial, idx, classes), so the certificate scripts can
+    use it in place of a part. idx = NOWATCH_CLIP0 + row in mmact_sensor_v1.npz. Writes no statistics file."""
+    nowatch = True
+
+    def __init__(self, fold):
+        x_all, lens_all, meta, split = _with_video()
+        f = split["folds"][fold]
+        train_idx = np.flatnonzero(np.isin(meta["subject"], f["train"]))
+        stats = {k: fit_stats(x_all[k], lens_all, train_idx) for k in SENSORS}   # as in MMAct.__init__
+        v = x_all["video"][train_idx]
+        stats["video"] = (v.mean((0, 1), dtype=np.float64), v.std((0, 1), dtype=np.float64) + EPS)
+        self.stats = stats
+
+        rows = nowatch_rows(fold)
+        with np.load(TENSORS) as d:
+            if hashlib.sha256("\n".join(d["trial"]).encode()).hexdigest()[:16] != split["trial_order_hash"]:
+                raise RuntimeError("split file was made for a different trial order")
+            x, lens = _window_rows(d, rows)
+            y, subject, scene, trial = d["y"][rows], d["subject"][rows], d["scene"][rows], d["trial"][rows]
+            classes = d["classes"]
+        with np.load(VIDEO) as fv:
+            vt = {k: fv[k] for k in ("trial", "status3", "tokens")}
+        pos = {t: i for i, t in enumerate(vt["trial"])}
+        miss = [t for t in trial if t not in pos or vt["status3"][pos[t]] != NOWATCH_STATUS3]
+        if miss:
+            raise RuntimeError(f"{len(miss)} no-watch clips have no '{NOWATCH_STATUS3}' video row, e.g. {miss[:3]}")
+        if np.isnan(x["phone"]).any():
+            raise RuntimeError("a no-watch clip has a missing phone sample")
+
+        valid = np.arange(T)[None, :, None] < lens[:, None, None]
+        mu, sd = stats["phone"]
+        self.x = {"watch": torch.zeros((len(rows), T, 3), dtype=torch.float32),
+                  "phone": torch.from_numpy(np.where(valid, (x["phone"] - mu) / sd, 0).astype(np.float32))}
+        vmu, vsd = stats["video"]
+        tokens = vt["tokens"][[pos[t] for t in trial]].astype(np.float32)
+        self.x["video"] = torch.from_numpy(((tokens - vmu) / vsd).astype(np.float32))
+        self.x["len"] = torch.from_numpy(lens)
+        self.y = torch.from_numpy(y.astype(np.int64))
+        self.subject, self.group, self.trial, self.classes = subject, scene, trial, classes
+        self.idx = NOWATCH_CLIP0 + rows
+        self.fold, self.part, self.video = fold, "nowatch", True
+
+    def __len__(self):
+        return len(self.idx)

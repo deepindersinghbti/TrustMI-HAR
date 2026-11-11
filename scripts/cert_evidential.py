@@ -26,7 +26,8 @@ from cert_score import auroc
 from eval_operators import dataset_cls
 from trustmi.models.evidential import EvidentialLateFusion, fuse_tmc, fuse_ecml
 from trustmi.operators import OperatorBank
-from cert_conditions import build_fault_conditions, conditions_suffix
+from cert_conditions import (build_fault_conditions, build_nowatch_conditions, conditions_suffix, parts_for,
+                             dataset_for, folds_for)
 from trustmi.device import DEVICE, autocast
 
 # run name -> (method, sensors in the order train.py used; ECML's fusion order depends on it)
@@ -92,8 +93,9 @@ def main():
     ap.add_argument("--folds", default="all")
     ap.add_argument("--seeds", default="0,1,2")
     ap.add_argument("--attack", default=None, help="comma list of sensors to swap (as in cert_experts.py)")
-    ap.add_argument("--conditions", choices=("lies", "faults"), default="lies",
-                    help="lies (default, unchanged) or faults (docs/plan_faults_2026-11-11.md)")
+    ap.add_argument("--conditions", choices=("lies", "faults", "nowatch"), default="lies",
+                    help="lies (default, unchanged), faults (docs/plan_faults_2026-11-11.md) or "
+                         "nowatch (d2v only, docs/plan_nowatch_2026-11-11.md)")
     ap.add_argument("--no-video-faults", action="store_true",
                     help="faults without the video faults (smoke run before the video fault features exist)")
     ap.add_argument("--paper-settings", action="store_true", help="read the _p / _sp runs (papers' optimiser settings)")
@@ -104,6 +106,7 @@ def main():
     if args.paper_settings:
         M = {PAPER[k]: v for k, v in M.items()}
     folds = list(range(C["n_folds"])) if args.folds == "all" else [int(f) for f in args.folds.split(",")]
+    folds = folds_for(args.conditions, dname, folds)          # nowatch: only folds with no-watch clips
     seeds = [int(s) for s in args.seeds.split(",")]
     DS = dataset_cls(dname)
     out_dir = ROOT / "results/certificate"; out_dir.mkdir(parents=True, exist_ok=True)
@@ -119,13 +122,16 @@ def main():
         models = {(name, s): load_ev(run_dir(dname, name, fold, s), meth, mods, K)
                   for name, (meth, mods) in M.items() for s in seeds}
         worst = 0.0
-        for part in ("val", "test"):
-            ds = DS(fold, part)
+        for part in parts_for(args.conditions):
+            ds = dataset_for(args.conditions, DS, dname, fold, part)
             base = {m: ds.x[m] for m in next(iter(M.values()))[1]}
             lens = ds.x["len"] if "len" in ds.x else None
             y = np.asarray(ds.y).astype(int); N = len(y)
             if args.conditions == "faults":              # the shared fault bench (cert_conditions.py)
                 conds, gidx = build_fault_conditions(dname, ds, tr, fold, not args.no_video_faults)
+                subj = np.asarray(ds.subject)
+            elif args.conditions == "nowatch":           # the no-watch bench (cert_conditions.py)
+                conds, gidx = build_nowatch_conditions(dname, ds, tr, fold)
                 subj = np.asarray(ds.subject)
             else:                                        # the lie bench, exactly as before
                 banks = {sen: OperatorBank(dname, sen, ds, tr, fold) for sen in attack}
@@ -160,13 +166,14 @@ def main():
     t = df[(df.part == "test") & df.available].copy()
     t["group"] = np.where(t.condition == "clean", "normal",
                           np.where(t.condition.str.startswith("s_swap"), "lie",
-                                   np.where(t.condition.str.startswith("f_"), "fault", "benign")))
+                                   np.where(t.condition.str.startswith("f_"), "fault",
+                                            np.where(t.condition.str.startswith("nw_"), "no-watch", "benign"))))
     pd.set_option("display.width", 160)
     print(f"\nSANITY ({dname}, test part) -> {out.relative_to(ROOT)}")
     print(t.groupby(["method", "group"])[["correct", "u", "conflict"]].mean().round(3).to_string())
     for name, g in t.groupby("method"):
         mods = np.array(M[name][1])
-        lie = g.condition.str.startswith(("s_swap", "f_")).to_numpy()   # lies, or faults on the fault bench
+        lie = g.condition.str.startswith(("s_swap", "f_", "nw_")).to_numpy()   # lies, faults, or no-watch clips
         a = {k: round(auroc(v.to_numpy(), lie), 3) for k, v in (("1-msp", 1 - g.msp), ("u", g.u), ("conflict", g.conflict))}
         L = g[lie]
         nm = {r: round(float((mods[L[[f"{c}_{m}" for m in mods]].to_numpy().argmax(1)] == L.attacked.to_numpy()).mean()), 3)

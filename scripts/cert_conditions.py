@@ -56,15 +56,74 @@ def build_fault_conditions(dname, ds, tr, fold, video=True):
     return conds, gidx
 
 
+# ---------------------------------------------------------------- journal: the clips without a watch
+# docs/plan_nowatch_2026-11-11.md. Separate functions, so everything above stays exactly as it was.
+NOWATCH_DATASETS = ("d2v",)
+
+
+def build_nowatch_conditions(dname, ds, tr, fold):
+    """The no-watch bench for one fold, in the same format as build_conditions:
+      part 'test'     clean          the test person's normal clips, unchanged (checked against the stored run)
+                      r_fill:watch   the same clips with the watch set to its training mean (the r_fill operator)
+      part 'nowatch'  nw_fill:watch  the clips where the watch was never recorded; the loader already sets the
+                                     watch to the training mean (= the r_fill rule), so nothing is replaced
+    donor_y is -1; `attacked` is the watch. Deterministic."""
+    if dname not in NOWATCH_DATASETS:
+        raise ValueError(f"no no-watch clips in {dname}")
+    N = len(ds.y)
+    if getattr(ds, "nowatch", False):
+        return {"nw_fill:watch": ({}, np.full(N, -1), np.ones(N, bool), "watch")}, np.asarray(ds.idx)
+    bank = OperatorBank(dname, "watch", ds, tr, fold)
+    xn, _, avail, _ = bank.apply("r_fill")
+    conds = {"clean": ({}, np.full(N, -1), np.ones(N, bool), ""),
+             "r_fill:watch": ({"watch": xn}, np.full(N, -1), avail, "watch")}
+    return conds, bank.gidx
+
+
+def parts_for(kind):
+    """Which parts a condition set runs on: the no-watch bench needs no validation part (nothing is fitted on
+    it) and adds the 'nowatch' part."""
+    return ("test", "nowatch") if kind == "nowatch" else ("val", "test")
+
+
+def dataset_for(kind, DS, dname, fold, part):
+    """DS(fold, part), or the no-watch clips of the fold's test person for part 'nowatch'."""
+    if part == "nowatch":
+        if kind != "nowatch" or dname not in NOWATCH_DATASETS:
+            raise ValueError("part 'nowatch' needs --conditions nowatch on d2v")
+        from trustmi.data.mmact import MMActNoWatch
+        return MMActNoWatch(fold)
+    return DS(fold, part)
+
+
+def folds_for(kind, dname, folds):
+    """For the no-watch bench, keep only the folds whose test person has no-watch clips."""
+    if kind != "nowatch":
+        return folds
+    if dname not in NOWATCH_DATASETS:
+        raise SystemExit(f"--conditions nowatch: no no-watch clips in {dname}")
+    from trustmi.data.mmact import nowatch_folds
+    keep = [f for f in folds if f in set(nowatch_folds())]
+    if not keep:
+        raise SystemExit(f"--conditions nowatch: none of folds {folds} has no-watch clips")
+    return keep
+
+
 def conditions_for(kind, dname, ds, tr, fold, attack, phys_sensors, video=True):
-    """kind 'lies' -> build_conditions (the default everywhere, unchanged); kind 'faults' -> the fault bench."""
+    """kind 'lies' -> build_conditions (the default everywhere, unchanged); kind 'faults' -> the fault bench;
+    kind 'nowatch' -> the no-watch bench."""
     if kind == "lies":
         return build_conditions(dname, ds, tr, fold, attack, phys_sensors)
     if kind == "faults":
         return build_fault_conditions(dname, ds, tr, fold, video)
+    if kind == "nowatch":
+        return build_nowatch_conditions(dname, ds, tr, fold)
     raise ValueError(f"unknown condition set {kind!r}")
 
 
 def conditions_suffix(kind, video=True):
-    """File-name suffix of a condition set: '' for lies (unchanged names), '_faults' or '_faults-novideo'."""
+    """File-name suffix of a condition set: '' for lies (unchanged names), '_faults' or '_faults-novideo',
+    '_nowatch'."""
+    if kind == "nowatch":
+        return "_nowatch"
     return "" if kind == "lies" else ("_faults" if video else "_faults-novideo")

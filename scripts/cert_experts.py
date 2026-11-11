@@ -24,7 +24,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src")); sys.path.insert(0, str(ROOT / "scripts"))
 from eval_operators import load_model, dataset_cls, MODELS as FUSED
 from cert_signals import CFG, run_dir, repro, fwd
-from cert_conditions import conditions_for, conditions_suffix
+from cert_conditions import conditions_for, conditions_suffix, parts_for, dataset_for, folds_for
 from cert_evidential import load_ev, METHODS as EV_METHODS
 
 EXPERTS = dict(d1=dict(imu="b1_imu", skel="b1_skel", video="b1_video"),
@@ -48,16 +48,20 @@ def main():
     ap.add_argument("--seeds", default="0,1,2")
     ap.add_argument("--attack", default=None, help="comma list of sensors to swap")
     ap.add_argument("--extra-models", default="", help="comma list of extra models to store answers for")
-    ap.add_argument("--conditions", choices=("lies", "faults"), default="lies",
-                    help="lies (default, unchanged) or faults (docs/plan_faults_2026-11-11.md)")
+    ap.add_argument("--conditions", choices=("lies", "faults", "nowatch"), default="lies",
+                    help="lies (default, unchanged), faults (docs/plan_faults_2026-11-11.md) or "
+                         "nowatch (d2v only, docs/plan_nowatch_2026-11-11.md)")
     ap.add_argument("--no-video-faults", action="store_true",
                     help="faults without the video faults (smoke run before the video fault features exist)")
     ap.add_argument("--main", default=None, help="judge this evidential run's answers instead of B4's (e.g. tmc, tmc_s)")
     args = ap.parse_args()
     torch.backends.cudnn.benchmark = False
     C, dname = CFG[args.dataset], args.dataset
+    if args.main and args.conditions == "nowatch":
+        raise SystemExit("--main is not supported with --conditions nowatch")
     mods, E = FUSED[C["model"]], EXPERTS[args.dataset]
     folds = list(range(C["n_folds"])) if args.folds == "all" else [int(f) for f in args.folds.split(",")]
+    folds = folds_for(args.conditions, dname, folds)          # nowatch: only folds with no-watch clips
     seeds = [int(s) for s in args.seeds.split(",")]
     DS = dataset_cls(dname)
     out_dir = ROOT / "results/certificate"; out_dir.mkdir(parents=True, exist_ok=True)
@@ -80,8 +84,8 @@ def main():
                    for m, b in E.items() for s in seeds}
         extras = {(x, s): load_model(run_dir(dname, x, fold, s), EXTRA_MODS[x], C["n_classes"])
                   for x in filter(None, args.extra_models.split(",")) for s in seeds}
-        for part in ("val", "test"):
-            ds = DS(fold, part)
+        for part in parts_for(args.conditions):
+            ds = dataset_for(args.conditions, DS, dname, fold, part)
             base = {m: ds.x[m] for m in mods}
             lens = ds.x["len"] if "len" in ds.x else None
             y = np.asarray(ds.y).astype(int); N = len(y); ar = np.arange(N)
@@ -108,6 +112,10 @@ def main():
                         cols[f"exp_pred_{m}"] = pm.argmax(1)
                         cols[f"exp_conf_{m}"] = pm.max(1)
                         cols[f"exp_support_{m}"] = pm[ar, pred]
+                    if args.conditions == "nowatch":    # plan section 3: M = watch flagged absent; scene
+                        pm = fwd(fused[s], inp, lens, {"watch": torch.ones(N, dtype=torch.bool)})[1]
+                        cols["mask_watch_pred"], cols["mask_watch_msp"] = pm.argmax(1), pm.max(1)
+                        cols["scene"] = np.asarray(ds.group)
                     cols["exp_js"] = np.mean([js(P[a], P[b]) for a, b in itertools.combinations(P, 2)], axis=0)
                     for (x, sx), mdl in extras.items():
                         if sx == s:

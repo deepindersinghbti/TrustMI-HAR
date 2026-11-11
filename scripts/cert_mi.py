@@ -88,19 +88,21 @@ def main():
     ap.add_argument("--folds", default="all")
     ap.add_argument("--seeds", default="0,1,2")
     ap.add_argument("--attack", default=None, help="comma list of sensors to swap (as in cert_experts.py)")
-    ap.add_argument("--conditions", choices=("lies", "faults"), default="lies",
-                    help="lies (default, unchanged) or faults (docs/plan_faults_2026-11-11.md)")
+    ap.add_argument("--conditions", choices=("lies", "faults", "nowatch"), default="lies",
+                    help="lies (default, unchanged), faults (docs/plan_faults_2026-11-11.md) or "
+                         "nowatch (d2v only, docs/plan_nowatch_2026-11-11.md)")
     ap.add_argument("--no-video-faults", action="store_true",
                     help="faults without the video faults (smoke run before the video fault features exist)")
     args = ap.parse_args()
     torch.backends.cudnn.benchmark = False
     from cert_signals import CFG
-    from cert_conditions import conditions_for, conditions_suffix
+    from cert_conditions import conditions_for, conditions_suffix, parts_for, dataset_for, folds_for
     from eval_operators import dataset_cls
     from train_mi import MODS, build_model, run_name
     from cert_score import auroc
     C, dname, mods = CFG[args.dataset], args.dataset, MODS[args.dataset]
     folds = list(range(C["n_folds"])) if args.folds == "all" else [int(f) for f in args.folds.split(",")]
+    folds = folds_for(args.conditions, dname, folds)          # nowatch: only folds with no-watch clips
     seeds = [int(s) for s in args.seeds.split(",")]
     attack = args.attack.split(",") if args.attack else C.get("attack", C["sensors"])
     DS, dev = dataset_cls(dname), DEVICE
@@ -123,8 +125,8 @@ def main():
             mdl.load_state_dict(torch.load(run / "ckpt_best.pt", map_location=dev))   # strict
             models[s] = mdl.eval()
         banks = {s: Bank(models[s], Xb, mods, lens_b) for s in seeds}
-        for part in ("val", "test"):
-            ds = DS(fold, part)
+        for part in parts_for(args.conditions):
+            ds = dataset_for(args.conditions, DS, dname, fold, part)
             base = {m: ds.x[m] for m in mods}
             lens = ds.x["len"].to(dev) if "len" in ds.x else None
             y = np.asarray(ds.y).astype(int); subj = np.asarray(ds.subject)
@@ -149,7 +151,7 @@ def main():
     print("mean pointwise MI by condition (expected: clean ~ c_swap_same ~ h_all, s_swap clearly lower)")
     print(t.groupby("condition", sort=False)[[c for c in t.columns if c.startswith("pmi_")] + ["mi_min"]]
           .mean().round(3).to_string())
-    lie = t.condition.str.startswith(("s_swap", "f_")).to_numpy()   # lies, or faults on the fault bench
+    lie = t.condition.str.startswith(("s_swap", "f_", "nw_")).to_numpy()   # lies, faults, or no-watch clips
     print(f"rough pooled lie AUROC of s4 (lies vs clean + controls): {auroc(t.s4.to_numpy(), lie):.3f}")
     if len(mods) >= 3:
         L = t[lie]
