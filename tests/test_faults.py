@@ -258,9 +258,14 @@ def test_video_fault_bank_normalises_and_checks_the_clean_tokens(tmp_path):
     assert avail.all() and np.allclose(x, (raw["f_gap_L2"][rows] - mu) / sd, atol=1e-5)
     with pytest.raises(ValueError):
         vb.apply_fault("f_shift", 1)                                              # not planned on UTD-MHAD
+    noisy = te.x["video"].copy(); noisy[0, 0, :5] += 0.05                          # bf16-sized noise: accepted
+    VideoFaultBank("d1v2", SimpleNamespace(**{**vars(te), "x": {"video": noisy}}), tr, fold=0, path=ff)
     te.x["video"] = te.x["video"] + 1.0                                           # wrong clips -> must stop
     with pytest.raises(RuntimeError):
         VideoFaultBank("d1v2", te, tr, fold=0, path=ff)
+    bad = (te.x["video"] - 1.0).copy(); bad[0, 0, 0] += 0.5                       # one large outlier -> must stop
+    with pytest.raises(RuntimeError):
+        VideoFaultBank("d1v2", SimpleNamespace(**{**vars(te), "x": {"video": bad}}), tr, fold=0, path=ff)
 
 
 # ---------------------------------------------------------------- plan step 2: the fault bench

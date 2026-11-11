@@ -150,7 +150,10 @@ class VideoFaultBank:
     normalises them with the fold's training statistics exactly as the loaders do, and checks that the stored
     clean tokens give back the loader's video input."""
 
-    CLEAN_TOL = 1e-3          # float32 rounding of (x - mean) / std; a wrong clip or file is off by whole units
+    # Recomputing the clean clip on the GPU differs from the stored features only by bf16 rounding: measured on all
+    # 861 UTD-MHAD videos (11 Nov 2026), mean 0.0000, 99.9% 0.011, max 0.05 feature spreads, while the mildest gap
+    # changes the features by mean 0.13, max 3.7. A wrong clip or file is off by about one whole spread on average.
+    CLEAN_TOL_MEAN, CLEAN_TOL_MAX = 0.002, 0.1
 
     def __init__(self, dataset, ds, train_ds, fold, path=None):
         self.dataset, self.fold = dataset, fold
@@ -165,10 +168,12 @@ class VideoFaultBank:
         self._norm = lambda a: ((a[rows] - mu) / sd).astype(np.float32)
         self._f = f
         clean = self._norm(f["clean"])
-        dev = float(np.abs(clean - np.asarray(ds.x["video"], dtype=np.float32)).max())
-        if dev > self.CLEAN_TOL:
-            raise RuntimeError(f"clean fault-file tokens differ from the loader's video by {dev:.3g}: stop and paste this")
-        self.N, self.clean_dev = len(rows), dev
+        d = np.abs(clean - np.asarray(ds.x["video"], dtype=np.float32))
+        mean, mx = float(d.mean()), float(d.max())
+        if mean > self.CLEAN_TOL_MEAN or mx > self.CLEAN_TOL_MAX:
+            raise RuntimeError(f"clean fault-file tokens differ from the loader's video (mean {mean:.3g}, max {mx:.3g}; "
+                               f"allowed {self.CLEAN_TOL_MEAN}, {self.CLEAN_TOL_MAX}): stop and paste this")
+        self.N, self.clean_dev = len(rows), (mean, mx)
 
     def apply_fault(self, fault, level):
         if fault not in faults_for(self.dataset, "video"):
