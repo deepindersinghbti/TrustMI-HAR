@@ -1,0 +1,95 @@
+# Methodology notes for the journal paper (running log)
+
+Written as we go, in a form that can be moved into the paper's methodology section. Every parameter here is the
+one in the code; the file that defines it is named in brackets. Results are NOT recorded here (see the dated
+progress notes); only what was done and how.
+
+---
+
+## A. Real sensor faults (frozen transfer test) — 11 Nov 2026
+Plan: `docs/plan_faults_2026-11-11.md` (approved before any result). Code: `src/trustmi/faults.py`,
+`scripts/extract_video_faults.py`, `scripts/cert_fault_score.py`.
+
+- **Purpose.** Test whether a certificate fitted only on cross-sensor lies transfers, unchanged, to ordinary
+  sensor faults it never saw.
+- **Faults, three strengths each.**
+  - *Drift:* an offset growing linearly from zero at the first valid sample to its maximum at the last, in a
+    random 3-D direction, added to one sensor: accelerometer 0.05 / 0.2 / 0.5 g, gyroscope 1 / 5 / 20 deg/s,
+    pitch and roll 2 / 10 / 30 deg; physical channels clipped to the training range of the channel.
+  - *Gap:* one stretch covering 10 / 25 / 50% of the clip's valid samples, at a random position, in which the
+    sensor holds the value just before the stretch (just after it, if the stretch starts the clip); for video,
+    3 / 8 / 16 of the 32 decoded frames are frozen before feature extraction.
+  - *Timing error:* one sensor shifted by 0.2 / 0.5 / 1.0 s, randomly earlier or later, the uncovered edge
+    holding the first or last value (MMAct only); for video, the same shift in frames.
+  - Video faults are applied to the decoded frames and passed through the same frozen video network
+    (R(2+1)D-18) as the clean videos; one random draw per clip, shared by all camera views.
+  - All draws are deterministic, keyed on (seed, fault, strength, clip).
+- **Frozen protocol.** Every threshold, naming rule and decision rule is fitted on the validation person with
+  the lie bench only and applied unchanged to the fault clips of the test person. One extra system, labelled
+  "known faults", is fitted with fault clips among the positives, to show the cost of never seeing faults.
+- **Measures.** Harm (accuracy drop, answers changed), detection AUROC (all fault clips; harmful fault clips),
+  naming accuracy, and accuracy after the use / drop decision (revision 1; revision 2 as post hoc, labelled).
+- **Checks.** Clean rows identical between lie and fault benches; frozen fits reproduce the stored lie results
+  exactly; recomputed clean video features match the stored ones (largest difference 0.05 of a feature's spread).
+
+## B. Real missing sensor: MMAct clips without a watch — 11 Nov 2026
+Plan: `docs/plan_nowatch_2026-11-11.md` (revised once after review, before any code; implementation notes
+added before any result). Code: `MMActNoWatch` in `src/trustmi/data/mmact.py`, `scripts/cert_nowatch_score.py`.
+
+- 247 MMAct clips from whole sessions in which the watch was never recorded (6 people); excluded from all
+  training since September and used only here, as an extra test set for the fold of their test person.
+- **Conditions.** Known missing (the phone + video backup answers); silent (the watch input set to its
+  training mean, i.e. the `r_fill` rule, and the frozen certificate decides); flagged absent (the watch masked
+  inside the fused model).
+- **Reference clips.** The same person's normal clips of the same scene and actions; one person with no
+  same-scene normal clip uses other scenes and is reported separately.
+- **Main result named in advance:** accuracy of the main certificate's use / drop decision on the silent clips,
+  revision 1, against doing nothing and against the known-missing backup.
+- **Reporting.** Per person, pooled over clips, and the plain mean over the four people with at least 28 clips;
+  AUROC never pooled across people (different fits); people with fewer than 28 clips as counts.
+
+## C. Third dataset: WearGait-PD — from 11 Nov 2026
+Audit: `docs/data_audit_weargait.md` (`scripts/audit_weargait.py`). Plan: `docs/plan_weargait_2026-11-11.md`
+(approved before any model was trained on it).
+
+### C.1 Data
+- 185 people (100 with Parkinson's disease, 85 controls), 8 laboratory tasks each, 1,473 recordings at 100 Hz
+  with 13 synchronised body-worn IMUs.
+- Labels: the per-sample `GeneralEvent` annotation of the dataset.
+
+### C.2 Clips (`scripts/build_weargait.py`)
+- **Classes (6):** Walk, Standing, TandemWalk, Turn, Sitting, TurnToSit. The six balance stances (eyes
+  open / closed, feet together / apart / one foot in front) are merged into Standing, as they differ in protocol,
+  not in activity. SitToStand (too few segments of at least 2 s) and unlabeled samples are dropped.
+- **Sensors:** the 13 IMUs are grouped into three sensors: arms (left and right wrist, 12 channels), trunk
+  (forehead, chest at the xiphoid, lower back, 18 channels), legs (left and right thigh, shank, ankle and foot,
+  48 channels). Channels: accelerometer and gyroscope (3 axes each) of every IMU; magnetometer and derived
+  channels are not used.
+- **Resampling:** a 31-tap Hamming-windowed sinc low-pass filter (cut-off 20 Hz, zero phase), then every second
+  sample, giving 50 Hz. Missing samples are bridged by linear interpolation for the filter only and are set back
+  to missing afterwards.
+- **Clips:** 2 s (100 samples at 50 Hz), step 1 s, lying entirely within one labelled segment; at most 8 clips
+  per segment, taken from the segment start, so that long balance and tandem-walking segments do not dominate.
+- **Clean vs real-dropout clips:** a clip is clean if no sample of any channel is missing within the clip
+  widened by the filter's reach (15 samples at 100 Hz on each side); otherwise it is a real-dropout clip, and the
+  sensors with missing samples are recorded. An IMU absent from a whole recording counts as missing.
+
+### C.3 Folds (`scripts/make_splits_weargait.py`, `splits/weargait_v1.json`)
+- 10 person-wise folds fixed once with seed 0: the Parkinson's and control people are shuffled separately and
+  split into 10 groups each, so every fold holds 10 Parkinson's people and 8 or 9 controls.
+- Fold k: test = fold k, validation = fold k+1 (cyclic), training = the remaining 8 folds. Every person is
+  tested exactly once. Seeds 0, 1, 2.
+- Only clean clips are used for training, validation and testing. Real-dropout clips never enter training or any
+  fitting; they form an extra test set for the test people of each fold.
+
+### C.4 Loader (`src/trustmi/data/weargait.py`)
+- Per-channel normalisation with mean and standard deviation from the training people's clean clips only.
+- In real-dropout clips, missing samples are set to the training mean (zero after normalisation): the same
+  `r_fill` rule as for the simulated removals and the MMAct no-watch clips.
+
+### C.5 Verification so far
+- Build script: 5 tests on synthetic recordings with known answers (clip boundaries, cap, label merging, filter
+  pass-band and stop-band, missing-sample propagation, absent IMUs, determinism); three deliberately planted
+  bugs were each caught.
+- Folds and loader: tests on the built data (person-wise folds, balance, no clip lost or duplicated, train-only
+  statistics, finite inputs, missing samples equal to the training mean).
