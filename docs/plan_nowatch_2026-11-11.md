@@ -80,3 +80,26 @@ Everything else below is supporting.
 - No retraining, no new thresholds, no change to the main system.
 - These clips stay out of every existing table; they get their own table.
 - No "raw zeros" or "frozen value" variant of the dead watch; could be added later as a labelled extra.
+
+## 10. Implementation notes (11 Nov, written after checking the code, before any result)
+Consequences of the plan meeting the code; no new idea, no change to what is measured.
+1. **The `r_fill` reference is computed in this run, not read from storage.** The September removal tests
+   stored only the fused model's answer, never the certificate's score, flag or naming. The `r_fill`-of-the-watch
+   rows on the reference clips are therefore produced by the same run, models and frozen fit as the no-watch
+   clips (condition `r_fill:watch`, built with the `r_fill` operator itself).
+2. **Dropout model: K and M are the same input** (the watch hidden by the model's own mask). One number,
+   shown in both rows.
+3. **AUROC and "answer the safest 80%" are never pooled across people.** Each person's checker is fitted on a
+   different validation person, so scores of different people are not on one scale. These two are reported per
+   person and as the plain mean over the four people with 28 or more clips. Accuracy, flag share and naming are
+   also pooled over all 247 clips. Persons 10 and 11: counts only, no AUROC.
+4. **No "harmful" subset.** A no-watch clip has no version with the watch, so "the fault changed the answer"
+   is undefined. Detection is no-watch clips against the same person's reference clips.
+5. **Code path.** As for the faults: the four model-running scripts get a third condition set,
+   `--conditions nowatch` (d2v only; folds 1, 9, 10, 12, 15, 19). The lie and fault paths are unchanged
+   (checked with `scripts/check_lies_unchanged_journal.sh`). The no-watch clips enter as an extra part,
+   `nowatch`, next to the test part; nothing is fitted on them. The standard model's answer with the watch
+   flagged absent (M) is stored as `mask_watch_pred` by `cert_experts.py`.
+6. **Scorer checked on a fake bench before the real run** (normal clips relabelled as no-watch clips), including
+   a person with no same-scene reference and a person reported as counts. Both checks passed (clean rows
+   identical to the lie bench; every frozen fit reproduces the stored lie numbers exactly).
