@@ -38,6 +38,11 @@ ENCODERS = dict(video=VideoEnc, skel=SkelEnc, imu=IMUEnc,
                 watch=partial(IMUEnc, c_in=3), phone=partial(IMUEnc, c_in=10))   # MMAct devices
 TOKENS = dict(video=4, skel=40, imu=25, watch=188, phone=188)   # MMAct: 750 samples (15 s @ 50 Hz) -> 188
 STRIDE = dict(imu=4, watch=4, phone=4)   # input samples per token, used to mask padded tokens
+# journal, WearGait-PD (dataset d3; docs/plan_weargait_2026-11-11.md): 3 IMU groups, the same IMU encoder,
+# 100 samples (2 s @ 50 Hz) -> 25 tokens. New entries only; existing ones unchanged.
+ENCODERS.update(arms=partial(IMUEnc, c_in=12), trunk=partial(IMUEnc, c_in=18), legs=partial(IMUEnc, c_in=48))
+TOKENS.update(arms=25, trunk=25, legs=25)
+STRIDE.update(arms=4, trunk=4, legs=4)
 
 
 class FusionTransformer(nn.Module):

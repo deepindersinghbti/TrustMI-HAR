@@ -34,9 +34,11 @@ from trustmi.mi import MIMatcher, sensor_encoder, info_nce_candidates, resample_
 from trustmi.operators import VARIABLE_LENGTH
 
 MODS = dict(d1=["video", "skel", "imu"], d2=["watch", "phone"],          # same order as B4 / B4s
-            d1v2=["video", "skel", "imu"], d2v=["watch", "phone", "video"])   # journal (D): as B4 / B4s3
-WITNESS = dict(imu="b1_imu", skel="b1_skel", video="b1_video", watch="b1_watch", phone="b1_phone")
-N_CLASSES = dict(d1=27, d2=35, d1v2=27, d2v=35)
+            d1v2=["video", "skel", "imu"], d2v=["watch", "phone", "video"],   # journal (D): as B4 / B4s3
+            d3=["arms", "trunk", "legs"])                                       # journal: WearGait-PD, as b4w
+WITNESS = dict(imu="b1_imu", skel="b1_skel", video="b1_video", watch="b1_watch", phone="b1_phone",
+               arms="b1_arms", trunk="b1_trunk", legs="b1_legs")
+N_CLASSES = dict(d1=27, d2=35, d1v2=27, d2v=35, d3=6)
 POS_STRETCH_P = 0.5
 VAL_SEED = 12345
 
@@ -57,6 +59,10 @@ class Candidates:
         self.members = {k: np.asarray(v) for k, v in self.members.items()}
         self.key = keys
         self.lens = np.asarray(ds.x["len"]) if "len" in ds.x else None
+        # WearGait-PD: clips of one labelled segment overlap in time (2 s clips, 1 s step), so they are never
+        # each other's wrong partners. Datasets without `segment` (UTD-MHAD, MMAct) are unaffected.
+        seg = getattr(ds, "segment", None)
+        self.segment = None if seg is None else np.asarray(seg)
 
     def draw(self, idx, rng):
         """(B, K+1) clip indices (column 0 = the clip itself) and (B, K+1) validity mask."""
@@ -64,6 +70,8 @@ class Candidates:
         for r, i in enumerate(idx):
             others = self.members[self.key[i]]
             others = others[others != i]
+            if self.segment is not None:
+                others = others[self.segment[others] != self.segment[i]]
             pick = rng.choice(others, size=min(self.K, len(others)), replace=False)
             C[r, 0], V[r, 0] = i, True
             C[r, 1:1 + len(pick)], V[r, 1:1 + len(pick)] = pick, True

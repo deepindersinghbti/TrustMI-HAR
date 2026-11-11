@@ -19,8 +19,11 @@ CANDS = {   # dataset -> dropped sensor -> (multi-sensor candidate, single-senso
              "video": ("b4_novideo", ["b1_imu", "b1_skel"])},
     "d2v": {"watch": ("b4s_nowatch", ["b1_phone", "b1_video"]), "phone": ("b4s_nophone", ["b1_watch", "b1_video"]),
             "video": ("b4s", ["b1_watch", "b1_phone"])},
+    # WearGait-PD (docs/plan_weargait_2026-11-11.md): same rule; one "subject" below = one fold of ~18 people
+    "d3": {"arms": ("b4w_noarms", ["b1_trunk", "b1_legs"]), "trunk": ("b4w_notrunk", ["b1_arms", "b1_legs"]),
+           "legs": ("b4w_nolegs", ["b1_arms", "b1_trunk"])},
 }
-N_RUNS = {"d1v2": 24, "d2v": 60}          # folds x 3 seeds
+N_RUNS = {"d1v2": 24, "d2v": 60, "d3": 30}          # folds x 3 seeds
 MARGIN = 0.01
 
 
@@ -36,9 +39,16 @@ def acc(ds, model):
 
 
 def main():
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--datasets", default="d1v2,d2v",
+                    help="comma-separated; the default reproduces the d1v2 / d2v choices exactly. WearGait: d3")
+    todo = ap.parse_args().datasets.split(",")
     cfg_path = ROOT / "configs/backups.json"
     cfg = json.load(open(cfg_path))
     for ds, cands in CANDS.items():
+        if ds not in todo:
+            continue
         choice, evidence = {}, {}
         n = N_RUNS[ds] // 3
         print(f"\n{ds}  (validation accuracy, mean over {n} subjects; test shown for information only)")
@@ -63,7 +73,7 @@ def main():
         cfg["_note"] += (" Journal datasets d1v2 / d2v: scripts/choose_backups_journal.py, same rule; the "
                          "single-sensor candidate is the best remaining sensor on validation.")
     json.dump(cfg, open(cfg_path, "w"), indent=2)
-    print(f"\nwritten {cfg_path.relative_to(ROOT)}: " + ", ".join(f"{ds} = {cfg[ds]}" for ds in CANDS))
+    print(f"\nwritten {cfg_path.relative_to(ROOT)}: " + ", ".join(f"{ds} = {cfg[ds]}" for ds in todo))
 
 
 if __name__ == "__main__":

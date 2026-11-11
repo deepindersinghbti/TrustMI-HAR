@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from trustmi.data.utd import UTDMHAD
 from trustmi.data.mmact import MMAct
+from trustmi.data.weargait import WearGait
 from trustmi.models.fusion import FusionTransformer
 from trustmi.models.evidential import EvidentialLateFusion
 from trustmi import sensor_dropout as SD
@@ -31,7 +32,13 @@ MODELS = dict(b1_video=["video"], b1_skel=["skel"], b1_imu=["imu"],
               # journal ablation: the main fused models trained with sensor dropout (trustmi/sensor_dropout.py);
               # the rate is part of the name: _sd50 = 0.50 (main ablation), _sd25 = 0.25 (sensitivity)
               b4_sd50=["video", "skel", "imu"], b4_sd25=["video", "skel", "imu"],
-              b4s3_sd50=["watch", "phone", "video"], b4s3_sd25=["watch", "phone", "video"])
+              b4s3_sd50=["watch", "phone", "video"], b4s3_sd25=["watch", "phone", "video"],
+              # journal, WearGait-PD (dataset d3; docs/plan_weargait_2026-11-11.md): 3 IMU groups
+              b1_arms=["arms"], b1_trunk=["trunk"], b1_legs=["legs"],
+              b4w=["arms", "trunk", "legs"],
+              b4w_noarms=["trunk", "legs"], b4w_notrunk=["arms", "legs"], b4w_nolegs=["arms", "trunk"],
+              tmc_w=["arms", "trunk", "legs"], ecml_w=["arms", "trunk", "legs"],
+              b4w_sd50=["arms", "trunk", "legs"])
 EVIDENTIAL = ("tmc", "ecml")                # method = model name before any "_s"
 DATASETS = dict(d1=dict(cls=UTDMHAD, n_classes=27, data="utd_mhad_v1",
                         video_features="video_r2plus1d18_v1", split="utd_mhad_loso_v1"),
@@ -41,7 +48,10 @@ DATASETS = dict(d1=dict(cls=UTDMHAD, n_classes=27, data="utd_mhad_v1",
                 d1v2=dict(cls=partial(UTDMHAD, video="v2"), n_classes=27, data="utd_mhad_v1",
                           video_features="video_r2plus1d18_v2", split="utd_mhad_loso_v1"),
                 d2v=dict(cls=partial(MMAct, video=True), n_classes=35, data="mmact_sensor_v1 (main3 clips)",
-                         video_features="mmact_video_r2plus1d18_v2", split="mmact_loso_v1"))
+                         video_features="mmact_video_r2plus1d18_v2", split="mmact_loso_v1"),
+                # journal, third dataset: WearGait-PD, clean 2 s clips, 10 person-wise folds
+                d3=dict(cls=WearGait, n_classes=6, data="weargait_v1 (clean clips)",
+                        video_features=None, split="weargait_v1"))
 
 
 def set_seed(s):

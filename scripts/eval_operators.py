@@ -22,13 +22,15 @@ MODELS = dict(b4=["video", "skel", "imu"], b4s=["watch", "phone"],
               b4s3=["watch", "phone", "video"],                       # journal: MMAct with video (d2v)
               # journal ablation: the same fused models trained with sensor dropout (see train.py)
               b4_sd50=["video", "skel", "imu"], b4_sd25=["video", "skel", "imu"],
-              b4s3_sd50=["watch", "phone", "video"], b4s3_sd25=["watch", "phone", "video"])
+              b4s3_sd50=["watch", "phone", "video"], b4s3_sd25=["watch", "phone", "video"],
+              b4w=["arms", "trunk", "legs"], b4w_sd50=["arms", "trunk", "legs"])   # journal: WearGait-PD (d3)
 DATA = dict(d1=dict(n_classes=27, n_folds=8, targets=["imu"]),
             d2=dict(n_classes=35, n_folds=20, targets=["watch", "phone"]),
             # journal datasets: EVERY sensor is a target. Sensors without a physical model (skeleton, video)
             # get swap / same-action swap / removal only; the harmless operators are skipped for them.
             d1v2=dict(n_classes=27, n_folds=8, targets=["imu", "skel", "video"]),
-            d2v=dict(n_classes=35, n_folds=20, targets=["watch", "phone", "video"]))
+            d2v=dict(n_classes=35, n_folds=20, targets=["watch", "phone", "video"]),
+            d3=dict(n_classes=6, n_folds=10, targets=["arms", "trunk", "legs"]))      # journal: WearGait-PD
 
 
 def dataset_cls(name):
@@ -39,6 +41,9 @@ def dataset_cls(name):
     if name in ("d2", "d2v"):
         from trustmi.data.mmact import MMAct
         return MMAct if name == "d2" else partial(MMAct, video=True)
+    if name == "d3":
+        from trustmi.data.weargait import WearGait
+        return WearGait
     raise ValueError(f"unknown dataset {name!r}")
 
 
