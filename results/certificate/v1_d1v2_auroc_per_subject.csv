@@ -1,0 +1,193 @@
+dataset,task,fold,subject,score,auroc,level
+d1v2,LIE,0,1,1 - msp (baseline),0.7646852547367876,3
+d1v2,LIE,0,1,entropy (baseline),0.7617556765429943,3
+d1v2,LIE,0,1,energy (baseline),0.7409335442526114,3
+d1v2,LIE,0,1,S1 stability flip,0.5761567401972677,3
+d1v2,LIE,0,1,S1 stability drop,0.591692627206646,3
+d1v2,LIE,0,1,S2 hide-one shift,0.7643908735357771,3
+d1v2,LIE,0,1,S2 hide-one flips,0.7986665502081696,3
+d1v2,LIE,0,1,X experts disagree (JS),0.944100568382165,3
+d1v2,LIE,0,1,X lowest expert support,0.9778816199376947,3
+d1v2,LIE,0,1,X mean expert support,0.8684937710878841,3
+d1v2,LIE,0,1,COMBINED (S1+S2+msp),0.8540490354971969,3
+d1v2,LIE,0,1,COMBINED v2 (experts+msp),0.9547888704496269,3
+d1v2,LIE,1,2,1 - msp (baseline),0.7138653914545547,3
+d1v2,LIE,1,2,entropy (baseline),0.7182181323985165,3
+d1v2,LIE,1,2,energy (baseline),0.7208708022151095,3
+d1v2,LIE,1,2,S1 stability flip,0.5461975435655134,3
+d1v2,LIE,1,2,S1 stability drop,0.5877546613829193,3
+d1v2,LIE,1,2,S2 hide-one shift,0.6667263628511914,3
+d1v2,LIE,1,2,S2 hide-one flips,0.6889225473759082,3
+d1v2,LIE,1,2,X experts disagree (JS),0.799222679469593,3
+d1v2,LIE,1,2,X lowest expert support,0.8725934181781233,3
+d1v2,LIE,1,2,X mean expert support,0.7690119646395367,3
+d1v2,LIE,1,2,COMBINED (S1+S2+msp),0.7553402682517909,3
+d1v2,LIE,1,2,COMBINED v2 (experts+msp),0.8197194279327338,3
+d1v2,LIE,2,3,1 - msp (baseline),0.7259773662551441,3
+d1v2,LIE,2,3,entropy (baseline),0.7325553777371335,3
+d1v2,LIE,2,3,energy (baseline),0.7290466392318244,3
+d1v2,LIE,2,3,S1 stability flip,0.555681933648326,3
+d1v2,LIE,2,3,S1 stability drop,0.5726331097901742,3
+d1v2,LIE,2,3,S2 hide-one shift,0.6379966214499823,3
+d1v2,LIE,2,3,S2 hide-one flips,0.699998412335518,3
+d1v2,LIE,2,3,X experts disagree (JS),0.8647506731697404,3
+d1v2,LIE,2,3,X lowest expert support,0.8899119798811157,3
+d1v2,LIE,2,3,X mean expert support,0.7816599349692628,3
+d1v2,LIE,2,3,COMBINED (S1+S2+msp),0.7749745973682873,3
+d1v2,LIE,2,3,COMBINED v2 (experts+msp),0.8880702890819488,3
+d1v2,LIE,3,4,1 - msp (baseline),0.6956809175430575,3
+d1v2,LIE,3,4,entropy (baseline),0.6800398821317889,3
+d1v2,LIE,3,4,energy (baseline),0.6588718691256414,3
+d1v2,LIE,3,4,S1 stability flip,0.5787224381445918,3
+d1v2,LIE,3,4,S1 stability drop,0.5586934156378601,3
+d1v2,LIE,3,4,S2 hide-one shift,0.6580901031346847,3
+d1v2,LIE,3,4,S2 hide-one flips,0.7215353985672915,3
+d1v2,LIE,3,4,X experts disagree (JS),0.8527663465935071,3
+d1v2,LIE,3,4,X lowest expert support,0.8828887872783621,3
+d1v2,LIE,3,4,X mean expert support,0.782650637606056,3
+d1v2,LIE,3,4,COMBINED (S1+S2+msp),0.764751943301326,3
+d1v2,LIE,3,4,COMBINED v2 (experts+msp),0.8589607783366356,3
+d1v2,LIE,4,5,1 - msp (baseline),0.7227378956459889,3
+d1v2,LIE,4,5,entropy (baseline),0.7187426967433826,3
+d1v2,LIE,4,5,energy (baseline),0.6973358989991363,3
+d1v2,LIE,4,5,S1 stability flip,0.5570377991159884,3
+d1v2,LIE,4,5,S1 stability drop,0.5881896814509984,3
+d1v2,LIE,4,5,S2 hide-one shift,0.6572905553015292,3
+d1v2,LIE,4,5,S2 hide-one flips,0.7065976985215668,3
+d1v2,LIE,4,5,X experts disagree (JS),0.8213331301122796,3
+d1v2,LIE,4,5,X lowest expert support,0.8742287125946248,3
+d1v2,LIE,4,5,X mean expert support,0.7589957069552405,3
+d1v2,LIE,4,5,COMBINED (S1+S2+msp),0.7770284001422547,3
+d1v2,LIE,4,5,COMBINED v2 (experts+msp),0.8527085556063608,3
+d1v2,LIE,5,6,1 - msp (baseline),0.7319727098921789,3
+d1v2,LIE,5,6,entropy (baseline),0.7319377723430479,3
+d1v2,LIE,5,6,energy (baseline),0.7206238293494822,3
+d1v2,LIE,5,6,S1 stability flip,0.5544902838028876,3
+d1v2,LIE,5,6,S1 stability drop,0.5498380903394442,3
+d1v2,LIE,5,6,S2 hide-one shift,0.6211585679486806,3
+d1v2,LIE,5,6,S2 hide-one flips,0.7103392500719778,3
+d1v2,LIE,5,6,X experts disagree (JS),0.8520608301549869,3
+d1v2,LIE,5,6,X lowest expert support,0.9230151104899992,3
+d1v2,LIE,5,6,X mean expert support,0.7682365919067814,3
+d1v2,LIE,5,6,COMBINED (S1+S2+msp),0.7753910255788149,3
+d1v2,LIE,5,6,COMBINED v2 (experts+msp),0.8712434856028183,3
+d1v2,LIE,6,7,1 - msp (baseline),0.6951493674744703,3
+d1v2,LIE,6,7,entropy (baseline),0.6959787633998882,3
+d1v2,LIE,6,7,energy (baseline),0.6884265609917187,3
+d1v2,LIE,6,7,S1 stability flip,0.5594180257074632,3
+d1v2,LIE,6,7,S1 stability drop,0.5600232434080171,3
+d1v2,LIE,6,7,S2 hide-one shift,0.6032312147538484,3
+d1v2,LIE,6,7,S2 hide-one flips,0.668509627597419,3
+d1v2,LIE,6,7,X experts disagree (JS),0.8494525732865925,3
+d1v2,LIE,6,7,X lowest expert support,0.8496376949651984,3
+d1v2,LIE,6,7,X mean expert support,0.7760281715185693,3
+d1v2,LIE,6,7,COMBINED (S1+S2+msp),0.7370757760503989,3
+d1v2,LIE,6,7,COMBINED v2 (experts+msp),0.8379381953970432,3
+d1v2,LIE,7,8,1 - msp (baseline),0.7607366646933421,3
+d1v2,LIE,7,8,entropy (baseline),0.7651763213995724,3
+d1v2,LIE,7,8,energy (baseline),0.7582334539972762,3
+d1v2,LIE,7,8,S1 stability flip,0.5646884896950405,3
+d1v2,LIE,7,8,S1 stability drop,0.5794754838688807,3
+d1v2,LIE,7,8,S2 hide-one shift,0.6924693406831585,3
+d1v2,LIE,7,8,S2 hide-one flips,0.7424475047149517,3
+d1v2,LIE,7,8,X experts disagree (JS),0.8552757316666828,3
+d1v2,LIE,7,8,X lowest expert support,0.9192525305460933,3
+d1v2,LIE,7,8,X mean expert support,0.7857519498710869,3
+d1v2,LIE,7,8,COMBINED (S1+S2+msp),0.8058423346046719,3
+d1v2,LIE,7,8,COMBINED v2 (experts+msp),0.8881034410250935,3
+d1v2,ERROR,0,1,1 - msp (baseline),,2
+d1v2,ERROR,0,1,entropy (baseline),,2
+d1v2,ERROR,0,1,energy (baseline),,2
+d1v2,ERROR,0,1,S1 stability flip,,2
+d1v2,ERROR,0,1,S1 stability drop,,2
+d1v2,ERROR,0,1,S2 hide-one shift,,2
+d1v2,ERROR,0,1,S2 hide-one flips,,2
+d1v2,ERROR,0,1,X experts disagree (JS),,2
+d1v2,ERROR,0,1,X lowest expert support,,2
+d1v2,ERROR,0,1,X mean expert support,,2
+d1v2,ERROR,0,1,COMBINED (S1+S2+msp),,2
+d1v2,ERROR,0,1,COMBINED v2 (experts+msp),,2
+d1v2,ERROR,1,2,1 - msp (baseline),0.9033509700176366,2
+d1v2,ERROR,1,2,entropy (baseline),0.8991181657848325,2
+d1v2,ERROR,1,2,energy (baseline),0.891358024691358,2
+d1v2,ERROR,1,2,S1 stability flip,0.7523809523809524,2
+d1v2,ERROR,1,2,S1 stability drop,0.8021164021164021,2
+d1v2,ERROR,1,2,S2 hide-one shift,0.49382716049382713,2
+d1v2,ERROR,1,2,S2 hide-one flips,0.7354497354497355,2
+d1v2,ERROR,1,2,X experts disagree (JS),0.5506172839506173,2
+d1v2,ERROR,1,2,X lowest expert support,0.8596119929453263,2
+d1v2,ERROR,1,2,X mean expert support,0.9467372134038801,2
+d1v2,ERROR,1,2,COMBINED (S1+S2+msp),0.9033509700176366,2
+d1v2,ERROR,1,2,COMBINED v2 (experts+msp),0.890299823633157,2
+d1v2,ERROR,2,3,1 - msp (baseline),0.9322222222222222,3
+d1v2,ERROR,2,3,entropy (baseline),0.9156944444444445,3
+d1v2,ERROR,2,3,energy (baseline),0.8684722222222222,3
+d1v2,ERROR,2,3,S1 stability flip,0.6435416666666667,3
+d1v2,ERROR,2,3,S1 stability drop,0.5772222222222222,3
+d1v2,ERROR,2,3,S2 hide-one shift,0.4822222222222222,3
+d1v2,ERROR,2,3,S2 hide-one flips,0.824375,3
+d1v2,ERROR,2,3,X experts disagree (JS),0.6695833333333333,3
+d1v2,ERROR,2,3,X lowest expert support,0.9181944444444444,3
+d1v2,ERROR,2,3,X mean expert support,0.95375,3
+d1v2,ERROR,2,3,COMBINED (S1+S2+msp),0.8665277777777778,3
+d1v2,ERROR,2,3,COMBINED v2 (experts+msp),0.9455555555555556,3
+d1v2,ERROR,3,4,1 - msp (baseline),0.9313915857605178,1
+d1v2,ERROR,3,4,entropy (baseline),0.8789644012944984,1
+d1v2,ERROR,3,4,energy (baseline),0.8394822006472492,1
+d1v2,ERROR,3,4,S1 stability flip,0.5623516720604099,1
+d1v2,ERROR,3,4,S1 stability drop,0.4830636461704423,1
+d1v2,ERROR,3,4,S2 hide-one shift,0.5093851132686085,1
+d1v2,ERROR,3,4,S2 hide-one flips,0.7762675296655879,1
+d1v2,ERROR,3,4,X experts disagree (JS),0.7551240560949298,1
+d1v2,ERROR,3,4,X lowest expert support,0.7663430420711974,1
+d1v2,ERROR,3,4,X mean expert support,0.9294498381877022,1
+d1v2,ERROR,3,4,COMBINED (S1+S2+msp),0.9236245954692557,1
+d1v2,ERROR,3,4,COMBINED v2 (experts+msp),0.9486515641855447,1
+d1v2,ERROR,4,5,1 - msp (baseline),0.9235657225853304,3
+d1v2,ERROR,4,5,entropy (baseline),0.9139433551198257,3
+d1v2,ERROR,4,5,energy (baseline),0.8877995642701525,3
+d1v2,ERROR,4,5,S1 stability flip,0.6516884531590414,3
+d1v2,ERROR,4,5,S1 stability drop,0.6655773420479303,3
+d1v2,ERROR,4,5,S2 hide-one shift,0.5105301379811183,3
+d1v2,ERROR,4,5,S2 hide-one flips,0.7568990559186638,3
+d1v2,ERROR,4,5,X experts disagree (JS),0.6174655047204067,3
+d1v2,ERROR,4,5,X lowest expert support,0.8091866376180101,3
+d1v2,ERROR,4,5,X mean expert support,0.9593318809005084,3
+d1v2,ERROR,4,5,COMBINED (S1+S2+msp),0.9239288307915758,3
+d1v2,ERROR,4,5,COMBINED v2 (experts+msp),0.8801742919389978,3
+d1v2,ERROR,5,6,1 - msp (baseline),0.9119601328903655,2
+d1v2,ERROR,5,6,entropy (baseline),0.8956810631229236,2
+d1v2,ERROR,5,6,energy (baseline),0.8636212624584717,2
+d1v2,ERROR,5,6,S1 stability flip,0.6906976744186046,2
+d1v2,ERROR,5,6,S1 stability drop,0.674750830564784,2
+d1v2,ERROR,5,6,S2 hide-one shift,0.4757475083056478,2
+d1v2,ERROR,5,6,S2 hide-one flips,0.7913621262458472,2
+d1v2,ERROR,5,6,X experts disagree (JS),0.803156146179402,2
+d1v2,ERROR,5,6,X lowest expert support,0.8524916943521594,2
+d1v2,ERROR,5,6,X mean expert support,0.9848837209302326,2
+d1v2,ERROR,5,6,COMBINED (S1+S2+msp),0.8504983388704319,2
+d1v2,ERROR,5,6,COMBINED v2 (experts+msp),0.8632890365448505,2
+d1v2,ERROR,6,7,1 - msp (baseline),0.9335640138408304,2
+d1v2,ERROR,6,7,entropy (baseline),0.9245674740484429,2
+d1v2,ERROR,6,7,energy (baseline),0.8849233811171527,2
+d1v2,ERROR,6,7,S1 stability flip,0.6065743944636678,2
+d1v2,ERROR,6,7,S1 stability drop,0.5944636678200692,2
+d1v2,ERROR,6,7,S2 hide-one shift,0.4287691547207118,2
+d1v2,ERROR,6,7,S2 hide-one flips,0.7539298072170044,2
+d1v2,ERROR,6,7,X experts disagree (JS),0.6917449332674246,2
+d1v2,ERROR,6,7,X lowest expert support,0.9562036579337617,2
+d1v2,ERROR,6,7,X mean expert support,0.9894216510133466,2
+d1v2,ERROR,6,7,COMBINED (S1+S2+msp),0.9318833415719229,2
+d1v2,ERROR,6,7,COMBINED v2 (experts+msp),0.9416707859614434,2
+d1v2,ERROR,7,8,1 - msp (baseline),0.9424836601307189,2
+d1v2,ERROR,7,8,entropy (baseline),0.9289760348583878,2
+d1v2,ERROR,7,8,energy (baseline),0.9061002178649238,2
+d1v2,ERROR,7,8,S1 stability flip,0.6616557734204793,2
+d1v2,ERROR,7,8,S1 stability drop,0.5786492374727669,2
+d1v2,ERROR,7,8,S2 hide-one shift,0.5854030501089325,2
+d1v2,ERROR,7,8,S2 hide-one flips,0.8668845315904139,2
+d1v2,ERROR,7,8,X experts disagree (JS),0.5917211328976035,2
+d1v2,ERROR,7,8,X lowest expert support,0.8084967320261438,2
+d1v2,ERROR,7,8,X mean expert support,0.9481481481481482,2
+d1v2,ERROR,7,8,COMBINED (S1+S2+msp),,2
+d1v2,ERROR,7,8,COMBINED v2 (experts+msp),,2
