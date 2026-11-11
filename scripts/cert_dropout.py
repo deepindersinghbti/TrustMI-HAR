@@ -28,7 +28,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src")); sys.path.insert(0, str(ROOT / "scripts"))
 from eval_operators import load_model, dataset_cls, MODELS as FUSED
 from cert_signals import CFG, run_dir, repro, fwd
-from cert_conditions import build_conditions
+from cert_conditions import conditions_for, conditions_suffix
 from cert_experts import EXPERTS
 from trustmi.sensor_dropout import RATES
 
@@ -41,6 +41,10 @@ def main():
     ap.add_argument("--rate", choices=sorted(RATES), required=True)
     ap.add_argument("--folds", default="all")
     ap.add_argument("--seeds", default="0,1,2")
+    ap.add_argument("--conditions", choices=("lies", "faults"), default="lies",
+                    help="lies (default, unchanged) or faults (docs/plan_faults_2026-11-11.md)")
+    ap.add_argument("--no-video-faults", action="store_true",
+                    help="faults without the video faults (smoke run before the video fault features exist)")
     args = ap.parse_args()
     torch.backends.cudnn.benchmark = False
     C, dname = CFG[args.dataset], args.dataset
@@ -53,7 +57,8 @@ def main():
     DS = dataset_cls(dname)
     out_dir = ROOT / "results/certificate"; out_dir.mkdir(parents=True, exist_ok=True)
     tag = "all" if args.folds == "all" else "f" + "-".join(map(str, folds))
-    out = out_dir / f"dropout_{dname}_{args.rate}_{tag}_s{'-'.join(map(str, seeds))}.parquet"
+    out = out_dir / (f"dropout_{dname}_{args.rate}_{tag}_s{'-'.join(map(str, seeds))}"
+                     f"{conditions_suffix(args.conditions, not args.no_video_faults)}.parquet")
     attack = C.get("attack", C["sensors"])
     rows, t0 = [], time.time()
 
@@ -67,7 +72,8 @@ def main():
             base = {m: ds.x[m] for m in mods}
             lens = ds.x["len"] if "len" in ds.x else None
             y = np.asarray(ds.y).astype(int); N = len(y); ar = np.arange(N)
-            conds, gidx = build_conditions(dname, ds, tr, fold, attack, C["sensors"])   # shared with cert_experts.py
+            conds, gidx = conditions_for(args.conditions, dname, ds, tr, fold, attack, C["sensors"],
+                                         not args.no_video_faults)               # shared with cert_experts.py
             subj = np.asarray(ds.subject)
             for cname, (repl, donor_y, avail, attacked) in conds.items():
                 inp = dict(base); inp.update({k: torch.from_numpy(v) for k, v in repl.items()})

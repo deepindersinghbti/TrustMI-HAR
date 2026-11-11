@@ -88,10 +88,14 @@ def main():
     ap.add_argument("--folds", default="all")
     ap.add_argument("--seeds", default="0,1,2")
     ap.add_argument("--attack", default=None, help="comma list of sensors to swap (as in cert_experts.py)")
+    ap.add_argument("--conditions", choices=("lies", "faults"), default="lies",
+                    help="lies (default, unchanged) or faults (docs/plan_faults_2026-11-11.md)")
+    ap.add_argument("--no-video-faults", action="store_true",
+                    help="faults without the video faults (smoke run before the video fault features exist)")
     args = ap.parse_args()
     torch.backends.cudnn.benchmark = False
     from cert_signals import CFG
-    from cert_conditions import build_conditions
+    from cert_conditions import conditions_for, conditions_suffix
     from eval_operators import dataset_cls
     from train_mi import MODS, build_model, run_name
     from cert_score import auroc
@@ -101,7 +105,7 @@ def main():
     attack = args.attack.split(",") if args.attack else C.get("attack", C["sensors"])
     DS, dev = dataset_cls(dname), DEVICE
     tag = "all" if args.folds == "all" else "f" + "-".join(map(str, folds))
-    suffix = f"_att-{'-'.join(attack)}" if args.attack else ""
+    suffix = (f"_att-{'-'.join(attack)}" if args.attack else "") + conditions_suffix(args.conditions, not args.no_video_faults)
     out = ROOT / "results/certificate" / f"mi_{dname}_{args.version}_{tag}_s{'-'.join(map(str, seeds))}{suffix}.parquet"
     rows, t0 = [], time.time()
 
@@ -124,7 +128,8 @@ def main():
             base = {m: ds.x[m] for m in mods}
             lens = ds.x["len"].to(dev) if "len" in ds.x else None
             y = np.asarray(ds.y).astype(int); subj = np.asarray(ds.subject)
-            conds, gidx = build_conditions(dname, ds, tr, fold, attack, C["sensors"])
+            conds, gidx = conditions_for(args.conditions, dname, ds, tr, fold, attack, C["sensors"],
+                                         not args.no_video_faults)
             for cname, (repl, donor_y, avail, attacked) in conds.items():
                 inp = dict(base); inp.update({k: torch.from_numpy(v) for k, v in repl.items()})
                 inp = {m: inp[m].to(dev) for m in mods}
@@ -144,7 +149,7 @@ def main():
     print("mean pointwise MI by condition (expected: clean ~ c_swap_same ~ h_all, s_swap clearly lower)")
     print(t.groupby("condition", sort=False)[[c for c in t.columns if c.startswith("pmi_")] + ["mi_min"]]
           .mean().round(3).to_string())
-    lie = t.condition.str.startswith("s_swap").to_numpy()
+    lie = t.condition.str.startswith(("s_swap", "f_")).to_numpy()   # lies, or faults on the fault bench
     print(f"rough pooled lie AUROC of s4 (lies vs clean + controls): {auroc(t.s4.to_numpy(), lie):.3f}")
     if len(mods) >= 3:
         L = t[lie]

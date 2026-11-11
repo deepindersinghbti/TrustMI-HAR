@@ -27,3 +27,44 @@ def build_conditions(dname, ds, tr, fold, attack, phys_sensors):
             xn, _, avail, _ = banks[sen].apply("h_all", level=2)
             conds[f"h_all:{sen}"] = ({sen: xn}, np.full(N, -1), avail, sen)
     return conds, gidx
+
+
+# ---------------------------------------------------------------- journal: real sensor faults
+# docs/plan_faults_2026-11-11.md, step 2. A separate function, so build_conditions above stays exactly as it was.
+def build_fault_conditions(dname, ds, tr, fold, video=True):
+    """The fault test bench for one fold and part, in the same format as build_conditions:
+      clean                       the unchanged input
+      <fault>:L<level>:<sensor>   that sensor with fault f_drift / f_gap / f_shift at level 1-3
+                                  (only where the plan allows it, trustmi.faults.APPLIES)
+    donor_y is -1 (a fault has no donor action); `attacked` is the faulty sensor. Faults are deterministic,
+    so calling this twice gives identical inputs. video=False leaves the video faults out (only for a smoke
+    run made before the frame-level video fault features exist; the output file name then says so)."""
+    from trustmi.faults import FaultBank, VideoFaultBank, APPLIES, LEVELS, condition_name
+    N = len(ds.y)
+    sensors = [s for (d, s) in APPLIES if d == dname and (video or s != "video")]
+    if not sensors:
+        raise ValueError(f"no faults planned for {dname}")
+    banks = {s: (VideoFaultBank(dname, ds, tr, fold) if s == "video" else FaultBank(dname, s, ds, tr, fold))
+             for s in sensors}
+    gidx = next(b.gidx for s, b in banks.items() if s != "video")
+    conds = {"clean": ({}, np.full(N, -1), np.ones(N, bool), "")}
+    for s, bank in banks.items():
+        for fault in APPLIES[(dname, s)]:
+            for lv in LEVELS:
+                xn, avail, _ = bank.apply_fault(fault, lv)
+                conds[condition_name(fault, lv, s)] = ({s: xn}, np.full(N, -1), avail, s)
+    return conds, gidx
+
+
+def conditions_for(kind, dname, ds, tr, fold, attack, phys_sensors, video=True):
+    """kind 'lies' -> build_conditions (the default everywhere, unchanged); kind 'faults' -> the fault bench."""
+    if kind == "lies":
+        return build_conditions(dname, ds, tr, fold, attack, phys_sensors)
+    if kind == "faults":
+        return build_fault_conditions(dname, ds, tr, fold, video)
+    raise ValueError(f"unknown condition set {kind!r}")
+
+
+def conditions_suffix(kind, video=True):
+    """File-name suffix of a condition set: '' for lies (unchanged names), '_faults' or '_faults-novideo'."""
+    return "" if kind == "lies" else ("_faults" if video else "_faults-novideo")
