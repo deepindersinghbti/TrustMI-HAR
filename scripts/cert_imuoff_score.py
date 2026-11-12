@@ -277,7 +277,7 @@ def main():
     if n_rows.nunique() != 1:
         raise SystemExit(f"systems scored on different numbers of rows: {n_rows.to_dict()}: stop and paste this")
     print(f"check: every system scored on the same {int(n_rows.iloc[0])} rows "
-          f"({len(folds)} folds, {len(seeds)} seeds, {pf.k.nunique() - 1} IMU-off conditions + clean)")
+          f"({len(folds)} folds, {len(seeds)} seeds, {len(pf[pf.k > 0][['group', 'k']].drop_duplicates())} IMU-off conditions + clean)")
 
     ans = answers(raw)
     report(pf, ans)
