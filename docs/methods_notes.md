@@ -129,3 +129,21 @@ Audit: `docs/data_audit_weargait.md` (`scripts/audit_weargait.py`). Plan: `docs/
   mean), scored frozen against the fold's clean clips; the main result is the use / drop accuracy of the main
   certificate on clips with exactly one group missing, against doing nothing and against the backup for that
   group. Clips with two or three groups missing are reported separately.
+
+### C.8 Scoring (`scripts/cert_mi_score.py`, `cert_fault_score.py`, `cert_realdrop_score.py`, `cert_dropout_score.py`)
+- Same scorers as for the other datasets, with the fold as unit (C.7). Each scorer first checks that the clean
+  rows are identical across benches and that the frozen fits reproduce the stored lie results exactly; all
+  checks passed (largest difference 0 or 1.1e-16).
+- Real-dropout scorer: the main result is pooled over clips and seeds and also given per fold; fold-level paired
+  differences use the folds as the unit. The AUROC for telling dropout clips from clean ones is averaged over
+  the folds with at least 20 single-group dropout clips (9 of 10; fold 7 has 12).
+- A display error in the real-dropout scorer (attribute access `.clip` on a data frame returned pandas' `clip`
+  method instead of the column) was fixed to `['clip']` after the first run; it affected only clip counts in the
+  printout, and no scored number.
+
+### C.9 Post hoc description of the real dropouts (after the main result; descriptive only)
+- For each single-group real-dropout clip, the number of IMUs of the missing group that are absent from the
+  recording or have any missing sample in it (from `data/processed/weargait_files.parquet`, per-recording,
+  per-IMU missing fraction), and the share of the clip's samples in which any IMU of the group is missing
+  (`miss_<group>` in the clip table). Accuracy of doing nothing and of REV3's use / drop decision is reported by
+  this count. No threshold, rule or model was fitted or changed; this is reported as post hoc.

@@ -167,7 +167,7 @@ def per_fold(R):
     for (s_, r_, f), g in R.groupby(["system", "revision", "fold"]):
         rd, ref = g[g.set == "rd1"], g[g.set == "ref"]
         both = pd.concat([rd, ref])
-        n_rd = rd.clip.nunique()
+        n_rd = rd['clip'].nunique()
         out.append(dict(system=s_, revision=r_, fold=f, n_rd_clips=n_rd,
                         auroc=auroc(both.score.to_numpy(), (both.set == "rd1").to_numpy()) if n_rd >= MIN_FOLD else np.nan,
                         acc_alone_rd=(rd.pred == rd.y).mean(), acc_policy_rd=(rd.final == rd.y).mean(),
@@ -201,10 +201,10 @@ def report(R, ans):
     print("\nMAIN RESULT (named in advance): REV3 (main), revision 1, accuracy % on single-group real-dropout clips")
     k = ans[ans.set == "rd1"]
     print(f"  pooled: doing nothing {pct((rd.pred == rd.y).mean())} | REV3 policy {pct((rd.final == rd.y).mean())}"
-          f" | known missing {pct((k.known == k.y).mean())}  ({rd.clip.nunique()} clips x {rd.seed.nunique()} seeds)")
+          f" | known missing {pct((k.known == k.y).mean())}  ({rd['clip'].nunique()} clips x {rd.seed.nunique()} seeds)")
     for f, g in rd.groupby("fold"):
         kk = k[k.fold == f]
-        print(f"  fold {f}: n={g.clip.nunique():4d} | nothing {pct((g.pred == g.y).mean())} | REV3 "
+        print(f"  fold {f}: n={g['clip'].nunique():4d} | nothing {pct((g.pred == g.y).mean())} | REV3 "
               f"{pct((g.final == g.y).mean())} | known {pct((kk.known == kk.y).mean())}")
 
     pf = per_fold(R)
@@ -232,7 +232,7 @@ def report(R, ans):
         if not len(r1):
             continue
         nm = lambda d: pct((d[d.flagged].named == d[d.flagged].group).mean()) if d.flagged.any() else "  n/a"
-        print(f"  {gname:5s} (n rd {r1.clip.nunique()}): flagged rd {pct(r1.flagged.mean())} rf {pct(rf.flagged.mean())}"
+        print(f"  {gname:5s} (n rd {r1['clip'].nunique()}): flagged rd {pct(r1.flagged.mean())} rf {pct(rf.flagged.mean())}"
               f" | names {gname} (flagged) rd {nm(r1)} rf {nm(rf)} | policy acc rd {pct((r1.final == r1.y).mean())}"
               f" rf {pct((rf.final == rf.y).mean())} | alone rd {pct((r1.pred == r1.y).mean())} rf {pct((rf.pred == rf.y).mean())}")
 
