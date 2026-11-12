@@ -111,10 +111,62 @@ def build_realdrop_conditions(dname, ds, tr, fold):
     return conds, gidx
 
 
+# ---------------------------------------------------------------- journal: WearGait-PD IMUs switched off
+# docs/plan_followup_2026-11-12.md, Part A. Separate functions; everything above stays as it was.
+IMUOFF_DATASETS = ("d3",)
+IMUS = {"arms": 2, "trunk": 3, "legs": 8}     # IMUs per group, 6 channels each, in scripts/build_weargait.py order
+IMUOFF_SEED = 0
+
+
+def imu_order(group, clip):
+    """The random order in which this clip's IMUs of `group` are switched off. Keyed on (group, clip id) only,
+    so it is the same for every seed and every model."""
+    rng = np.random.default_rng([IMUOFF_SEED, list(IMUS).index(group), int(clip)])
+    return rng.permutation(IMUS[group])
+
+
+def imus_off(group, gidx, k):
+    """Boolean (N, n_imus): True where the IMU is among the first k of the clip's order (nested in k)."""
+    order = np.stack([imu_order(group, c) for c in gidx]) if len(gidx) else np.zeros((0, IMUS[group]), int)
+    rank = np.argsort(order, axis=1)          # rank[r, j] = position of IMU j in clip r's order
+    return rank < k
+
+
+def imuoff_input(x, group, gidx, k):
+    """x: the normalised group tensor (N, T, 6 * n_imus). Returns a float32 copy in which all 6 channels of the
+    first k IMUs of each clip's order are 0 (= the training mean) for the whole clip; everything else untouched."""
+    x = np.asarray(x, dtype=np.float32)
+    n = IMUS[group]
+    if x.ndim != 3 or x.shape[2] != 6 * n:
+        raise RuntimeError(f"{group}: expected (N, T, {6 * n}), got {x.shape}")
+    off = np.repeat(imus_off(group, gidx, k), 6, axis=1)          # (N, 6n) channel mask
+    return np.where(off[:, None, :], np.float32(0.0), x).astype(np.float32)
+
+
+def build_imuoff_conditions(dname, ds, tr, fold):
+    """The IMU-off bench for one fold (test part only), in the same format as build_conditions:
+      clean               the test people's clean clips, unchanged (checked against the stored run)
+      io_fill:<group>:k<k>  the first k IMUs of the clip's random order in that group set to the training mean
+                          for the whole clip (k = 1 .. all; k = all is identical to r_fill:<group>)
+    donor_y is -1; `attacked` is the group. Deterministic. tr and fold are unused (kept for the common signature):
+    switching off needs no training statistics, because the training mean is 0 after normalisation."""
+    if dname not in IMUOFF_DATASETS:
+        raise ValueError(f"no IMU groups in {dname}")
+    N = len(ds.y)
+    gidx = np.asarray(ds.idx)
+    conds = {"clean": ({}, np.full(N, -1), np.ones(N, bool), "")}
+    for g, n in IMUS.items():
+        x = np.asarray(ds.x[g])
+        for k in range(1, n + 1):
+            conds[f"io_fill:{g}:k{k}"] = ({g: imuoff_input(x, g, gidx, k)}, np.full(N, -1), np.ones(N, bool), g)
+    return conds, gidx
+
+
 def parts_for(kind):
     """Which parts a condition set runs on: the no-watch and real-dropout benches need no validation part
-    (nothing is fitted on them) and add their own extra part."""
-    return {"nowatch": ("test", "nowatch"), "realdrop": ("test", "dropout")}.get(kind, ("val", "test"))
+    (nothing is fitted on them) and add their own extra part; the IMU-off bench runs on the test part only."""
+    return {"nowatch": ("test", "nowatch"), "realdrop": ("test", "dropout"),
+            "imuoff": ("test",)}.get(kind, ("val", "test"))
 
 
 def dataset_for(kind, DS, dname, fold, part):
@@ -135,6 +187,10 @@ def folds_for(kind, dname, folds):
         if dname not in REALDROP_DATASETS:
             raise SystemExit(f"--conditions realdrop: no real-dropout clips in {dname}")
         return folds
+    if kind == "imuoff":
+        if dname not in IMUOFF_DATASETS:
+            raise SystemExit(f"--conditions imuoff: no IMU groups in {dname}")
+        return folds
     if kind != "nowatch":
         return folds
     if dname not in NOWATCH_DATASETS:
@@ -148,7 +204,7 @@ def folds_for(kind, dname, folds):
 
 def conditions_for(kind, dname, ds, tr, fold, attack, phys_sensors, video=True):
     """kind 'lies' -> build_conditions (the default everywhere, unchanged); kind 'faults' -> the fault bench;
-    kind 'nowatch' -> the no-watch bench."""
+    kind 'nowatch' -> the no-watch bench; 'realdrop' -> the real-dropout bench; 'imuoff' -> the IMU-off bench."""
     if kind == "lies":
         return build_conditions(dname, ds, tr, fold, attack, phys_sensors)
     if kind == "faults":
@@ -157,12 +213,14 @@ def conditions_for(kind, dname, ds, tr, fold, attack, phys_sensors, video=True):
         return build_nowatch_conditions(dname, ds, tr, fold)
     if kind == "realdrop":
         return build_realdrop_conditions(dname, ds, tr, fold)
+    if kind == "imuoff":
+        return build_imuoff_conditions(dname, ds, tr, fold)
     raise ValueError(f"unknown condition set {kind!r}")
 
 
 def conditions_suffix(kind, video=True):
     """File-name suffix of a condition set: '' for lies (unchanged names), '_faults' or '_faults-novideo',
-    '_nowatch', '_realdrop'."""
-    if kind in ("nowatch", "realdrop"):
+    '_nowatch', '_realdrop', '_imuoff'."""
+    if kind in ("nowatch", "realdrop", "imuoff"):
         return f"_{kind}"
     return "" if kind == "lies" else ("_faults" if video else "_faults-novideo")

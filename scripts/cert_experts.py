@@ -50,17 +50,18 @@ def main():
     ap.add_argument("--seeds", default="0,1,2")
     ap.add_argument("--attack", default=None, help="comma list of sensors to swap")
     ap.add_argument("--extra-models", default="", help="comma list of extra models to store answers for")
-    ap.add_argument("--conditions", choices=("lies", "faults", "nowatch", "realdrop"), default="lies",
+    ap.add_argument("--conditions", choices=("lies", "faults", "nowatch", "realdrop", "imuoff"), default="lies",
                     help="lies (default, unchanged), faults (docs/plan_faults_2026-11-11.md), "
-                         "nowatch (d2v only, docs/plan_nowatch_2026-11-11.md) or "
-                         "realdrop (d3 only, docs/plan_weargait_2026-11-11.md)")
+                         "nowatch (d2v only, docs/plan_nowatch_2026-11-11.md), "
+                         "realdrop (d3 only, docs/plan_weargait_2026-11-11.md) or "
+                         "imuoff (d3 only, docs/plan_followup_2026-11-12.md)")
     ap.add_argument("--no-video-faults", action="store_true",
                     help="faults without the video faults (smoke run before the video fault features exist)")
     ap.add_argument("--main", default=None, help="judge this evidential run's answers instead of B4's (e.g. tmc, tmc_s)")
     args = ap.parse_args()
     torch.backends.cudnn.benchmark = False
     C, dname = CFG[args.dataset], args.dataset
-    if args.main and args.conditions in ("nowatch", "realdrop"):
+    if args.main and args.conditions in ("nowatch", "realdrop", "imuoff"):
         raise SystemExit(f"--main is not supported with --conditions {args.conditions}")
     mods, E = FUSED[C["model"]], EXPERTS[args.dataset]
     folds = list(range(C["n_folds"])) if args.folds == "all" else [int(f) for f in args.folds.split(",")]
@@ -119,7 +120,7 @@ def main():
                         pm = fwd(fused[s], inp, lens, {"watch": torch.ones(N, dtype=torch.bool)})[1]
                         cols["mask_watch_pred"], cols["mask_watch_msp"] = pm.argmax(1), pm.max(1)
                         cols["scene"] = np.asarray(ds.group)
-                    if args.conditions == "realdrop":   # M = the missing group(s) flagged absent in the full model
+                    if args.conditions in ("realdrop", "imuoff"):   # M = the missing group(s) flagged absent
                         hide = set(attacked.split(",")) - {""}
                         pm = fwd(fused[s], inp, lens, {m: torch.full((N,), m in hide) for m in hide})[1] if hide else p0
                         cols["mask_missing_pred"], cols["mask_missing_msp"] = pm.argmax(1), pm.max(1)

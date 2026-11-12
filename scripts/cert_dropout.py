@@ -41,10 +41,11 @@ def main():
     ap.add_argument("--rate", choices=sorted(RATES), required=True)
     ap.add_argument("--folds", default="all")
     ap.add_argument("--seeds", default="0,1,2")
-    ap.add_argument("--conditions", choices=("lies", "faults", "nowatch", "realdrop"), default="lies",
+    ap.add_argument("--conditions", choices=("lies", "faults", "nowatch", "realdrop", "imuoff"), default="lies",
                     help="lies (default, unchanged), faults (docs/plan_faults_2026-11-11.md), "
-                         "nowatch (d2v only, docs/plan_nowatch_2026-11-11.md) or "
-                         "realdrop (d3 only, docs/plan_weargait_2026-11-11.md)")
+                         "nowatch (d2v only, docs/plan_nowatch_2026-11-11.md), "
+                         "realdrop (d3 only, docs/plan_weargait_2026-11-11.md) or "
+                         "imuoff (d3 only, docs/plan_followup_2026-11-12.md)")
     ap.add_argument("--no-video-faults", action="store_true",
                     help="faults without the video faults (smoke run before the video fault features exist)")
     args = ap.parse_args()

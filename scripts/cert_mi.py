@@ -88,10 +88,11 @@ def main():
     ap.add_argument("--folds", default="all")
     ap.add_argument("--seeds", default="0,1,2")
     ap.add_argument("--attack", default=None, help="comma list of sensors to swap (as in cert_experts.py)")
-    ap.add_argument("--conditions", choices=("lies", "faults", "nowatch", "realdrop"), default="lies",
+    ap.add_argument("--conditions", choices=("lies", "faults", "nowatch", "realdrop", "imuoff"), default="lies",
                     help="lies (default, unchanged), faults (docs/plan_faults_2026-11-11.md), "
-                         "nowatch (d2v only, docs/plan_nowatch_2026-11-11.md) or "
-                         "realdrop (d3 only, docs/plan_weargait_2026-11-11.md)")
+                         "nowatch (d2v only, docs/plan_nowatch_2026-11-11.md), "
+                         "realdrop (d3 only, docs/plan_weargait_2026-11-11.md) or "
+                         "imuoff (d3 only, docs/plan_followup_2026-11-12.md)")
     ap.add_argument("--no-video-faults", action="store_true",
                     help="faults without the video faults (smoke run before the video fault features exist)")
     args = ap.parse_args()
@@ -152,7 +153,7 @@ def main():
     print("mean pointwise MI by condition (expected: clean ~ c_swap_same ~ h_all, s_swap clearly lower)")
     print(t.groupby("condition", sort=False)[[c for c in t.columns if c.startswith("pmi_")] + ["mi_min"]]
           .mean().round(3).to_string())
-    lie = t.condition.str.startswith(("s_swap", "f_", "nw_", "rd_")).to_numpy()   # lies, faults, or missing data
+    lie = t.condition.str.startswith(("s_swap", "f_", "nw_", "rd_", "io_")).to_numpy()   # lies, faults, missing data
     print(f"rough pooled lie AUROC of s4 (lies vs clean + controls): {auroc(t.s4.to_numpy(), lie):.3f}")
     if len(mods) >= 3:
         L = t[lie]
