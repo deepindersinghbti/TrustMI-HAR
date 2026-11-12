@@ -111,6 +111,9 @@ Audit: `docs/data_audit_weargait.md` (`scripts/audit_weargait.py`). Plan: `docs/
   anchor, since clips of one segment overlap in time.
 - Backups for the drop action chosen by the existing rule (validation accuracy, 1-point margin in favour of the
   single-sensor model).
+- Determinism: training is deterministic (fixed seeds, deterministic GPU algorithms). Verified on 16 runs that
+  were retrained from the committed code: weights, training curves, predictions and scores were byte-for-byte
+  identical to the first training (`scripts/compare_reruns.py`).
 
 ### C.7 Test benches (`scripts/run_journal_queue_i.sh`)
 - **Unit of analysis:** the fold (about 18 test people). The certificate is fitted on the fold's validation
