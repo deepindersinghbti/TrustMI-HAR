@@ -30,9 +30,11 @@ from cert_evidential import load_ev, METHODS as EV_METHODS
 EXPERTS = dict(d1=dict(imu="b1_imu", skel="b1_skel", video="b1_video"),
                d2=dict(watch="b1_watch", phone="b1_phone"),
                d1v2=dict(imu="b1_imu", skel="b1_skel", video="b1_video"),          # journal
-               d2v=dict(watch="b1_watch", phone="b1_phone", video="b1_video"))
+               d2v=dict(watch="b1_watch", phone="b1_phone", video="b1_video"),
+               d3=dict(arms="b1_arms", trunk="b1_trunk", legs="b1_legs"))                  # journal, WearGait-PD
 EXTRA_MODS = dict(b4_noimu=["video", "skel"], b4_noskel=["video", "imu"], b4_novideo=["skel", "imu"],  # as in train.py
-                  b4s_nowatch=["phone", "video"], b4s_nophone=["watch", "video"], b4s=["watch", "phone"])  # d2v backups
+                  b4s_nowatch=["phone", "video"], b4s_nophone=["watch", "video"], b4s=["watch", "phone"],  # d2v backups
+                  b4w_noarms=["trunk", "legs"], b4w_notrunk=["arms", "legs"], b4w_nolegs=["arms", "trunk"])  # d3
 
 
 def js(p, q):
@@ -48,17 +50,18 @@ def main():
     ap.add_argument("--seeds", default="0,1,2")
     ap.add_argument("--attack", default=None, help="comma list of sensors to swap")
     ap.add_argument("--extra-models", default="", help="comma list of extra models to store answers for")
-    ap.add_argument("--conditions", choices=("lies", "faults", "nowatch"), default="lies",
-                    help="lies (default, unchanged), faults (docs/plan_faults_2026-11-11.md) or "
-                         "nowatch (d2v only, docs/plan_nowatch_2026-11-11.md)")
+    ap.add_argument("--conditions", choices=("lies", "faults", "nowatch", "realdrop"), default="lies",
+                    help="lies (default, unchanged), faults (docs/plan_faults_2026-11-11.md), "
+                         "nowatch (d2v only, docs/plan_nowatch_2026-11-11.md) or "
+                         "realdrop (d3 only, docs/plan_weargait_2026-11-11.md)")
     ap.add_argument("--no-video-faults", action="store_true",
                     help="faults without the video faults (smoke run before the video fault features exist)")
     ap.add_argument("--main", default=None, help="judge this evidential run's answers instead of B4's (e.g. tmc, tmc_s)")
     args = ap.parse_args()
     torch.backends.cudnn.benchmark = False
     C, dname = CFG[args.dataset], args.dataset
-    if args.main and args.conditions == "nowatch":
-        raise SystemExit("--main is not supported with --conditions nowatch")
+    if args.main and args.conditions in ("nowatch", "realdrop"):
+        raise SystemExit(f"--main is not supported with --conditions {args.conditions}")
     mods, E = FUSED[C["model"]], EXPERTS[args.dataset]
     folds = list(range(C["n_folds"])) if args.folds == "all" else [int(f) for f in args.folds.split(",")]
     folds = folds_for(args.conditions, dname, folds)          # nowatch: only folds with no-watch clips
@@ -116,6 +119,10 @@ def main():
                         pm = fwd(fused[s], inp, lens, {"watch": torch.ones(N, dtype=torch.bool)})[1]
                         cols["mask_watch_pred"], cols["mask_watch_msp"] = pm.argmax(1), pm.max(1)
                         cols["scene"] = np.asarray(ds.group)
+                    if args.conditions == "realdrop":   # M = the missing group(s) flagged absent in the full model
+                        hide = set(attacked.split(",")) - {""}
+                        pm = fwd(fused[s], inp, lens, {m: torch.full((N,), m in hide) for m in hide})[1] if hide else p0
+                        cols["mask_missing_pred"], cols["mask_missing_msp"] = pm.argmax(1), pm.max(1)
                     cols["exp_js"] = np.mean([js(P[a], P[b]) for a, b in itertools.combinations(P, 2)], axis=0)
                     for (x, sx), mdl in extras.items():
                         if sx == s:

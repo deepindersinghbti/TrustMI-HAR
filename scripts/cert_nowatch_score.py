@@ -34,7 +34,7 @@ import cert_policy as CP
 import cert_mi_score as MS
 import cert_dropout_score as DSC
 from cert_evidential_score import per_subject, ev_feats, ev_drop, EV_RULES, RES, EVFILE
-from cert_score import auroc
+from cert_score import auroc, unit
 from cert_fault_score import (Frozen, check_clean, check_frozen_on_lies, with_dropout, merge, FULL, KEYS,
                               SYS_CONF, SYS_C3, SYS_MAIN, SYS_D, REV3_SIG, REV3_RULES)
 
@@ -180,7 +180,7 @@ def main():
                 te_b = B[kb]
                 fz = Frozen(va, ds, feats, rules, drop, rev)
                 if ref is not None:
-                    check_frozen_on_lies(fz, te_l, ref.loc[te_l.subject.iloc[0]], f"{ds} {name_} rev {rev} fold {fold}")
+                    check_frozen_on_lies(fz, te_l, ref.loc[unit(te_l)], f"{ds} {name_} rev {rev} fold {fold}")
                 rows.append(row_frame(te_b, *fz.apply(te_b), fz.t, name_, rev, sets_sys[kb]))
         print(f"scored: {name_}" + (" (frozen fit reproduces the lie numbers exactly)" if rules else ""))
     R = pd.concat(rows, ignore_index=True)

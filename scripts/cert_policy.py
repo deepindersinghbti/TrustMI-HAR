@@ -25,14 +25,15 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
-from cert_score import fmt, fit_logreg, load as load_merged
+from cert_score import fmt, fit_logreg, load as load_merged, unit
 
 RES = ROOT / "results/certificate"
 BACKUPS = json.load(open(ROOT / "configs/backups.json"))
 COVERAGES = (1.0, 0.9, 0.8)
 EXP = {"d1": ["imu", "skel", "video"], "d2": ["watch", "phone"],
-       "d1v2": ["imu", "skel", "video"], "d2v": ["watch", "phone", "video"]}      # journal datasets
-JOURNAL = ("d1v2", "d2v")
+       "d1v2": ["imu", "skel", "video"], "d2v": ["watch", "phone", "video"],      # journal datasets
+       "d3": ["arms", "trunk", "legs"]}                                           # journal, WearGait-PD
+JOURNAL = ("d1v2", "d2v", "d3")
 TAG = "all_s0-1-2"                                  # journal result files: <name>_<ds>_<TAG>.parquet
 BUDGET = 0.05                                       # revision 2: max drop rate on normal validation clips
 REV = 1
@@ -115,7 +116,7 @@ def evaluate(df, ds, variant, label):
         Dt, final, t, At = run_fold(va, te, ds, variant)
         y, fused, grp = te.y.to_numpy(), te.pred.to_numpy(), group(te.condition)
         drop_flag = (Dt >= t) if variant else np.zeros(len(te), bool)
-        r = dict(policy=label, dataset=ds, fold=fold, subject=te.subject.iloc[0])
+        r = dict(policy=label, dataset=ds, fold=fold, subject=unit(te))
         for gname in ("normal", "lie", "benign change"):
             k = grp == gname
             r[f"acc_main_{gname}"] = np.mean(fused[k] == y[k])

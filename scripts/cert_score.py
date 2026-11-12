@@ -49,6 +49,13 @@ def fmt(v, k=1.0, d=3):
     return f"{k * m:.{d}f} [{k * (m - h):.{d}f}, {k * (m + h):.{d}f}] (n={n})"
 
 
+def unit(te):
+    """Label of a fold's test rows. UTD-MHAD / MMAct (one test person per fold): that person's ID, exactly as
+    before. WearGait-PD (about 18 test people per fold): 'fold03' etc.; the fold is the unit of analysis."""
+    s = pd.unique(te.subject)
+    return s[0] if len(s) == 1 else f"fold{int(te.fold.iloc[0]):02d}"
+
+
 def auroc(score, label, min_class=1):
     label = np.asarray(label, bool); n1, n0 = label.sum(), (~label).sum()
     if n1 < min_class or n0 < min_class:
@@ -118,7 +125,7 @@ def score_task(df, ds, task):
                 st[cname] = np.full(len(te), np.nan)
         min_c = MIN_CLASS if task == "ERROR" else 1
         for name, sc in st.items():
-            rows.append(dict(dataset=ds, task=task, fold=fold, subject=te.subject.iloc[0], score=name,
+            rows.append(dict(dataset=ds, task=task, fold=fold, subject=unit(te), score=name,
                              auroc=auroc(sc, yt, min_c) if not np.isnan(sc).all() else np.nan, level=L))
     return pd.DataFrame(rows), levels
 
@@ -155,7 +162,7 @@ def naming(df, ds):
         acc_val = {r: (mods[f(va, DEFAULT_LEVEL)] == va.attacked.to_numpy()).mean() for r, f in rules.items()}
         best = max(acc_val, key=acc_val.get)
         for r, f in rules.items():
-            rows.append(dict(fold=fold, subject=te.subject.iloc[0], rule=r, chosen=(r == best),
+            rows.append(dict(fold=fold, subject=unit(te), rule=r, chosen=(r == best),
                              test_acc=(mods[f(te, DEFAULT_LEVEL)] == te.attacked.to_numpy()).mean()))
     return pd.DataFrame(rows)
 

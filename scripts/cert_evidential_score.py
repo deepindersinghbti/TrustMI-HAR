@@ -27,7 +27,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 import cert_policy as CP
-from cert_score import auroc, fit_logreg, tq, MIN_CLASS
+from cert_score import auroc, fit_logreg, tq, MIN_CLASS, unit
 
 RES = ROOT / "results/certificate"
 SENS = CP.EXP                                     # same sensor order as cert_policy.py (matters only for ties)
@@ -84,7 +84,7 @@ def per_subject(df, ds, feats, rules, drop_answer, rev):
         Xv, Xt = feats(va, ds), feats(te, ds)
         cv, ct = (va.condition == "clean").to_numpy(), (te.condition == "clean").to_numpy()
         yv, yt, fv, ft = va.y.to_numpy(), te.y.to_numpy(), va.pred.to_numpy(), te.pred.to_numpy()
-        r = dict(fold=fold, subject=te.subject.iloc[0])
+        r = dict(fold=fold, subject=unit(te))
         Dv, Dt = fit_apply(Xv, lv, Xt)                                   # LIE: combined score
         r.update(val_lie_auroc=auroc(Dv, lv), lie_auroc=auroc(Dt, lt), lie_auroc_msp=auroc(Xt[:, 0], lt))
         ev_, et = fv[cv] != yv[cv], ft[ct] != yt[ct]                     # ERROR: own mistakes, clean rows

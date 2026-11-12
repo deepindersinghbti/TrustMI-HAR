@@ -42,7 +42,7 @@ import cert_policy as CP
 import cert_mi_score as MS
 import cert_dropout_score as DSC
 from cert_evidential_score import (per_subject, name, ev_feats, ev_drop, EV_RULES, ci, RES, is_lie, EVFILE)
-from cert_score import auroc, fit_logreg, MIN_CLASS
+from cert_score import auroc, fit_logreg, MIN_CLASS, unit
 
 KEYS = MS.KEYS
 FULL = "all_s0-1-2"
@@ -168,7 +168,7 @@ def fault_rows(te, D, named, final, A, t, system, rev):
     for gname, f, lv, s, k in groups(te):
         h = k & flip
         both, both_h = k | k0, h | k0
-        r = dict(fold=int(te.fold.iloc[0]), subject=te.subject.iloc[0], system=system, revision=rev, group=gname,
+        r = dict(fold=int(te.fold.iloc[0]), subject=unit(te), system=system, revision=rev, group=gname,
                  fault=f, level=lv, sensor=s, n=int(k.sum()), n_harmful=int(h.sum()),
                  acc_clean=np.mean(pred[k0] == y[k0]), acc_fault=np.mean(pred[k] == y[k]), flipped=np.mean(flip[k]),
                  auroc=auroc(D[both], k[both]),
@@ -245,7 +245,7 @@ def main():
                 te_f = F[(F.fold == fold) & (F.part == "test")]
                 fz = Frozen(va, ds, feats, rules, drop, rev)
                 if ref is not None:
-                    check_frozen_on_lies(fz, te_l, ref.loc[te_l.subject.iloc[0]], f"{ds} {name_} rev {rev} fold {fold}")
+                    check_frozen_on_lies(fz, te_l, ref.loc[unit(te_l)], f"{ds} {name_} rev {rev} fold {fold}")
                 rows += fault_rows(te_f, *fz.apply(te_f), fz.t, name_, rev)
         print(f"scored: {name_}" + (" (frozen fit reproduces the lie numbers exactly)" if rules else ""))
 

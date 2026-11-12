@@ -116,3 +116,29 @@ Consequences of the plan meeting the data and the code; nothing measured changes
    `b4w_notrunk`, `b4w_nolegs`; `tmc_w`, `ecml_w`; sensor-dropout model `b4w_sd50`; shuffled-label control for
    `b4w`; MI matchers (own, the main one, and frozen) with 1,000 anchors per epoch as for MMAct.
    Backups chosen with the existing rule (`scripts/choose_backups_journal.py --datasets d3`).
+
+## 8. Implementation notes for the benches (12 Nov, during training, before any bench result)
+1. **Unit of analysis = the fold.** UTD-MHAD and MMAct test one person per fold, so every scorer reports per
+   person. WearGait-PD folds test about 18 people; the scorers fit on the fold's validation people and score the
+   fold's test people together, labelled "fold00"...; means and 95% intervals are over the 10 folds. For the
+   other datasets the label is the person's ID, exactly as before (`cert_score.unit`).
+2. **Faults on a group** (`trustmi.faults`): the whole group is faulty, as a lie replaces the whole group.
+   Drift: every IMU of the group drifts, each in its own random direction, with the plan's sizes (0.05 / 0.2 /
+   0.5 g; 1 / 5 / 20 deg/s). Gap and timing error: all channels of the group together. Timing error applies
+   (all IMUs share one clock at 50 Hz after loading). Single-IMU failures are covered by the real-dropout test.
+3. **Real-dropout bench** (`cert_conditions.build_realdrop_conditions`, `scripts/cert_realdrop_score.py`):
+   - real-dropout clips with exactly one group missing are the main set; two or three groups are reported apart;
+   - reference = all clean clips of the fold's test people; simulated removal = `r_fill` of each group on them;
+   - answers without a certificate: doing nothing; known missing (the chosen backup for the missing group; for
+     two missing groups the witness of the remaining group; none for three); the missing group(s) flagged
+     absent in the full model; the dropout model with the missing group hidden;
+   - **main result, named in advance:** REV3's use / drop accuracy, revision 1, on the single-group
+     real-dropout clips, pooled over clips, against doing nothing and against known missing; also per fold;
+   - detection AUROC (single-group real-dropout clips vs clean clips) per fold with at least 20 such clips,
+     mean over those folds; never pooled across folds.
+4. **Dropout model:** only the 50% model exists for this dataset, so the dropout ablation has rows A, B, C(50),
+   D(50) only.
+5. **Backups are chosen before the benches** (`choose_backups_journal.py --datasets d3`), so
+   `cert_signals.py` was made to skip backups for every journal dataset, as its own comment already stated
+   (backup answers come from `cert_experts.py --extra-models`). The stored MMAct and UTD-MHAD signal files have
+   no backup columns, so nothing in them changes.

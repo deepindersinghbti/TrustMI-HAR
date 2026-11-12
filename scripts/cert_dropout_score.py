@@ -38,6 +38,11 @@ from cert_evidential_score import per_subject, ci, RES
 
 KEYS = MS.KEYS
 RATES = ("sd50", "sd25")
+
+
+def rates(ds):
+    """WearGait-PD has only the 50% dropout model (docs/plan_weargait_2026-11-11.md); the others both rates."""
+    return ("sd50",) if ds == "d3" else RATES
 A = "A main (separate backups)"
 B = "B hide, no retraining"
 FULL = "all_s0-1-2"
@@ -72,7 +77,7 @@ def load_all(ds, tag):
     same = (df.pred == df.sig_pred).mean()
     if same < 0.999:
         raise SystemExit(f"{ds}: signals and experts files disagree on the fused answer ({same:.4f}): stop and paste this")
-    for r in RATES:
+    for r in rates(ds):
         f = RES / f"dropout_{ds}_{r}_{tag}.parquet"
         if not f.exists():
             raise SystemExit(f"missing {f.relative_to(ROOT)}: run scripts/cert_dropout.py --dataset {ds} --rate {r} first")
@@ -154,9 +159,9 @@ def main():
     feats, rules = MS.signals(MS.SYSTEMS[MS.MAIN][0]), MS.SYSTEMS[MS.MAIN][1]
 
     systems = {A: (df, CP.backup_answer), B: (df, hide_answer("std_hide_pred"))}
-    for r in RATES:
+    for r in rates(ds):
         systems[f"C dropout as backup ({r})"] = (df, hide_answer(f"{r}_hide_pred"))
-    for r in RATES:
+    for r in rates(ds):
         systems[f"D dropout everywhere ({r})"] = (as_main(df, ds, r), hide_answer(f"{r}_hide_pred"))
     per = {(name, rev): per_subject(d, ds, feats, rules, drop, rev)
            for name, (d, drop) in systems.items() for rev in (1, 2)}

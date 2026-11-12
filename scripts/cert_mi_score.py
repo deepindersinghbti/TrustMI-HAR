@@ -33,13 +33,13 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 import cert_policy as CP
 from cert_evidential_score import per_subject, ev_feats, ev_drop, ci, EV_RULES, EVFILE, RES, fit_apply, can_name
-from cert_score import auroc, fmt, tq
+from cert_score import auroc, fmt, tq, unit
 
 KEYS = ["fold", "part", "seed", "clip", "condition"]
 MIFILE = {"d1": "mi_d1_{v}_all_s0-1-2_att-imu-skel-video", "d2": "mi_d2_{v}_all_s0-1-2"}
 EXPFILE = {"d1": "experts_d1_all_s0-1-2_att-imu-skel-video", "d2": "experts_d2_all_s0-1-2"}
 MAIN_EV = {"d1": ("tmc", "ecml"), "d2": ("tmc_s", "ecml_s"),      # the versions the paper reports
-           "d1v2": ("tmc", "ecml"), "d2v": ("tmc_s3", "ecml_s3")}  # journal
+           "d1v2": ("tmc", "ecml"), "d2v": ("tmc_s3", "ecml_s3"), "d3": ("tmc_w", "ecml_w")}  # journal
 CHECK_COLS = ["lie_auroc", "naming", "acc_policy_lie", "acc_policy_normal", "all_cov80_cert_policy", "error_auroc"]
 
 ODD = ("exp_div", "max")
@@ -157,7 +157,7 @@ def per_sensor(df, ds):
             for sen in CP.EXP[ds]:
                 pos = (te.condition == f"s_swap:{sen}").to_numpy()
                 keep = pos | ~lt
-                rows.append(dict(fold=fold, subject=te.subject.iloc[0], system=name, lie_in=sen,
+                rows.append(dict(fold=fold, subject=unit(te), system=name, lie_in=sen,
                                  auroc=auroc(Dt[keep], pos[keep])))
     res = pd.DataFrame(rows)
     print(f"\n{ds}: lie AUROC by lying sensor (rev. 1 score), mean [95% CI] over test subjects")
@@ -184,7 +184,7 @@ def naming_by_sensor(df, ds):
             named, att = name(Lt, ds, rules, rule), Lt.attacked.to_numpy()
             for a in sens:
                 k = att == a
-                rows.append(dict(fold=fold, subject=te.subject.iloc[0], system=sysname, rule=rule, lie_in=a,
+                rows.append(dict(fold=fold, subject=unit(te), system=sysname, rule=rule, lie_in=a,
                                  fused_acc=np.mean(Lt.pred.to_numpy()[k] == Lt.y.to_numpy()[k]),
                                  **{f"named_{b}": np.mean(named[k] == b) for b in sens}))
     res = pd.DataFrame(rows)
@@ -219,7 +219,7 @@ def bound_summary():
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--dataset", choices=("d1", "d2", "d1v2", "d2v"), required=True)
+    ap.add_argument("--dataset", choices=("d1", "d2", "d1v2", "d2v", "d3"), required=True)
     ap.add_argument("--tag", default="all_s0-1-2", help="journal datasets only: result-file tag "
                     "(all_s0-1-2 = the full run; f0_s0 = the queue C smoke run, for a code check only)")
     args = ap.parse_args(); ds = args.dataset

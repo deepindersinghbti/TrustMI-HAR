@@ -40,11 +40,16 @@ GAP = {1: 0.10, 2: 0.25, 3: 0.50}
 SHIFT_S = {1: 0.2, 2: 0.5, 3: 1.0}
 UNITS = {("d1", "imu"): dict(accel="g", gyro="deg/s"),
          ("d2", "watch"): dict(accel="m/s2"),
-         ("d2", "phone"): dict(accel="m/s2", gyro="rad/s")}
-FS = {"d2": 50}                       # MMAct sensors, Hz. UTD-MHAD has no timing faults (plan, section 4)
+         ("d2", "phone"): dict(accel="m/s2", gyro="rad/s"),
+         # WearGait-PD (d3): m/s^2 and rad/s, checked on the data (|acc| 9.8 at rest; wrist gyro up to ~3 rad/s)
+         **{("d3", s): dict(accel="m/s2", gyro="rad/s") for s in ("arms", "trunk", "legs")}}
+FS = {"d2": 50, "d3": 50}             # Hz after loading. UTD-MHAD has no timing faults (plan, section 4)
 APPLIES = {                           # plan, section 4
     ("d1v2", "imu"): ("f_drift", "f_gap"), ("d1v2", "skel"): ("f_gap",), ("d1v2", "video"): ("f_gap",),
     ("d2v", "watch"): FAULTS, ("d2v", "phone"): FAULTS, ("d2v", "video"): ("f_gap", "f_shift"),
+    # WearGait-PD (docs/plan_weargait_2026-11-11.md, 3.3): all three faults on every group; the whole group is
+    # faulty (all its IMUs), as a lie replaces the whole group; every IMU drifts in its own random direction
+    ("d3", "arms"): FAULTS, ("d3", "trunk"): FAULTS, ("d3", "legs"): FAULTS,
 }
 FAULT_SALT = 100                      # fault ids 100.. keep the draws apart from the operators' (0..9)
 VIDEO_FAULTS = {"d1v2": ROOT / "data/features/video_r2plus1d18_v2_faults.npz",
@@ -85,6 +90,18 @@ class FaultBank(OperatorBank):
         p = p.copy()
         ramp = np.arange(n) / max(n - 1, 1)                                  # 0 ... 1 over the valid samples
         info = {}
+        if L.imus:                                   # several IMUs (WearGait-PD): own directions for each one
+            acc = P["acc_g"] * (1.0 if U["accel"] == "g" else G)
+            gyr = P["gyro_dps"] if U["gyro"] == "deg/s" else np.deg2rad(P["gyro_dps"])
+            for a, g in L.imus:
+                p[:, list(a)] += ramp[:, None] * acc * _unit_vector(rng, 3)
+                p[:, list(g)] += ramp[:, None] * gyr * _unit_vector(rng, 3)
+            phys_ch = list(L.accel) + list(L.gyro)
+            before = p[:, phys_ch].copy()
+            p[:, phys_ch] = np.clip(p[:, phys_ch], self.lo[phys_ch], self.hi[phys_ch])
+            info.update(drift_accel=acc, drift_gyro=gyr, clipped=int((before != p[:, phys_ch]).sum()),
+                        n_values=n * len(phys_ch))
+            return self._back(i, p, n), info
         if L.accel:
             size = P["acc_g"] * (1.0 if U["accel"] == "g" else G)
             u = _unit_vector(rng, 3)

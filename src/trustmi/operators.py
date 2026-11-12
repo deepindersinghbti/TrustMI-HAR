@@ -51,12 +51,22 @@ class Layout:
     ang_sin: tuple = ()      # sin of each orientation angle ...
     ang_cos: tuple = ()      # ... and the matching cos, same order
     generic: bool = False    # no physical model (skeleton, video features): swap/removal only
+    imus: tuple = ()         # several separately mounted IMUs in one sensor (WearGait-PD groups):
+                             # ((accel triple, gyro triple), ...); each IMU gets its own mounting rotation
+
+
+def _multi_imu(n):
+    """n IMUs, each 6 channels in the order Acc X Y Z, Gyr X Y Z (scripts/build_weargait.py)."""
+    imus = tuple(((6 * k, 6 * k + 1, 6 * k + 2), (6 * k + 3, 6 * k + 4, 6 * k + 5)) for k in range(n))
+    return Layout(accel=tuple(c for a, _ in imus for c in a), gyro=tuple(c for _, g in imus for c in g), imus=imus)
 
 
 LAYOUTS = {
     ("d1", "imu"): Layout(accel=(0, 1, 2), gyro=(3, 4, 5)),                  # g, deg/s
     ("d2", "watch"): Layout(accel=(0, 1, 2)),                                 # m/s^2
     ("d2", "phone"): Layout(accel=(0, 1, 2), gyro=(3, 4, 5), ang_sin=(6, 7), ang_cos=(8, 9)),
+    # journal, WearGait-PD (d3): m/s^2 and rad/s; arms 2, trunk 3, legs 8 IMUs
+    ("d3", "arms"): _multi_imu(2), ("d3", "trunk"): _multi_imu(3), ("d3", "legs"): _multi_imu(8),
 }
 # journal datasets share the sensors (and their physics) of the conference ones
 BASE_DATASET = {"d1v2": "d1", "d2v": "d2"}
@@ -136,6 +146,8 @@ class OperatorBank:
         self.subject = np.asarray(ds.subject)
         self.group = np.asarray(ds.group)
         self.gidx = np.asarray(getattr(ds, "idx", np.arange(self.N)))  # dataset-wide clip index
+        seg = getattr(ds, "segment", None)                              # WearGait-PD: overlapping clips
+        self.segment = None if seg is None else np.asarray(seg)
         self.angle_unit, self._train_ds = None, train_ds
         if self.layout.generic:
             return
@@ -180,7 +192,12 @@ class OperatorBank:
         rng = self._rng("h_all" if len(parts) > 1 else f"h_{parts[0]}", level, i)
         p, n = self._phys(i)
         p = p.copy()
-        if "rotate" in parts:
+        if "rotate" in parts and L.imus:                    # several IMUs: each mounted (and rotated) on its own
+            for acc, gyr in L.imus:
+                R = _rotation(rng, P["rot_deg"])
+                p[:, list(acc)] = p[:, list(acc)] @ R.T
+                p[:, list(gyr)] = p[:, list(gyr)] @ R.T
+        elif "rotate" in parts:
             R = _rotation(rng, P["rot_deg"])
             for tri in (L.accel, L.gyro):
                 if tri:
@@ -207,6 +224,8 @@ class OperatorBank:
     def donors(self, i, same_label):
         ok = (self.subject == self.subject[i]) & (self.group == self.group[i])
         ok &= (self.y == self.y[i]) if same_label else (self.y != self.y[i])
+        if self.segment is not None:                    # never a clip overlapping in time with clip i
+            ok &= self.segment != self.segment[i]
         ok[i] = False
         return np.flatnonzero(ok)
 

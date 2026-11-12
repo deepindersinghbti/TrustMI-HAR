@@ -80,24 +80,61 @@ def build_nowatch_conditions(dname, ds, tr, fold):
     return conds, bank.gidx
 
 
+# ---------------------------------------------------------------- journal: WearGait-PD real dropouts
+# docs/plan_weargait_2026-11-11.md, section 2.6. Separate function; everything above stays as it was.
+REALDROP_DATASETS = ("d3",)
+
+
+def build_realdrop_conditions(dname, ds, tr, fold):
+    """The real-dropout bench for one fold, in the same format as build_conditions:
+      part 'test'     clean            the test people's clean clips, unchanged (checked against the stored run)
+                      r_fill:<sensor>  the same clips with that sensor group set to its training mean (r_fill)
+      part 'dropout'  rd_fill:<groups> the clips where those sensor groups REALLY lost samples; the loader has
+                                       already set the missing samples to the training mean, so nothing is
+                                       replaced. One condition per pattern of missing groups (e.g. 'legs',
+                                       'arms,trunk'); a clip is available only under its own pattern.
+    donor_y is -1; `attacked` is the group(s) with missing data. Deterministic."""
+    if dname not in REALDROP_DATASETS:
+        raise ValueError(f"no real-dropout clips in {dname}")
+    N = len(ds.y)
+    if getattr(ds, "part", None) == "dropout":
+        miss = np.asarray(ds.missing)
+        conds = {f"rd_fill:{pat}": ({}, np.full(N, -1), miss == pat, pat) for pat in sorted(set(miss))}
+        return conds, np.asarray(ds.idx)
+    conds = {"clean": ({}, np.full(N, -1), np.ones(N, bool), "")}
+    gidx = None
+    for s in ("arms", "trunk", "legs"):
+        bank = OperatorBank(dname, s, ds, tr, fold)
+        xn, _, avail, _ = bank.apply("r_fill")
+        conds[f"r_fill:{s}"] = ({s: xn}, np.full(N, -1), avail, s)
+        gidx = bank.gidx
+    return conds, gidx
+
+
 def parts_for(kind):
-    """Which parts a condition set runs on: the no-watch bench needs no validation part (nothing is fitted on
-    it) and adds the 'nowatch' part."""
-    return ("test", "nowatch") if kind == "nowatch" else ("val", "test")
+    """Which parts a condition set runs on: the no-watch and real-dropout benches need no validation part
+    (nothing is fitted on them) and add their own extra part."""
+    return {"nowatch": ("test", "nowatch"), "realdrop": ("test", "dropout")}.get(kind, ("val", "test"))
 
 
 def dataset_for(kind, DS, dname, fold, part):
-    """DS(fold, part), or the no-watch clips of the fold's test person for part 'nowatch'."""
+    """DS(fold, part); the no-watch clips (part 'nowatch'); the real-dropout clips (part 'dropout')."""
     if part == "nowatch":
         if kind != "nowatch" or dname not in NOWATCH_DATASETS:
             raise ValueError("part 'nowatch' needs --conditions nowatch on d2v")
         from trustmi.data.mmact import MMActNoWatch
         return MMActNoWatch(fold)
+    if part == "dropout" and (kind != "realdrop" or dname not in REALDROP_DATASETS):
+        raise ValueError("part 'dropout' needs --conditions realdrop on d3")
     return DS(fold, part)
 
 
 def folds_for(kind, dname, folds):
     """For the no-watch bench, keep only the folds whose test person has no-watch clips."""
+    if kind == "realdrop":
+        if dname not in REALDROP_DATASETS:
+            raise SystemExit(f"--conditions realdrop: no real-dropout clips in {dname}")
+        return folds
     if kind != "nowatch":
         return folds
     if dname not in NOWATCH_DATASETS:
@@ -118,12 +155,14 @@ def conditions_for(kind, dname, ds, tr, fold, attack, phys_sensors, video=True):
         return build_fault_conditions(dname, ds, tr, fold, video)
     if kind == "nowatch":
         return build_nowatch_conditions(dname, ds, tr, fold)
+    if kind == "realdrop":
+        return build_realdrop_conditions(dname, ds, tr, fold)
     raise ValueError(f"unknown condition set {kind!r}")
 
 
 def conditions_suffix(kind, video=True):
     """File-name suffix of a condition set: '' for lies (unchanged names), '_faults' or '_faults-novideo',
-    '_nowatch'."""
-    if kind == "nowatch":
-        return "_nowatch"
+    '_nowatch', '_realdrop'."""
+    if kind in ("nowatch", "realdrop"):
+        return f"_{kind}"
     return "" if kind == "lies" else ("_faults" if video else "_faults-novideo")

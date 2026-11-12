@@ -31,7 +31,10 @@ CFG = dict(d1=dict(model="b4", n_classes=27, n_folds=8, sensors=["imu"]),
            # journal datasets: lies in EVERY sensor by default, so no --attack flag (and no _att- suffix) is needed
            d1v2=dict(model="b4", n_classes=27, n_folds=8, sensors=["imu"], attack=["imu", "skel", "video"]),
            d2v=dict(model="b4s3", n_classes=35, n_folds=20, sensors=["watch", "phone"],
-                    attack=["watch", "phone", "video"]))
+                    attack=["watch", "phone", "video"]),
+           # journal, WearGait-PD: three IMU groups, all with a physical model, lies in every group
+           d3=dict(model="b4w", n_classes=6, n_folds=10, sensors=["arms", "trunk", "legs"],
+                   attack=["arms", "trunk", "legs"]))
 BACKUP_MODS = dict(b1_skel=["skel"], b1_phone=["phone"], b1_watch=["watch"])
 K = 8               # harmless draws per sensor and level (fixed in advance, not tuned)
 DRAW_SEED0 = 1000   # draws use bank seeds 1000..1000+K-1, independent of the h_all condition (seed 0)
@@ -73,6 +76,8 @@ def main():
     seeds = [int(s) for s in args.seeds.split(",")]
     # journal datasets have no entry here: their backup answers are stored by cert_experts.py (--extra-models)
     backups = {s: b for s, b in json.load(open(ROOT / "configs/backups.json")).get(dname, {}).items()}
+    if "attack" in C:                # journal datasets (d1v2, d2v, d3): backups are chosen after queue C and their
+        backups = {}                 # answers are stored by cert_experts.py --extra-models, as the files always were
     DS = dataset_cls(dname)
     out_dir = ROOT / "results/certificate"; out_dir.mkdir(parents=True, exist_ok=True)
     tag = "all" if args.folds == "all" else "f" + "-".join(map(str, folds))

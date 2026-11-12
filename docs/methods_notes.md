@@ -111,3 +111,18 @@ Audit: `docs/data_audit_weargait.md` (`scripts/audit_weargait.py`). Plan: `docs/
   anchor, since clips of one segment overlap in time.
 - Backups for the drop action chosen by the existing rule (validation accuracy, 1-point margin in favour of the
   single-sensor model).
+
+### C.7 Test benches (`scripts/run_journal_queue_i.sh`)
+- **Unit of analysis:** the fold (about 18 test people). The certificate is fitted on the fold's validation
+  people and applied to its test people; results are averaged over the 10 folds, with 95% intervals over folds.
+- **Lies** as for the other datasets: each sensor group replaced by the same person's recording of a different
+  activity (lie) or of the same activity (control), and a harmless level-2 change. Donor clips never come from
+  the same labelled segment as the target clip (clips of one segment overlap in time).
+- **Harmless changes on a group:** every IMU gets its own random mounting rotation (the IMUs are mounted
+  separately); gain and jitter per channel; the physical range of each channel is that of the training people.
+- **Faults:** drift, gap and timing error, three strengths each, as for MMAct, applied to all IMUs of one group;
+  under drift every IMU of the group drifts in its own random direction.
+- **Real dropouts:** clips in which one or more groups really lost samples (missing samples set to the training
+  mean), scored frozen against the fold's clean clips; the main result is the use / drop accuracy of the main
+  certificate on clips with exactly one group missing, against doing nothing and against the backup for that
+  group. Clips with two or three groups missing are reported separately.
