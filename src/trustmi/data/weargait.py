@@ -66,7 +66,9 @@ class WearGait:
             self.stats_file = stats_dir / f"weargait_v1_fold{fold}.npz"      # read by trustmi.operators
             np.savez(self.stats_file,
                      **{f"{k}_{s}": v[i] for k, v in stats.items() for i, s in enumerate(("mean", "std"))},
-                     train_subjects=np.array(f["train"]))
+                     # the people the statistics come from (4 people have no clean clip, so they are absent
+                     # from the training data; trustmi.operators checks this list against the training split)
+                     train_subjects=np.unique(person[train_idx]))
         else:
             self.stats_file = None
         self.x = {}
