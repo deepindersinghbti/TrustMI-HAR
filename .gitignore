@@ -13,3 +13,8 @@ results/operators/*.parquet
 results/certificate/*.parquet
 *.tmp
 logs/
+# derived data, rebuilt by scripts (12 Nov)
+data/features/mmact_v2_faults_shards/
+data/features/*_faults.json
+data/processed/weargait_*.parquet
+data/processed/weargait_v1.json
