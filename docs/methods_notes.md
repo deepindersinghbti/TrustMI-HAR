@@ -147,3 +147,46 @@ Audit: `docs/data_audit_weargait.md` (`scripts/audit_weargait.py`). Plan: `docs/
   per-IMU missing fraction), and the share of the clip's samples in which any IMU of the group is missing
   (`miss_<group>` in the clip table). Accuracy of doing nothing and of REV3's use / drop decision is reported by
   this count. No threshold, rule or model was fitted or changed; this is reported as post hoc.
+
+## D. Planned test: IMUs switched off one by one (WearGait-PD) — 12 Nov 2026
+Plan: `docs/plan_followup_2026-11-12.md`, Part A (committed with five written predictions before any code or
+result). Code: `build_imuoff_conditions` in `scripts/cert_conditions.py` (`--conditions imuoff`),
+`scripts/run_journal_queue_j.sh`, `scripts/cert_imuoff_score.py`; tests `tests/test_imuoff.py`.
+
+- **Purpose.** Test, on every test person, the post hoc observation (C.9) that the use / drop decision helps when
+  most of a group is missing and costs a little when only a small part is.
+- **Bench.** The clean test clips of every fold. For group g with n IMUs (arms 2, trunk 3, legs 8) and k = 1..n,
+  all 6 channels of k IMUs are set to the training mean (0 after normalisation) for the whole clip. The IMUs go off
+  in a random order per clip and group (NumPy generator keyed on (0, group index, clip id); the same for every seed
+  and model), and condition k switches off the first k, so the conditions are nested. k = n is identical to the
+  whole-group removal `r_fill` (verified on the stored outputs: largest difference 0).
+- **Models and systems.** As for the real dropouts (C.7): witnesses, main model, backups, own MI matcher, TMC,
+  ECML, 50% dropout model, and the main model with the group flagged absent. All certificates frozen: fitted on the
+  validation people's lie bench only, applied unchanged.
+- **Main result (named in advance).** Legs: accuracy of REV3's use / drop decision (revision 1) minus doing
+  nothing, per fold (clips and seeds pooled), at each k; mean over 10 folds with a 95% t-interval.
+- **Predictions (fixed in advance).** P1: k = 1 and 2 in [-2, 0] points. P2: k = 7 above 0 with the interval
+  above 0. P3: least-squares slope over k = 1..8 positive in >= 9 of 10 folds and its interval above 0. P4: the
+  crossover (smallest k with the mean difference >= 0 there and at every larger k) between 3 and 6. P5: arms and
+  trunk within +/- 1.5 points at every k.
+- **Checks.** Clean rows identical to the lie bench; frozen fits reproduce the stored lie numbers; k = n equals
+  `r_fill` on all model outputs; the bench's unit tests (exactly k IMUs off, rest byte-identical, nested,
+  deterministic, uniform) with four planted bugs caught; existing benches re-run for fold 0 seed 0 and identical.
+
+## E. Post hoc rules (labelled extra rows) — 12 Nov 2026
+Plan: `docs/plan_followup_2026-11-12.md`, Part B. Code: `scripts/cert_posthoc_score.py`. Designed after seeing
+results; reported next to REV3 revision 1, never instead of it.
+
+- **Rule (a), confidence as a second alarm.** Alarm = max(P(D), P(1 - msp)), where P is the mid-rank percentile
+  (ties count half) among the fold's validation clean clips and D is REV3's score. Used for detection and for
+  "answer the safest 80%"; the use / drop decision is revision 1's.
+- **Rule (b), drop only when sure which sensor.** Naming margin: for "odd one out", the largest witness divergence
+  minus the second largest; for "lowest MI share", the second lowest share minus the lowest. Drop when D >= t and
+  margin >= tau, else keep the main model's answer; t is revision 1's threshold. tau is chosen on the validation
+  lie bench from {0} and the 5%, 10%, ..., 95% quantiles of the margin among validation clips with D >= t, for the
+  highest validation accuracy; ties go to the smallest tau.
+- **Applied to** REV3 on the main model; benches: lies and faults (all three datasets), MMAct no-watch clips,
+  WearGait-PD real dropouts and IMU-off. Variants: REV3, + (a), + (b), + (a) + (b); confidence alone as reference.
+- **Check.** The REV3 variant reproduces each bench's stored revision-1 numbers exactly (largest difference
+  1.1e-16 over 9 benches).
+
