@@ -1,0 +1,151 @@
+fold,subject,system,lie_in,auroc
+0,fold00,C3 (paper certificate),arms,0.9717731232437637
+0,fold00,C3 (paper certificate),trunk,0.9730615438432689
+0,fold00,C3 (paper certificate),legs,0.9748632862811324
+0,fold00,MI only,arms,0.900849511269331
+0,fold00,MI only,trunk,0.9138921855246112
+0,fold00,MI only,legs,0.915997804241987
+0,fold00,s1 + MI (no witnesses),arms,0.9018193151967461
+0,fold00,s1 + MI (no witnesses),trunk,0.9161958742315301
+0,fold00,s1 + MI (no witnesses),legs,0.9202867412640561
+0,fold00,REV3 = C3 + MI (main),arms,0.9782195150833914
+0,fold00,REV3 = C3 + MI (main),trunk,0.9816170089779968
+0,fold00,REV3 = C3 + MI (main),legs,0.9856899793607642
+0,fold00,REV3 frozen MI (ablation),arms,0.9800874356075753
+0,fold00,REV3 frozen MI (ablation),trunk,0.9841616380154451
+0,fold00,REV3 frozen MI (ablation),legs,0.9885066715683186
+1,fold01,C3 (paper certificate),arms,0.962699737766742
+1,fold01,C3 (paper certificate),trunk,0.9658938079366531
+1,fold01,C3 (paper certificate),legs,0.9661741891935597
+1,fold01,MI only,arms,0.897967997091021
+1,fold01,MI only,trunk,0.9113199138383772
+1,fold01,MI only,legs,0.9114334547511025
+1,fold01,s1 + MI (no witnesses),arms,0.8992649149633191
+1,fold01,s1 + MI (no witnesses),trunk,0.9143551165679528
+1,fold01,s1 + MI (no witnesses),legs,0.9171730864750631
+1,fold01,REV3 = C3 + MI (main),arms,0.976953025276171
+1,fold01,REV3 = C3 + MI (main),trunk,0.9816569447057459
+1,fold01,REV3 = C3 + MI (main),legs,0.9833776484647984
+1,fold01,REV3 frozen MI (ablation),arms,0.9790499479773371
+1,fold01,REV3 frozen MI (ablation),trunk,0.984103230324492
+1,fold01,REV3 frozen MI (ablation),legs,0.9852326378664873
+2,fold02,C3 (paper certificate),arms,0.9648870103344529
+2,fold02,C3 (paper certificate),trunk,0.9680660006482967
+2,fold02,C3 (paper certificate),legs,0.9735809166813679
+2,fold02,MI only,arms,0.8962966576183923
+2,fold02,MI only,trunk,0.9130037354776157
+2,fold02,MI only,legs,0.9166024362562929
+2,fold02,s1 + MI (no witnesses),arms,0.8955066144375977
+2,fold02,s1 + MI (no witnesses),trunk,0.9132415062468665
+2,fold02,s1 + MI (no witnesses),legs,0.9179629685710664
+2,fold02,REV3 = C3 + MI (main),arms,0.974373538788608
+2,fold02,REV3 = C3 + MI (main),trunk,0.9785891645992794
+2,fold02,REV3 = C3 + MI (main),legs,0.9851139318269326
+2,fold02,REV3 frozen MI (ablation),arms,0.9773904372862612
+2,fold02,REV3 frozen MI (ablation),trunk,0.9816024402620811
+2,fold02,REV3 frozen MI (ablation),legs,0.9879601981679448
+3,fold03,C3 (paper certificate),arms,0.9679254162149505
+3,fold03,C3 (paper certificate),trunk,0.9736250800871847
+3,fold03,C3 (paper certificate),legs,0.9763704626289322
+3,fold03,MI only,arms,0.9001253958544909
+3,fold03,MI only,trunk,0.9187281007226623
+3,fold03,MI only,legs,0.919953043525064
+3,fold03,s1 + MI (no witnesses),arms,0.8998024254260261
+3,fold03,s1 + MI (no witnesses),trunk,0.921112111061056
+3,fold03,s1 + MI (no witnesses),legs,0.924624549915405
+3,fold03,REV3 = C3 + MI (main),arms,0.9768240038986786
+3,fold03,REV3 = C3 + MI (main),trunk,0.9838918476486526
+3,fold03,REV3 = C3 + MI (main),legs,0.985485448863319
+3,fold03,REV3 frozen MI (ablation),arms,0.9799118719058573
+3,fold03,REV3 frozen MI (ablation),trunk,0.9866516954883849
+3,fold03,REV3 frozen MI (ablation),legs,0.9881995537860018
+4,fold04,C3 (paper certificate),arms,0.9642101366466448
+4,fold04,C3 (paper certificate),trunk,0.9685862928329652
+4,fold04,C3 (paper certificate),legs,0.9711414564995423
+4,fold04,MI only,arms,0.8943041000973059
+4,fold04,MI only,trunk,0.9091337244445827
+4,fold04,MI only,legs,0.9111621952735817
+4,fold04,s1 + MI (no witnesses),arms,0.8952818458153678
+4,fold04,s1 + MI (no witnesses),trunk,0.9110330241328962
+4,fold04,s1 + MI (no witnesses),legs,0.9158131573326064
+4,fold04,REV3 = C3 + MI (main),arms,0.9724604681868476
+4,fold04,REV3 = C3 + MI (main),trunk,0.9797535001375816
+4,fold04,REV3 = C3 + MI (main),legs,0.9841614950183968
+4,fold04,REV3 frozen MI (ablation),arms,0.9764011559844099
+4,fold04,REV3 frozen MI (ablation),trunk,0.9822334417932861
+4,fold04,REV3 frozen MI (ablation),legs,0.9871833907805816
+5,fold05,C3 (paper certificate),arms,0.9383925252762524
+5,fold05,C3 (paper certificate),trunk,0.9445060734379038
+5,fold05,C3 (paper certificate),legs,0.94361598269127
+5,fold05,MI only,arms,0.8948511280124013
+5,fold05,MI only,trunk,0.9120893870142026
+5,fold05,MI only,legs,0.911187363659073
+5,fold05,s1 + MI (no witnesses),arms,0.8964245210511728
+5,fold05,s1 + MI (no witnesses),trunk,0.9174343086974798
+5,fold05,s1 + MI (no witnesses),legs,0.9175732324652537
+5,fold05,REV3 = C3 + MI (main),arms,0.9649851529482998
+5,fold05,REV3 = C3 + MI (main),trunk,0.9748004005888256
+5,fold05,REV3 = C3 + MI (main),legs,0.9761940559519954
+5,fold05,REV3 frozen MI (ablation),arms,0.9606892298809151
+5,fold05,REV3 frozen MI (ablation),trunk,0.9716389438505042
+5,fold05,REV3 frozen MI (ablation),legs,0.9725325719840385
+6,fold06,C3 (paper certificate),arms,0.9398557416802209
+6,fold06,C3 (paper certificate),trunk,0.9340239243733633
+6,fold06,C3 (paper certificate),legs,0.9343624979860498
+6,fold06,MI only,arms,0.906550409370585
+6,fold06,MI only,trunk,0.9219831295842146
+6,fold06,MI only,legs,0.9239633660173106
+6,fold06,s1 + MI (no witnesses),arms,0.9071663214843972
+6,fold06,s1 + MI (no witnesses),trunk,0.9246109764644697
+6,fold06,s1 + MI (no witnesses),legs,0.9286105563409179
+6,fold06,REV3 = C3 + MI (main),arms,0.9711613954068661
+6,fold06,REV3 = C3 + MI (main),trunk,0.9739793003983788
+6,fold06,REV3 = C3 + MI (main),legs,0.9821928292423127
+6,fold06,REV3 frozen MI (ablation),arms,0.965196910580623
+6,fold06,REV3 frozen MI (ablation),trunk,0.9673568024928206
+6,fold06,REV3 frozen MI (ablation),legs,0.9732661893813936
+7,fold07,C3 (paper certificate),arms,0.9748225637213631
+7,fold07,C3 (paper certificate),trunk,0.974568304133227
+7,fold07,C3 (paper certificate),legs,0.9782024194345662
+7,fold07,MI only,arms,0.909430907859993
+7,fold07,MI only,trunk,0.9238813162715716
+7,fold07,MI only,legs,0.9238895246129516
+7,fold07,s1 + MI (no witnesses),arms,0.9096691307325028
+7,fold07,s1 + MI (no witnesses),trunk,0.9251570386516821
+7,fold07,s1 + MI (no witnesses),legs,0.9275714369261999
+7,fold07,REV3 = C3 + MI (main),arms,0.9805697873897508
+7,fold07,REV3 = C3 + MI (main),trunk,0.9831581955930322
+7,fold07,REV3 = C3 + MI (main),legs,0.9868488058495799
+7,fold07,REV3 frozen MI (ablation),arms,0.9817424605806213
+7,fold07,REV3 frozen MI (ablation),trunk,0.9858043588006334
+7,fold07,REV3 frozen MI (ablation),legs,0.9886791390713096
+8,fold08,C3 (paper certificate),arms,0.9769850672021843
+8,fold08,C3 (paper certificate),trunk,0.9821707674277674
+8,fold08,C3 (paper certificate),legs,0.9836462111684495
+8,fold08,MI only,arms,0.9113721898844818
+8,fold08,MI only,trunk,0.9256081978235838
+8,fold08,MI only,legs,0.9277075853659972
+8,fold08,s1 + MI (no witnesses),arms,0.9118153918241435
+8,fold08,s1 + MI (no witnesses),trunk,0.9283941236390708
+8,fold08,s1 + MI (no witnesses),legs,0.9312956573446339
+8,fold08,REV3 = C3 + MI (main),arms,0.9818689658050391
+8,fold08,REV3 = C3 + MI (main),trunk,0.988652269726505
+8,fold08,REV3 = C3 + MI (main),legs,0.9906109121584975
+8,fold08,REV3 frozen MI (ablation),arms,0.9825061242168065
+8,fold08,REV3 frozen MI (ablation),trunk,0.9898628504542355
+8,fold08,REV3 frozen MI (ablation),legs,0.992124256603765
+9,fold09,C3 (paper certificate),arms,0.9634823290301728
+9,fold09,C3 (paper certificate),trunk,0.96687852769005
+9,fold09,C3 (paper certificate),legs,0.9753273726024053
+9,fold09,MI only,arms,0.9038351495693056
+9,fold09,MI only,trunk,0.9179129749321515
+9,fold09,MI only,legs,0.9201767894865412
+9,fold09,s1 + MI (no witnesses),arms,0.9038793628551787
+9,fold09,s1 + MI (no witnesses),trunk,0.9193555414561098
+9,fold09,s1 + MI (no witnesses),legs,0.9237022662522922
+9,fold09,REV3 = C3 + MI (main),arms,0.9712477539909027
+9,fold09,REV3 = C3 + MI (main),trunk,0.97677948916617
+9,fold09,REV3 = C3 + MI (main),legs,0.9827334666485356
+9,fold09,REV3 frozen MI (ablation),arms,0.9695080014265205
+9,fold09,REV3 frozen MI (ablation),trunk,0.9739581133756982
+9,fold09,REV3 frozen MI (ablation),legs,0.9791380405945139
