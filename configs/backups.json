@@ -57,6 +57,23 @@
         "b1_watch": 77.4,
         "b1_phone": 59.5
       }
+    },
+    "d3": {
+      "arms": {
+        "b4w_noarms": 97.3,
+        "b1_trunk": 92.7,
+        "b1_legs": 97.0
+      },
+      "trunk": {
+        "b4w_notrunk": 97.2,
+        "b1_arms": 89.2,
+        "b1_legs": 97.0
+      },
+      "legs": {
+        "b4w_nolegs": 93.8,
+        "b1_arms": 89.2,
+        "b1_trunk": 92.7
+      }
     }
   },
   "d1v2": {
@@ -68,5 +85,10 @@
     "watch": "b4s_nowatch",
     "phone": "b4s_nophone",
     "video": "b4s"
+  },
+  "d3": {
+    "arms": "b1_legs",
+    "trunk": "b1_legs",
+    "legs": "b4w_nolegs"
   }
 }
