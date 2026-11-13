@@ -1,0 +1,25 @@
+dataset,task,score,auroc,minus_msp,subjects_better
+d3,LIE,1 - msp (baseline),"0.640 [nan, nan] (n=1)",,
+d3,LIE,COMBINED (S1+S2+msp),"0.792 [nan, nan] (n=1)","0.151 [nan, nan] (n=1)",1/1
+d3,LIE,COMBINED v2 (experts+msp),"0.979 [nan, nan] (n=1)","0.339 [nan, nan] (n=1)",1/1
+d3,LIE,S1 stability drop,"0.635 [nan, nan] (n=1)","-0.005 [nan, nan] (n=1)",0/1
+d3,LIE,S1 stability flip,"0.572 [nan, nan] (n=1)","-0.068 [nan, nan] (n=1)",0/1
+d3,LIE,S2 hide-one flips,"0.743 [nan, nan] (n=1)","0.103 [nan, nan] (n=1)",1/1
+d3,LIE,S2 hide-one shift,"0.787 [nan, nan] (n=1)","0.147 [nan, nan] (n=1)",1/1
+d3,LIE,X experts disagree (JS),"0.982 [nan, nan] (n=1)","0.341 [nan, nan] (n=1)",1/1
+d3,LIE,X lowest expert support,"0.984 [nan, nan] (n=1)","0.344 [nan, nan] (n=1)",1/1
+d3,LIE,X mean expert support,"0.943 [nan, nan] (n=1)","0.303 [nan, nan] (n=1)",1/1
+d3,LIE,energy (baseline),"0.593 [nan, nan] (n=1)","-0.047 [nan, nan] (n=1)",0/1
+d3,LIE,entropy (baseline),"0.639 [nan, nan] (n=1)","-0.001 [nan, nan] (n=1)",0/1
+d3,ERROR,1 - msp (baseline),"0.950 [nan, nan] (n=1)",,
+d3,ERROR,COMBINED (S1+S2+msp),"0.857 [nan, nan] (n=1)","-0.093 [nan, nan] (n=1)",0/1
+d3,ERROR,COMBINED v2 (experts+msp),"0.921 [nan, nan] (n=1)","-0.029 [nan, nan] (n=1)",0/1
+d3,ERROR,S1 stability drop,"0.814 [nan, nan] (n=1)","-0.136 [nan, nan] (n=1)",0/1
+d3,ERROR,S1 stability flip,"0.756 [nan, nan] (n=1)","-0.194 [nan, nan] (n=1)",0/1
+d3,ERROR,S2 hide-one flips,"0.700 [nan, nan] (n=1)","-0.250 [nan, nan] (n=1)",0/1
+d3,ERROR,S2 hide-one shift,"0.755 [nan, nan] (n=1)","-0.195 [nan, nan] (n=1)",0/1
+d3,ERROR,X experts disagree (JS),"0.856 [nan, nan] (n=1)","-0.093 [nan, nan] (n=1)",0/1
+d3,ERROR,X lowest expert support,"0.899 [nan, nan] (n=1)","-0.051 [nan, nan] (n=1)",0/1
+d3,ERROR,X mean expert support,"0.909 [nan, nan] (n=1)","-0.041 [nan, nan] (n=1)",0/1
+d3,ERROR,energy (baseline),"0.928 [nan, nan] (n=1)","-0.022 [nan, nan] (n=1)",0/1
+d3,ERROR,entropy (baseline),"0.950 [nan, nan] (n=1)","-0.000 [nan, nan] (n=1)",0/1

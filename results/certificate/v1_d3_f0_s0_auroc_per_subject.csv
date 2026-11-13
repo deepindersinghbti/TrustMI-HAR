@@ -1,0 +1,25 @@
+dataset,task,fold,subject,score,auroc,level
+d3,LIE,0,fold00,1 - msp (baseline),0.6401687627985325,3
+d3,LIE,0,fold00,entropy (baseline),0.6391042543670951,3
+d3,LIE,0,fold00,energy (baseline),0.5933010053045887,3
+d3,LIE,0,fold00,S1 stability flip,0.5723120726248269,3
+d3,LIE,0,fold00,S1 stability drop,0.6349863693081874,3
+d3,LIE,0,fold00,S2 hide-one shift,0.7868806908130569,3
+d3,LIE,0,fold00,S2 hide-one flips,0.743274566743263,3
+d3,LIE,0,fold00,X experts disagree (JS),0.981529526155707,3
+d3,LIE,0,fold00,X lowest expert support,0.9841978794414931,3
+d3,LIE,0,fold00,X mean expert support,0.9428758311171603,3
+d3,LIE,0,fold00,COMBINED (S1+S2+msp),0.7916468574077082,3
+d3,LIE,0,fold00,COMBINED v2 (experts+msp),0.9792698448947034,3
+d3,ERROR,0,fold00,1 - msp (baseline),0.9499642415967753,3
+d3,ERROR,0,fold00,entropy (baseline),0.9497106820102724,3
+d3,ERROR,0,fold00,energy (baseline),0.9278037838892139,3
+d3,ERROR,0,fold00,S1 stability flip,0.7559553995188869,3
+d3,ERROR,0,fold00,S1 stability drop,0.8141895845523698,3
+d3,ERROR,0,fold00,S2 hide-one shift,0.7551524608282947,3
+d3,ERROR,0,fold00,S2 hide-one flips,0.699577400689162,3
+d3,ERROR,0,fold00,X experts disagree (JS),0.8564982770951174,3
+d3,ERROR,0,fold00,X lowest expert support,0.8992198166569144,3
+d3,ERROR,0,fold00,X mean expert support,0.9085235030232105,3
+d3,ERROR,0,fold00,COMBINED (S1+S2+msp),0.8566543137637345,3
+d3,ERROR,0,fold00,COMBINED v2 (experts+msp),0.9207658799817957,3
