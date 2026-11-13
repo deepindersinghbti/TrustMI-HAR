@@ -2,6 +2,7 @@
 
   python scripts/cert_v1_score.py --dataset d1v2
   python scripts/cert_v1_score.py --dataset d2v
+  python scripts/cert_v1_score.py --dataset d3      (added 13 Nov: sensor lists only)
   ... --tag f0_s0     the queue C smoke-run files (code check only; never overwrites the full-run CSVs)
 
 The signs were computed by queue C (signals_<dataset>_*.parquet); only the scoring was missing. No existing
@@ -39,8 +40,9 @@ from cert_evidential_score import per_subject, RES
 
 FULL = "all_s0-1-2"
 # the journal datasets, in cert_score's own tables (filled in here, cert_score.py itself is not edited)
-PHYS = {"d1v2": ["imu"], "d2v": ["watch", "phone"]}                       # sensors with a harmless change
-MODS = {"d1v2": ["video", "skel", "imu"], "d2v": ["watch", "phone", "video"]}
+PHYS = {"d1v2": ["imu"], "d2v": ["watch", "phone"],                      # sensors with a harmless change
+        "d3": ["arms", "trunk", "legs"]}                                      # (d3: all IMUs, as cert_signals.py)
+MODS = {"d1v2": ["video", "skel", "imu"], "d2v": ["watch", "phone", "video"], "d3": ["arms", "trunk", "legs"]}
 V1, V1_ADD = "V1 (confidence + S1 + S2)", "REV3 + V1 signs"
 V1_RULES = {"most support (hide_drop max)": ("hide_drop", "max"),
             "least support (hide_drop min)": ("hide_drop", "min"),
