@@ -1,0 +1,19 @@
+Dataset,Answering model,System,Lie AUROC,Names the lying sensor %,Accuracy on lie clips %,Accuracy on normal clips %
+UTD-MHAD,TMC,TMC,"0.827 [0.789, 0.865]",73.6,74.8,94.6
+UTD-MHAD,TMC,C3 (conference certificate),"0.864 [0.829, 0.899]",82.7,74.8,94.3
+UTD-MHAD,TMC,"REV3 (ours, main)","0.901 [0.858, 0.945]",82.2,76.8,94.0
+UTD-MHAD,ECML,ECML,"0.827 [0.799, 0.856]",69.4,70.3,92.3
+UTD-MHAD,ECML,C3 (conference certificate),"0.863 [0.829, 0.898]",82.7,74.5,89.1
+UTD-MHAD,ECML,"REV3 (ours, main)","0.901 [0.857, 0.945]",82.2,75.5,89.9
+MMAct,TMC,TMC,"0.756 [0.734, 0.777]",61.9,64.0,88.9
+MMAct,TMC,C3 (conference certificate),"0.844 [0.824, 0.865]",84.7,75.0,87.1
+MMAct,TMC,"REV3 (ours, main)","0.929 [0.911, 0.948]",86.0,74.9,87.7
+MMAct,ECML,ECML,"0.736 [0.720, 0.753]",60.9,61.9,88.2
+MMAct,ECML,C3 (conference certificate),"0.845 [0.824, 0.866]",84.7,75.5,86.8
+MMAct,ECML,"REV3 (ours, main)","0.930 [0.911, 0.948]",86.0,75.7,86.9
+WearGait-PD,TMC,TMC,"0.947 [0.937, 0.957]",89.4,88.6,96.3
+WearGait-PD,TMC,C3 (conference certificate),"0.963 [0.953, 0.974]",94.4,92.3,96.4
+WearGait-PD,TMC,"REV3 (ours, main)","0.980 [0.977, 0.983]",97.7,93.9,96.6
+WearGait-PD,ECML,ECML,"0.930 [0.918, 0.941]",87.9,88.5,96.2
+WearGait-PD,ECML,C3 (conference certificate),"0.961 [0.951, 0.972]",94.4,91.8,96.2
+WearGait-PD,ECML,"REV3 (ours, main)","0.981 [0.978, 0.984]",97.7,93.2,96.3

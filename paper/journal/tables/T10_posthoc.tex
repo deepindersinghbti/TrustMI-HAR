@@ -1,0 +1,48 @@
+% POST HOC rule changes (designed after seeing results; labelled extra rows only)
+% built by scripts/make_journal_tables.py from frozen results; do not edit by hand
+\begin{tabular}{lcccc}
+\toprule
+Bench & Dataset & Variant & measure 1 & measure 2 \\
+\midrule
+lies & UTD-MHAD & REV3 (main) & Lie AUROC: 0.901 & Lie-clip acc. \%: 75.7 \\
+lies & UTD-MHAD & REV3 + (a) confidence alarm [post hoc] & Lie AUROC: 0.875 & Lie-clip acc. \%: 75.7 \\
+lies & UTD-MHAD & REV3 + (b) sure-naming gate [post hoc] & Lie AUROC: 0.901 & Lie-clip acc. \%: 74.7 \\
+lies & UTD-MHAD & REV3 + (a) + (b) [post hoc] & Lie AUROC: 0.875 & Lie-clip acc. \%: 74.7 \\
+lies & UTD-MHAD & confidence (1 - msp) [reference] & Lie AUROC: 0.726 & Lie-clip acc. \%: 60.8 \\
+faults & UTD-MHAD & REV3 (main) & Harmful-fault AUROC: 0.838 & Fault-clip acc. \%: 87.5 \\
+faults & UTD-MHAD & REV3 + (a) confidence alarm [post hoc] & Harmful-fault AUROC: 0.900 & Fault-clip acc. \%: 87.5 \\
+faults & UTD-MHAD & REV3 + (b) sure-naming gate [post hoc] & Harmful-fault AUROC: 0.838 & Fault-clip acc. \%: 88.6 \\
+faults & UTD-MHAD & REV3 + (a) + (b) [post hoc] & Harmful-fault AUROC: 0.900 & Fault-clip acc. \%: 88.6 \\
+faults & UTD-MHAD & confidence (1 - msp) [reference] & Harmful-fault AUROC: 0.926 & Fault-clip acc. \%: 90.7 \\
+lies & MMAct & REV3 (main) & Lie AUROC: 0.930 & Lie-clip acc. \%: 75.5 \\
+lies & MMAct & REV3 + (a) confidence alarm [post hoc] & Lie AUROC: 0.910 & Lie-clip acc. \%: 75.5 \\
+lies & MMAct & REV3 + (b) sure-naming gate [post hoc] & Lie AUROC: 0.930 & Lie-clip acc. \%: 75.3 \\
+lies & MMAct & REV3 + (a) + (b) [post hoc] & Lie AUROC: 0.910 & Lie-clip acc. \%: 75.3 \\
+lies & MMAct & confidence (1 - msp) [reference] & Lie AUROC: 0.675 & Lie-clip acc. \%: 54.2 \\
+faults & MMAct & REV3 (main) & Harmful-fault AUROC: 0.774 & Fault-clip acc. \%: 86.0 \\
+faults & MMAct & REV3 + (a) confidence alarm [post hoc] & Harmful-fault AUROC: 0.873 & Fault-clip acc. \%: 86.0 \\
+faults & MMAct & REV3 + (b) sure-naming gate [post hoc] & Harmful-fault AUROC: 0.774 & Fault-clip acc. \%: 86.2 \\
+faults & MMAct & REV3 + (a) + (b) [post hoc] & Harmful-fault AUROC: 0.873 & Fault-clip acc. \%: 86.2 \\
+faults & MMAct & confidence (1 - msp) [reference] & Harmful-fault AUROC: 0.898 & Fault-clip acc. \%: 87.6 \\
+lies & WearGait-PD & REV3 (main) & Lie AUROC: 0.980 & Lie-clip acc. \%: 93.5 \\
+lies & WearGait-PD & REV3 + (a) confidence alarm [post hoc] & Lie AUROC: 0.977 & Lie-clip acc. \%: 93.5 \\
+lies & WearGait-PD & REV3 + (b) sure-naming gate [post hoc] & Lie AUROC: 0.980 & Lie-clip acc. \%: 93.5 \\
+lies & WearGait-PD & REV3 + (a) + (b) [post hoc] & Lie AUROC: 0.977 & Lie-clip acc. \%: 93.5 \\
+lies & WearGait-PD & confidence (1 - msp) [reference] & Lie AUROC: 0.618 & Lie-clip acc. \%: 65.9 \\
+faults & WearGait-PD & REV3 (main) & Harmful-fault AUROC: 0.862 & Fault-clip acc. \%: 95.9 \\
+faults & WearGait-PD & REV3 + (a) confidence alarm [post hoc] & Harmful-fault AUROC: 0.950 & Fault-clip acc. \%: 95.9 \\
+faults & WearGait-PD & REV3 + (b) sure-naming gate [post hoc] & Harmful-fault AUROC: 0.862 & Fault-clip acc. \%: 96.0 \\
+faults & WearGait-PD & REV3 + (a) + (b) [post hoc] & Harmful-fault AUROC: 0.950 & Fault-clip acc. \%: 96.0 \\
+faults & WearGait-PD & confidence (1 - msp) [reference] & Harmful-fault AUROC: 0.947 & Fault-clip acc. \%: 96.2 \\
+nowatch & MMAct & REV3 (main) & No-watch AUROC: 0.945 & No-watch acc. \%: 54.0 \\
+nowatch & MMAct & REV3 + (a) confidence alarm [post hoc] & No-watch AUROC: 0.947 & No-watch acc. \%: 54.0 \\
+nowatch & MMAct & REV3 + (b) sure-naming gate [post hoc] & No-watch AUROC: 0.945 & No-watch acc. \%: 54.1 \\
+nowatch & MMAct & REV3 + (a) + (b) [post hoc] & No-watch AUROC: 0.947 & No-watch acc. \%: 54.1 \\
+nowatch & MMAct & confidence (1 - msp) [reference] & No-watch AUROC: 0.825 & No-watch acc. \%: 55.9 \\
+realdrop & WearGait-PD & REV3 (main) & Dropout AUROC: 0.591 & Dropout acc. \%: 95.6 \\
+realdrop & WearGait-PD & REV3 + (a) confidence alarm [post hoc] & Dropout AUROC: 0.577 & Dropout acc. \%: 95.6 \\
+realdrop & WearGait-PD & REV3 + (b) sure-naming gate [post hoc] & Dropout AUROC: 0.591 & Dropout acc. \%: 95.8 \\
+realdrop & WearGait-PD & REV3 + (a) + (b) [post hoc] & Dropout AUROC: 0.577 & Dropout acc. \%: 95.8 \\
+realdrop & WearGait-PD & confidence (1 - msp) [reference] & Dropout AUROC: 0.536 & Dropout acc. \%: 94.9 \\
+\bottomrule
+\end{tabular}

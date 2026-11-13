@@ -1,0 +1,15 @@
+% WearGait-PD: real sensor dropouts (3,250 single-group clips x 3 seeds, pooled; revision 1)
+% built by scripts/make_journal_tables.py from frozen results; do not edit by hand
+\begin{tabular}{lcccccc}
+\toprule
+System & Acc. alone \% & Acc. after use/drop \% & Flagged \% & False alarms (clean) \% & Names right group (flagged) \% & AUROC dropout vs clean (9 folds) \\
+\midrule
+Confidence (MSP) & 94.3 & 94.3 & 0.0 & 0.0 & -- & 0.536 \\
+C3 (conference certificate) & 94.3 & 95.5 & 42.4 & 25.8 & 43.9 & 0.546 \\
+REV3 (ours, main) & 94.3 & 95.2 & 15.6 & 6.7 & 64.7 & 0.591 \\
+TMC & 96.0 & 95.8 & 8.6 & 4.4 & 55.4 & 0.549 \\
+ECML & 95.9 & 96.2 & 10.6 & 6.3 & 55.2 & 0.546 \\
+Dropout-trained model & 95.8 & 95.8 & 7.9 & 2.5 & 75.8 & 0.591 \\
+Backup for the missing group, known missing [reference] & -- & 92.9 & -- & -- & -- & -- \\
+\bottomrule
+\end{tabular}

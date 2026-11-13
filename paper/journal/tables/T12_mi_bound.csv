@@ -1,0 +1,10 @@
+Dataset,Sensor pair,MI lower bound (nats),Folds,Range
+UTD-MHAD,skel-imu,"1.30 [1.09, 1.52]",8,0.92 to 1.79
+UTD-MHAD,video-imu,"0.89 [0.55, 1.23]",8,0.45 to 1.51
+UTD-MHAD,video-skel,"0.87 [0.50, 1.25]",8,0.21 to 1.64
+MMAct,phone-video,"1.30 [1.10, 1.50]",20,0.41 to 1.77
+MMAct,watch-phone,"1.33 [1.16, 1.50]",20,0.41 to 1.74
+MMAct,watch-video,"1.61 [1.43, 1.80]",20,0.21 to 2.05
+WearGait-PD,arms-legs,"1.72 [1.65, 1.79]",10,1.54 to 1.83
+WearGait-PD,arms-trunk,"1.76 [1.70, 1.82]",10,1.63 to 1.86
+WearGait-PD,trunk-legs,"2.06 [2.02, 2.10]",10,1.95 to 2.14

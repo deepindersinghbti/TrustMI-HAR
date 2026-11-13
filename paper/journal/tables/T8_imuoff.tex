@@ -1,0 +1,21 @@
+% WearGait-PD IMU-off test: k IMUs of one body group switched off for the whole clip (planned test; mean over 10 folds; revision 1)
+% built by scripts/make_journal_tables.py from frozen results; do not edit by hand
+\begin{tabular}{lcccccccc}
+\toprule
+Group & IMUs off & Doing nothing \% & REV3 (ours, main) \% & TMC \% & Dropout-trained model \% & REV3 minus nothing (points) & Folds better & REV3 AUROC \\
+\midrule
+arms & 1 & 96.4 & 95.7 & 94.8 & 96.2 & -0.73 [-1.25, -0.21] & 2/10 & 0.769 \\
+arms & 2 & 96.3 & 95.6 & 92.4 & 96.2 & -0.73 [-1.68, +0.23] & 2/10 & 0.901 \\
+trunk & 1 & 96.2 & 95.4 & 94.8 & 95.8 & -0.76 [-1.31, -0.20] & 1/10 & 0.653 \\
+trunk & 2 & 95.7 & 95.0 & 92.2 & 95.3 & -0.69 [-1.16, -0.22] & 1/10 & 0.815 \\
+trunk & 3 & 94.9 & 95.7 & 89.6 & 96.0 & +0.76 [+0.17, +1.36] & 9/10 & 0.910 \\
+legs & 1 & 95.8 & 95.6 & 96.0 & 96.1 & -0.28 [-0.55, -0.00] & 3/10 & 0.533 \\
+legs & 2 & 94.5 & 94.3 & 95.5 & 95.3 & -0.14 [-0.36, +0.09] & 4/10 & 0.596 \\
+legs & 3 & 92.6 & 92.8 & 94.7 & 94.1 & +0.14 [-0.14, +0.42] & 6/10 & 0.672 \\
+legs & 4 & 89.3 & 90.4 & 93.7 & 92.5 & +1.11 [+0.49, +1.74] & 9/10 & 0.743 \\
+legs & 5 & 83.8 & 88.4 & 92.5 & 90.7 & +4.64 [+3.34, +5.93] & 10/10 & 0.805 \\
+legs & 6 & 75.4 & 87.8 & 91.1 & 89.7 & +12.37 [+10.49, +14.25] & 10/10 & 0.855 \\
+legs & 7 & 65.5 & 89.3 & 89.2 & 89.8 & +23.73 [+21.80, +25.67] & 10/10 & 0.888 \\
+legs & 8 & 52.5 & 92.0 & 87.0 & 91.0 & +39.52 [+36.47, +42.57] & 10/10 & 0.912 \\
+\bottomrule
+\end{tabular}

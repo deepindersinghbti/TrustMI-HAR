@@ -1,0 +1,22 @@
+% Separate backup models vs one dropout-trained model (planted lies, revision 1)
+% built by scripts/make_journal_tables.py from frozen results; do not edit by hand
+\begin{tabular}{llcccc}
+\toprule
+Dataset & Backup design & Lie AUROC & Normal acc. alone \% & Lie-clip acc. after use/drop \% & Minus separate backups (points) \\
+\midrule
+UTD-MHAD & main (separate backups) & 0.901 & 94.7 & 75.7 & -- \\
+ & hide, no retraining & 0.901 & 94.7 & 69.5 & -6.2 [-8.5, -3.9] (0/8) \\
+ & dropout as backup (sd50) & 0.901 & 94.7 & 73.8 & -1.8 [-4.5, +0.8] (3/8) \\
+ & dropout everywhere (sd50) & 0.901 & 94.0 & 73.4 & -2.3 [-4.9, +0.4] (1/8) \\
+\midrule
+MMAct & main (separate backups) & 0.930 & 89.1 & 75.5 & -- \\
+ & hide, no retraining & 0.930 & 89.1 & 61.8 & -13.7 [-15.4, -12.0] (0/20) \\
+ & dropout as backup (sd50) & 0.930 & 89.1 & 74.0 & -1.5 [-2.2, -0.8] (2/20) \\
+ & dropout everywhere (sd50) & 0.930 & 89.6 & 74.2 & -1.3 [-2.1, -0.6] (4/20) \\
+\midrule
+WearGait-PD & main (separate backups) & 0.980 & 96.6 & 93.5 & -- \\
+ & hide, no retraining & 0.980 & 96.6 & 87.5 & -6.0 [-6.8, -5.3] (0/10) \\
+ & dropout as backup (sd50) & 0.980 & 96.6 & 93.3 & -0.2 [-0.8, +0.4] (4/10) \\
+ & dropout everywhere (sd50) & 0.980 & 96.9 & 93.3 & -0.2 [-0.8, +0.3] (5/10) \\
+\bottomrule
+\end{tabular}
