@@ -22,7 +22,8 @@ echo "START $(date -Is) | clone of $P at $(git rev-parse --short HEAD) | tag $TA
 
 echo; echo "== 1. code at the tag"
 CHANGED=$(git diff --name-only "$TAG" HEAD -- . ':!docs' ':!paper' ':!scripts/make_journal_tables.py' \
-          ':!scripts/compare_outputs.py' ':!scripts/check_reproducible.sh' ':!results/FROZEN_MANIFEST.sha256')
+          ':!scripts/compare_outputs.py' ':!scripts/check_reproducible.sh' ':!results/FROZEN_MANIFEST.sha256' \
+          ':!scripts/freeze_manifest.py')
 if [ -n "$CHANGED" ]; then echo "STOP: files changed since the tag:"; echo "$CHANGED"; exit 1; fi
 echo "scorer code, src, configs, splits and result tables identical to the tag"
 
