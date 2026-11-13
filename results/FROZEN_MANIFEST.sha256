@@ -1,4 +1,4 @@
-# frozen journal results: 2527 files; patterns: results/raw/*.parquet, results/certificate/*.parquet, results/certificate/*.csv, results/certificate/*.txt, logs/*.log, configs/*.json, splits/*.json
+# frozen journal results: 2538 files; patterns: results/raw/*.parquet, results/certificate/*.parquet, results/certificate/*.csv, results/certificate/*.txt, logs/*.log, configs/*.json, splits/*.json
 8018ede18eded281c761f7a835be45e89325067ec3e793e489d9366768f39008  2172  configs/backups.json
 14617e3ea910f4c72199d627e3b91eab87ba7fc290451e405a549284a1e5c5ed  4648  logs/A3_full_d1.log
 1536bbf443694795e62229e43318da5ac3db30f7f0a182a7c0633cb9a10334bc  11632  logs/A3_full_d2.log
@@ -30,6 +30,7 @@ e3795931c6d067e9ce07f11566479bd56ea7a61ce80a14699a52f02d37be2019  8946  logs/cer
 5ee1fef3e4480e339f3b9197fe9ec7ca3539ca207f92877ffe7e130a2f4b8af0  1112  logs/cert_trial_d2.log
 9f81edca63edba1c7947018bb041990ffa8b2bcf74a8615f32e9d7938d87b387  6274  logs/cert_v1_score_d1v2.log
 786914e03f5f4c325183dc184c95b2ca3aee65b55f5b453810681f2231a41f6e  6461  logs/cert_v1_score_d2v.log
+ef155f00dd55490a340e12cf4b94ce7ab9ae1fb8a232b0b66853b71c21fe66e7  6342  logs/cert_v1_score_d3.log
 2f9045199a89a76361b42bf389469c65792aae2aebdb2ba0ad132374601b41b1  2014  logs/check_faults_f0.log
 f1b3abb7ca1c510558668de351375035ad0568bb10e94ffd82a0d40b78e75ee7  3700  logs/check_lies_unchanged_journal.log
 65a88c4a78bb734e2880712d3eccc29254f579f2e44df7783744879751147761  2107  logs/check_lies_unchanged_nowatch.log
@@ -70,6 +71,7 @@ d8a9fd90dc8cd54154dba5bc4a09dc7f057a7594ae5e57966e543b59f04c2540  10592  logs/jo
 7d0d244012b0130c19399671454865c563a40791994d8cc44ea8be11518252fb  10832  logs/operators_check_allfolds.log
 5b2db4fc83e0ecb4a688a0806106a5dfd7f2efc5945f169be5984b8408edc1b2  4464  logs/operators_check_f00.log
 76955f27cf7655e44dcf24a4e30d5f69ea046e1f55c3c2804dacb839456f1b03  5395  logs/operators_check_f00_v2.log
+8f22ce8838ff154484325cb750811745aa097dfa8ec2cdf0bf2fbc67fdd65fc3  6959  logs/repro_check_2026-11-13.log
 c4fd4d48baa18229b6c606a9965d858beaba4170c97fd5799411ef0ac31fa7a4  2847  logs/score_dropout_d3.log
 e8d828ed84962e6e4a8adf4031f1af78d6cd3337a5accc56646bd7791c8d63b4  15238  logs/score_fault_d3.log
 3a9dbb961726cdf7471029ced2a96e3d7eeeacb1d95e60f99317613343f6f7bd  10912  logs/score_imuoff_d3.log
@@ -79,6 +81,9 @@ d2432e592370e72117cec8cec30c4395dec7b25549a56d5f7511f0bdc7ecc2c5  17030  logs/sc
 c1b0b7a9897fb1d2028e59cde35fe90c54f5156154d548d680e09c3d1a36dabf  14291  logs/score_posthoc_part1.log
 6d5c31fad30b848b651d3c90255cd928b97be40dd0df98aa6e574b8dcab74482  5533  logs/score_realdrop_d3.log
 ad236547e7fb8800791165264eccf46a5d5d2461adc4630461c4f1dca4f1362f  1088  logs/splits_weargait.log
+9f81edca63edba1c7947018bb041990ffa8b2bcf74a8615f32e9d7938d87b387  6274  logs/v1_recheck_d1v2.log
+786914e03f5f4c325183dc184c95b2ca3aee65b55f5b453810681f2231a41f6e  6461  logs/v1_recheck_d2v.log
+7b537e05757ec2c91f84d49498c655d76614fb1cc2b3653dff151f6a0a8f8a94  5160  logs/v1_smoke_d3.log
 78181160ffd4d2a18b0388b3db14e6f85ee19411ba6a1401d6ae4ef4937f1039  12893  logs/video_faults_mmact.log
 08618cd57e07273c7a0d4321ebb30cde7459556418db9c2078d29076e9ab527b  620  logs/video_faults_mmact_s1.log
 542e019c3cf843fcf3dd66275d4e9f48524296f70c5b1e979b5018ccf4587a45  810  logs/video_faults_utd.log
@@ -265,6 +270,12 @@ f049a6c114d2c7adc1e37f82f39d210b5d5691ccd27f04d89cdc452064ead4c9  14185110  resu
 efd99196d83f3bd8d541be53af6d1e9e9ea64e10c023fc2e0ae54d1d60590a99  26592  results/certificate/v1_d2v_auroc_per_subject.csv
 9502721772effdbc95d03e2a6e44f635e9c011ae51d5dad53b52503e9214c2b4  2301  results/certificate/v1_d2v_auroc_summary.csv
 e97fed595f21da6f6974736794d05420e0686083d2b1ee6e3af39c0e7044cf81  62600  results/certificate/v1_d2v_per_subject.csv
+3dcd5f3b2c3a5c2ee675b95aaebf73465bc82a1753114db08790c3dc69d22001  14036  results/certificate/v1_d3_auroc_per_subject.csv
+85e337fb7dd02dc650e8cafe277e91d90062d29e16ec5b75f64cf34e3c379928  2267  results/certificate/v1_d3_auroc_summary.csv
+cd49dea35329fedb412893d98b873b8f0d19d9210ef8abcaf9016dea7f4b58b4  1443  results/certificate/v1_d3_f0_s0_auroc_per_subject.csv
+171180b83916973bea403afb1919f426124e59b8d8bb023223d6f2e13741a4ed  1990  results/certificate/v1_d3_f0_s0_auroc_summary.csv
+331e978217f943140206d1b82b8ca7b85887a21bbda3518aaacdaa4013c4ec1b  3479  results/certificate/v1_d3_f0_s0_per_subject.csv
+61ca282e0faeaac01431f36dcf9d5daa86eaebedfcb41f3486baa0b1eeaff524  31815  results/certificate/v1_d3_per_subject.csv
 6a1a51b178e5b06c409311f45b7d5bad2bfeb743bbfd44497927eab194e6a4fa  5386  results/certificate/v1_naming_per_subject.csv
 1becfcd0736ca8e3864646d5097e105b53343545bf1e9f38f147210f4278ed0d  36077  results/certificate/v2_auroc_per_subject.csv
 65980b95a8711af957fd1067129c8c88d0c679ae0b67460d33aabccb637d0fbb  4423  results/certificate/v2_auroc_summary.csv

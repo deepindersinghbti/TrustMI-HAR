@@ -453,7 +453,7 @@ def other_tables(o):
             "rows: results/certificate/posthoc_imuoff_per_fold.csv.")
 
     rows = []
-    for ds in ("d1v2", "d2v"):
+    for ds in DS:
         v = pd.read_csv(RES / f"v1_{ds}_auroc_summary.csv")
         v = v.drop(columns="dataset"); v.insert(0, "Dataset", DSNAME[ds]); rows.append(v.fillna("--"))
     o.table("T11_v1_signs", "Ablation: the conference warning signs (v1) next to the journal signals (copied from the "

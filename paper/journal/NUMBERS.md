@@ -283,56 +283,80 @@ Rule (a): confidence as a second alarm (detection and abstention only). Rule (b)
 
 ## T11_v1_signs: Ablation: the conference warning signs (v1) next to the journal signals (copied from the scorer's summary files)
 
-| Dataset  | task  | score                     | auroc                       | minus_msp                      | subjects_better |
-|----------|-------|---------------------------|-----------------------------|--------------------------------|-----------------|
-| UTD-MHAD | LIE   | 1 - msp (baseline)        | 0.726 [0.705, 0.748] (n=8)  | --                             | --              |
-| UTD-MHAD | LIE   | COMBINED (S1+S2+msp)      | 0.781 [0.751, 0.810] (n=8)  | 0.054 [0.040, 0.068] (n=8)     | 8/8             |
-| UTD-MHAD | LIE   | COMBINED v2 (experts+msp) | 0.871 [0.837, 0.906] (n=8)  | 0.145 [0.123, 0.167] (n=8)     | 8/8             |
-| UTD-MHAD | LIE   | S1 stability drop         | 0.574 [0.560, 0.587] (n=8)  | -0.153 [-0.172, -0.134] (n=8)  | 0/8             |
-| UTD-MHAD | LIE   | S1 stability flip         | 0.562 [0.552, 0.571] (n=8)  | -0.165 [-0.187, -0.143] (n=8)  | 0/8             |
-| UTD-MHAD | LIE   | S2 hide-one flips         | 0.717 [0.684, 0.750] (n=8)  | -0.009 [-0.030, 0.011] (n=8)   | 2/8             |
-| UTD-MHAD | LIE   | S2 hide-one shift         | 0.663 [0.621, 0.704] (n=8)  | -0.064 [-0.093, -0.034] (n=8)  | 0/8             |
-| UTD-MHAD | LIE   | X experts disagree (JS)   | 0.855 [0.820, 0.890] (n=8)  | 0.129 [0.100, 0.157] (n=8)     | 8/8             |
-| UTD-MHAD | LIE   | X lowest expert support   | 0.899 [0.865, 0.932] (n=8)  | 0.172 [0.154, 0.191] (n=8)     | 8/8             |
-| UTD-MHAD | LIE   | X mean expert support     | 0.786 [0.758, 0.815] (n=8)  | 0.060 [0.037, 0.083] (n=8)     | 8/8             |
-| UTD-MHAD | LIE   | energy (baseline)         | 0.714 [0.688, 0.741] (n=8)  | -0.012 [-0.025, 0.001] (n=8)   | 2/8             |
-| UTD-MHAD | LIE   | entropy (baseline)        | 0.726 [0.701, 0.750] (n=8)  | -0.001 [-0.007, 0.005] (n=8)   | 4/8             |
-| UTD-MHAD | ERROR | 1 - msp (baseline)        | 0.926 [0.913, 0.938] (n=7)  | --                             | --              |
-| UTD-MHAD | ERROR | COMBINED (S1+S2+msp)      | 0.900 [0.864, 0.935] (n=6)  | -0.023 [-0.056, 0.011] (n=6)   | 1/6             |
-| UTD-MHAD | ERROR | COMBINED v2 (experts+msp) | 0.912 [0.872, 0.951] (n=6)  | -0.011 [-0.042, 0.019] (n=6)   | 3/6             |
-| UTD-MHAD | ERROR | S1 stability drop         | 0.625 [0.532, 0.718] (n=7)  | -0.300 [-0.404, -0.196] (n=7)  | 0/7             |
-| UTD-MHAD | ERROR | S1 stability flip         | 0.653 [0.597, 0.708] (n=7)  | -0.273 [-0.338, -0.207] (n=7)  | 0/7             |
-| UTD-MHAD | ERROR | S2 hide-one flips         | 0.786 [0.744, 0.829] (n=7)  | -0.139 [-0.175, -0.104] (n=7)  | 0/7             |
-| UTD-MHAD | ERROR | S2 hide-one shift         | 0.498 [0.454, 0.542] (n=7)  | -0.428 [-0.469, -0.386] (n=7)  | 0/7             |
-| UTD-MHAD | ERROR | X experts disagree (JS)   | 0.668 [0.585, 0.752] (n=7)  | -0.257 [-0.341, -0.173] (n=7)  | 0/7             |
-| UTD-MHAD | ERROR | X lowest expert support   | 0.853 [0.792, 0.914] (n=7)  | -0.073 [-0.135, -0.010] (n=7)  | 1/7             |
-| UTD-MHAD | ERROR | X mean expert support     | 0.959 [0.939, 0.979] (n=7)  | 0.033 [0.008, 0.058] (n=7)     | 6/7             |
-| UTD-MHAD | ERROR | energy (baseline)         | 0.877 [0.857, 0.898] (n=7)  | -0.048 [-0.071, -0.025] (n=7)  | 0/7             |
-| UTD-MHAD | ERROR | entropy (baseline)        | 0.908 [0.892, 0.925] (n=7)  | -0.017 [-0.032, -0.003] (n=7)  | 0/7             |
-| MMAct    | LIE   | 1 - msp (baseline)        | 0.675 [0.662, 0.687] (n=20) | --                             | --              |
-| MMAct    | LIE   | COMBINED (S1+S2+msp)      | 0.722 [0.707, 0.737] (n=20) | 0.047 [0.039, 0.055] (n=20)    | 20/20           |
-| MMAct    | LIE   | COMBINED v2 (experts+msp) | 0.850 [0.828, 0.871] (n=20) | 0.175 [0.161, 0.190] (n=20)    | 20/20           |
-| MMAct    | LIE   | S1 stability drop         | 0.599 [0.589, 0.609] (n=20) | -0.075 [-0.082, -0.069] (n=20) | 0/20            |
-| MMAct    | LIE   | S1 stability flip         | 0.555 [0.549, 0.560] (n=20) | -0.120 [-0.130, -0.111] (n=20) | 0/20            |
-| MMAct    | LIE   | S2 hide-one flips         | 0.640 [0.628, 0.652] (n=20) | -0.035 [-0.043, -0.026] (n=20) | 0/20            |
-| MMAct    | LIE   | S2 hide-one shift         | 0.630 [0.613, 0.647] (n=20) | -0.045 [-0.059, -0.031] (n=20) | 0/20            |
-| MMAct    | LIE   | X experts disagree (JS)   | 0.846 [0.825, 0.867] (n=20) | 0.171 [0.157, 0.186] (n=20)    | 20/20           |
-| MMAct    | LIE   | X lowest expert support   | 0.879 [0.860, 0.898] (n=20) | 0.204 [0.191, 0.217] (n=20)    | 20/20           |
-| MMAct    | LIE   | X mean expert support     | 0.804 [0.786, 0.823] (n=20) | 0.130 [0.118, 0.141] (n=20)    | 20/20           |
-| MMAct    | LIE   | energy (baseline)         | 0.666 [0.655, 0.678] (n=20) | -0.008 [-0.011, -0.006] (n=20) | 2/20            |
-| MMAct    | LIE   | entropy (baseline)        | 0.677 [0.664, 0.689] (n=20) | 0.002 [0.001, 0.002] (n=20)    | 20/20           |
-| MMAct    | ERROR | 1 - msp (baseline)        | 0.859 [0.838, 0.880] (n=20) | --                             | --              |
-| MMAct    | ERROR | COMBINED (S1+S2+msp)      | 0.831 [0.808, 0.853] (n=20) | -0.028 [-0.045, -0.012] (n=20) | 4/20            |
-| MMAct    | ERROR | COMBINED v2 (experts+msp) | 0.846 [0.815, 0.876] (n=20) | -0.013 [-0.036, 0.010] (n=20)  | 7/20            |
-| MMAct    | ERROR | S1 stability drop         | 0.746 [0.721, 0.771] (n=20) | -0.112 [-0.146, -0.079] (n=20) | 1/20            |
-| MMAct    | ERROR | S1 stability flip         | 0.696 [0.672, 0.720] (n=20) | -0.163 [-0.183, -0.142] (n=20) | 0/20            |
-| MMAct    | ERROR | S2 hide-one flips         | 0.699 [0.674, 0.723] (n=20) | -0.160 [-0.178, -0.143] (n=20) | 0/20            |
-| MMAct    | ERROR | S2 hide-one shift         | 0.526 [0.507, 0.546] (n=20) | -0.332 [-0.358, -0.307] (n=20) | 0/20            |
-| MMAct    | ERROR | X experts disagree (JS)   | 0.698 [0.670, 0.727] (n=20) | -0.160 [-0.190, -0.130] (n=20) | 0/20            |
-| MMAct    | ERROR | X lowest expert support   | 0.833 [0.803, 0.862] (n=20) | -0.026 [-0.049, -0.003] (n=20) | 6/20            |
-| MMAct    | ERROR | X mean expert support     | 0.896 [0.869, 0.922] (n=20) | 0.037 [0.016, 0.058] (n=20)    | 17/20           |
-| MMAct    | ERROR | energy (baseline)         | 0.835 [0.810, 0.859] (n=20) | -0.024 [-0.037, -0.012] (n=20) | 4/20            |
-| MMAct    | ERROR | entropy (baseline)        | 0.858 [0.837, 0.879] (n=20) | -0.001 [-0.002, 0.000] (n=20)  | 7/20            |
+| Dataset     | task  | score                     | auroc                       | minus_msp                      | subjects_better |
+|-------------|-------|---------------------------|-----------------------------|--------------------------------|-----------------|
+| UTD-MHAD    | LIE   | 1 - msp (baseline)        | 0.726 [0.705, 0.748] (n=8)  | --                             | --              |
+| UTD-MHAD    | LIE   | COMBINED (S1+S2+msp)      | 0.781 [0.751, 0.810] (n=8)  | 0.054 [0.040, 0.068] (n=8)     | 8/8             |
+| UTD-MHAD    | LIE   | COMBINED v2 (experts+msp) | 0.871 [0.837, 0.906] (n=8)  | 0.145 [0.123, 0.167] (n=8)     | 8/8             |
+| UTD-MHAD    | LIE   | S1 stability drop         | 0.574 [0.560, 0.587] (n=8)  | -0.153 [-0.172, -0.134] (n=8)  | 0/8             |
+| UTD-MHAD    | LIE   | S1 stability flip         | 0.562 [0.552, 0.571] (n=8)  | -0.165 [-0.187, -0.143] (n=8)  | 0/8             |
+| UTD-MHAD    | LIE   | S2 hide-one flips         | 0.717 [0.684, 0.750] (n=8)  | -0.009 [-0.030, 0.011] (n=8)   | 2/8             |
+| UTD-MHAD    | LIE   | S2 hide-one shift         | 0.663 [0.621, 0.704] (n=8)  | -0.064 [-0.093, -0.034] (n=8)  | 0/8             |
+| UTD-MHAD    | LIE   | X experts disagree (JS)   | 0.855 [0.820, 0.890] (n=8)  | 0.129 [0.100, 0.157] (n=8)     | 8/8             |
+| UTD-MHAD    | LIE   | X lowest expert support   | 0.899 [0.865, 0.932] (n=8)  | 0.172 [0.154, 0.191] (n=8)     | 8/8             |
+| UTD-MHAD    | LIE   | X mean expert support     | 0.786 [0.758, 0.815] (n=8)  | 0.060 [0.037, 0.083] (n=8)     | 8/8             |
+| UTD-MHAD    | LIE   | energy (baseline)         | 0.714 [0.688, 0.741] (n=8)  | -0.012 [-0.025, 0.001] (n=8)   | 2/8             |
+| UTD-MHAD    | LIE   | entropy (baseline)        | 0.726 [0.701, 0.750] (n=8)  | -0.001 [-0.007, 0.005] (n=8)   | 4/8             |
+| UTD-MHAD    | ERROR | 1 - msp (baseline)        | 0.926 [0.913, 0.938] (n=7)  | --                             | --              |
+| UTD-MHAD    | ERROR | COMBINED (S1+S2+msp)      | 0.900 [0.864, 0.935] (n=6)  | -0.023 [-0.056, 0.011] (n=6)   | 1/6             |
+| UTD-MHAD    | ERROR | COMBINED v2 (experts+msp) | 0.912 [0.872, 0.951] (n=6)  | -0.011 [-0.042, 0.019] (n=6)   | 3/6             |
+| UTD-MHAD    | ERROR | S1 stability drop         | 0.625 [0.532, 0.718] (n=7)  | -0.300 [-0.404, -0.196] (n=7)  | 0/7             |
+| UTD-MHAD    | ERROR | S1 stability flip         | 0.653 [0.597, 0.708] (n=7)  | -0.273 [-0.338, -0.207] (n=7)  | 0/7             |
+| UTD-MHAD    | ERROR | S2 hide-one flips         | 0.786 [0.744, 0.829] (n=7)  | -0.139 [-0.175, -0.104] (n=7)  | 0/7             |
+| UTD-MHAD    | ERROR | S2 hide-one shift         | 0.498 [0.454, 0.542] (n=7)  | -0.428 [-0.469, -0.386] (n=7)  | 0/7             |
+| UTD-MHAD    | ERROR | X experts disagree (JS)   | 0.668 [0.585, 0.752] (n=7)  | -0.257 [-0.341, -0.173] (n=7)  | 0/7             |
+| UTD-MHAD    | ERROR | X lowest expert support   | 0.853 [0.792, 0.914] (n=7)  | -0.073 [-0.135, -0.010] (n=7)  | 1/7             |
+| UTD-MHAD    | ERROR | X mean expert support     | 0.959 [0.939, 0.979] (n=7)  | 0.033 [0.008, 0.058] (n=7)     | 6/7             |
+| UTD-MHAD    | ERROR | energy (baseline)         | 0.877 [0.857, 0.898] (n=7)  | -0.048 [-0.071, -0.025] (n=7)  | 0/7             |
+| UTD-MHAD    | ERROR | entropy (baseline)        | 0.908 [0.892, 0.925] (n=7)  | -0.017 [-0.032, -0.003] (n=7)  | 0/7             |
+| MMAct       | LIE   | 1 - msp (baseline)        | 0.675 [0.662, 0.687] (n=20) | --                             | --              |
+| MMAct       | LIE   | COMBINED (S1+S2+msp)      | 0.722 [0.707, 0.737] (n=20) | 0.047 [0.039, 0.055] (n=20)    | 20/20           |
+| MMAct       | LIE   | COMBINED v2 (experts+msp) | 0.850 [0.828, 0.871] (n=20) | 0.175 [0.161, 0.190] (n=20)    | 20/20           |
+| MMAct       | LIE   | S1 stability drop         | 0.599 [0.589, 0.609] (n=20) | -0.075 [-0.082, -0.069] (n=20) | 0/20            |
+| MMAct       | LIE   | S1 stability flip         | 0.555 [0.549, 0.560] (n=20) | -0.120 [-0.130, -0.111] (n=20) | 0/20            |
+| MMAct       | LIE   | S2 hide-one flips         | 0.640 [0.628, 0.652] (n=20) | -0.035 [-0.043, -0.026] (n=20) | 0/20            |
+| MMAct       | LIE   | S2 hide-one shift         | 0.630 [0.613, 0.647] (n=20) | -0.045 [-0.059, -0.031] (n=20) | 0/20            |
+| MMAct       | LIE   | X experts disagree (JS)   | 0.846 [0.825, 0.867] (n=20) | 0.171 [0.157, 0.186] (n=20)    | 20/20           |
+| MMAct       | LIE   | X lowest expert support   | 0.879 [0.860, 0.898] (n=20) | 0.204 [0.191, 0.217] (n=20)    | 20/20           |
+| MMAct       | LIE   | X mean expert support     | 0.804 [0.786, 0.823] (n=20) | 0.130 [0.118, 0.141] (n=20)    | 20/20           |
+| MMAct       | LIE   | energy (baseline)         | 0.666 [0.655, 0.678] (n=20) | -0.008 [-0.011, -0.006] (n=20) | 2/20            |
+| MMAct       | LIE   | entropy (baseline)        | 0.677 [0.664, 0.689] (n=20) | 0.002 [0.001, 0.002] (n=20)    | 20/20           |
+| MMAct       | ERROR | 1 - msp (baseline)        | 0.859 [0.838, 0.880] (n=20) | --                             | --              |
+| MMAct       | ERROR | COMBINED (S1+S2+msp)      | 0.831 [0.808, 0.853] (n=20) | -0.028 [-0.045, -0.012] (n=20) | 4/20            |
+| MMAct       | ERROR | COMBINED v2 (experts+msp) | 0.846 [0.815, 0.876] (n=20) | -0.013 [-0.036, 0.010] (n=20)  | 7/20            |
+| MMAct       | ERROR | S1 stability drop         | 0.746 [0.721, 0.771] (n=20) | -0.112 [-0.146, -0.079] (n=20) | 1/20            |
+| MMAct       | ERROR | S1 stability flip         | 0.696 [0.672, 0.720] (n=20) | -0.163 [-0.183, -0.142] (n=20) | 0/20            |
+| MMAct       | ERROR | S2 hide-one flips         | 0.699 [0.674, 0.723] (n=20) | -0.160 [-0.178, -0.143] (n=20) | 0/20            |
+| MMAct       | ERROR | S2 hide-one shift         | 0.526 [0.507, 0.546] (n=20) | -0.332 [-0.358, -0.307] (n=20) | 0/20            |
+| MMAct       | ERROR | X experts disagree (JS)   | 0.698 [0.670, 0.727] (n=20) | -0.160 [-0.190, -0.130] (n=20) | 0/20            |
+| MMAct       | ERROR | X lowest expert support   | 0.833 [0.803, 0.862] (n=20) | -0.026 [-0.049, -0.003] (n=20) | 6/20            |
+| MMAct       | ERROR | X mean expert support     | 0.896 [0.869, 0.922] (n=20) | 0.037 [0.016, 0.058] (n=20)    | 17/20           |
+| MMAct       | ERROR | energy (baseline)         | 0.835 [0.810, 0.859] (n=20) | -0.024 [-0.037, -0.012] (n=20) | 4/20            |
+| MMAct       | ERROR | entropy (baseline)        | 0.858 [0.837, 0.879] (n=20) | -0.001 [-0.002, 0.000] (n=20)  | 7/20            |
+| WearGait-PD | LIE   | 1 - msp (baseline)        | 0.618 [0.604, 0.632] (n=10) | --                             | --              |
+| WearGait-PD | LIE   | COMBINED (S1+S2+msp)      | 0.772 [0.762, 0.782] (n=10) | 0.154 [0.139, 0.169] (n=10)    | 10/10           |
+| WearGait-PD | LIE   | COMBINED v2 (experts+msp) | 0.965 [0.955, 0.975] (n=10) | 0.347 [0.334, 0.360] (n=10)    | 10/10           |
+| WearGait-PD | LIE   | S1 stability drop         | 0.621 [0.609, 0.633] (n=10) | 0.003 [-0.005, 0.011] (n=10)   | 5/10            |
+| WearGait-PD | LIE   | S1 stability flip         | 0.551 [0.544, 0.558] (n=10) | -0.067 [-0.079, -0.056] (n=10) | 0/10            |
+| WearGait-PD | LIE   | S2 hide-one flips         | 0.715 [0.707, 0.722] (n=10) | 0.096 [0.082, 0.111] (n=10)    | 10/10           |
+| WearGait-PD | LIE   | S2 hide-one shift         | 0.764 [0.754, 0.774] (n=10) | 0.146 [0.128, 0.164] (n=10)    | 10/10           |
+| WearGait-PD | LIE   | X experts disagree (JS)   | 0.969 [0.959, 0.978] (n=10) | 0.350 [0.337, 0.364] (n=10)    | 10/10           |
+| WearGait-PD | LIE   | X lowest expert support   | 0.970 [0.961, 0.979] (n=10) | 0.352 [0.339, 0.364] (n=10)    | 10/10           |
+| WearGait-PD | LIE   | X mean expert support     | 0.930 [0.914, 0.946] (n=10) | 0.312 [0.296, 0.328] (n=10)    | 10/10           |
+| WearGait-PD | LIE   | energy (baseline)         | 0.577 [0.566, 0.588] (n=10) | -0.041 [-0.051, -0.031] (n=10) | 0/10            |
+| WearGait-PD | LIE   | entropy (baseline)        | 0.618 [0.604, 0.631] (n=10) | -0.001 [-0.001, -0.000] (n=10) | 2/10            |
+| WearGait-PD | ERROR | 1 - msp (baseline)        | 0.902 [0.879, 0.925] (n=10) | --                             | --              |
+| WearGait-PD | ERROR | COMBINED (S1+S2+msp)      | 0.881 [0.854, 0.907] (n=10) | -0.021 [-0.048, 0.005] (n=10)  | 3/10            |
+| WearGait-PD | ERROR | COMBINED v2 (experts+msp) | 0.931 [0.914, 0.948] (n=10) | 0.029 [0.005, 0.053] (n=10)    | 8/10            |
+| WearGait-PD | ERROR | S1 stability drop         | 0.853 [0.825, 0.881] (n=10) | -0.049 [-0.084, -0.014] (n=10) | 2/10            |
+| WearGait-PD | ERROR | S1 stability flip         | 0.766 [0.736, 0.796] (n=10) | -0.136 [-0.165, -0.106] (n=10) | 0/10            |
+| WearGait-PD | ERROR | S2 hide-one flips         | 0.718 [0.684, 0.751] (n=10) | -0.184 [-0.218, -0.150] (n=10) | 0/10            |
+| WearGait-PD | ERROR | S2 hide-one shift         | 0.737 [0.712, 0.762] (n=10) | -0.165 [-0.191, -0.139] (n=10) | 0/10            |
+| WearGait-PD | ERROR | X experts disagree (JS)   | 0.863 [0.848, 0.879] (n=10) | -0.038 [-0.066, -0.011] (n=10) | 2/10            |
+| WearGait-PD | ERROR | X lowest expert support   | 0.915 [0.892, 0.938] (n=10) | 0.013 [-0.020, 0.046] (n=10)   | 5/10            |
+| WearGait-PD | ERROR | X mean expert support     | 0.932 [0.912, 0.952] (n=10) | 0.030 [0.000, 0.060] (n=10)    | 6/10            |
+| WearGait-PD | ERROR | energy (baseline)         | 0.884 [0.853, 0.914] (n=10) | -0.018 [-0.030, -0.007] (n=10) | 1/10            |
+| WearGait-PD | ERROR | entropy (baseline)        | 0.901 [0.877, 0.925] (n=10) | -0.001 [-0.001, 0.000] (n=10)  | 2/10            |
 
 ## T12_mi_bound: Dataset-level mutual information between sensors (InfoNCE lower bound, own matcher)
 

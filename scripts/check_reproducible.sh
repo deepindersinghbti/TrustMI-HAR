@@ -12,7 +12,7 @@
 set -u
 P="$(cd "$(dirname "$0")/.." && pwd)"
 CLONE=${CLONE:-$HOME/trustmi_repro_check}
-TAG=journal-results-frozen
+TAG=journal-results-frozen-v2      # v2 (13 Nov): adds the v1 signs on WearGait-PD (docs/plan_v1_d3_2026-11-13.md)
 if [ -e "$CLONE" ]; then echo "$CLONE exists: remove it first (rm -rf $CLONE)"; exit 1; fi
 if [ -n "$(git -C "$P" status --porcelain --untracked-files=no)" ]; then echo "uncommitted changes: commit first"; exit 1; fi
 git clone -q "$P" "$CLONE" || exit 1
@@ -44,6 +44,7 @@ OUT_CSV="mi_d1v2_per_subject.csv mi_d2v_per_subject.csv mi_d3_per_subject.csv
  dropout_d1v2_per_subject.csv dropout_d2v_per_subject.csv dropout_d3_per_subject.csv
  v1_d1v2_auroc_per_subject.csv v1_d1v2_auroc_summary.csv v1_d1v2_per_subject.csv
  v1_d2v_auroc_per_subject.csv v1_d2v_auroc_summary.csv v1_d2v_per_subject.csv
+ v1_d3_auroc_per_subject.csv v1_d3_auroc_summary.csv v1_d3_per_subject.csv
  nowatch_d2v_per_subject.csv realdrop_d3_per_fold.csv
  imuoff_d3_per_fold.csv imuoff_d3_answers_per_fold.csv imuoff_d3_predictions.csv
  posthoc_per_unit.csv posthoc_imuoff_per_fold.csv posthoc_tau.csv"
@@ -70,7 +71,7 @@ run () { local log=$1; shift; echo "--- $(date +%T) $*"; python "$@" > "logs/$lo
 for d in d1v2 d2v d3; do run "rerun_mi_$d.log" scripts/cert_mi_score.py --dataset $d; done
 for d in d1v2 d2v d3; do run "rerun_fault_$d.log" scripts/cert_fault_score.py --dataset $d; done
 for d in d1v2 d2v d3; do run "rerun_dropout_$d.log" scripts/cert_dropout_score.py --dataset $d; done
-for d in d1v2 d2v; do run "rerun_v1_$d.log" scripts/cert_v1_score.py --dataset $d; done
+for d in d1v2 d2v d3; do run "rerun_v1_$d.log" scripts/cert_v1_score.py --dataset $d; done
 run rerun_nowatch_d2v.log scripts/cert_nowatch_score.py
 run rerun_realdrop_d3.log scripts/cert_realdrop_score.py
 run rerun_imuoff_d3.log scripts/cert_imuoff_score.py
@@ -87,6 +88,7 @@ python scripts/compare_outputs.py --frozen "$P" --rerun "$CLONE" --files $FILES 
   logs/cert_fault_score_d1v2.log:logs/rerun_fault_d1v2.log logs/cert_fault_score_d2v.log:logs/rerun_fault_d2v.log \
   logs/score_fault_d3.log:logs/rerun_fault_d3.log logs/score_dropout_d3.log:logs/rerun_dropout_d3.log \
   logs/cert_v1_score_d1v2.log:logs/rerun_v1_d1v2.log logs/cert_v1_score_d2v.log:logs/rerun_v1_d2v.log \
+  logs/cert_v1_score_d3.log:logs/rerun_v1_d3.log \
   logs/cert_nowatch_score_d2v.log:logs/rerun_nowatch_d2v.log logs/score_realdrop_d3.log:logs/rerun_realdrop_d3.log \
   logs/score_imuoff_d3.log:logs/rerun_imuoff_d3.log logs/score_posthoc.log:logs/rerun_posthoc.log
 RC=$?
