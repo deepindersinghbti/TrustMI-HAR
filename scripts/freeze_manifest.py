@@ -14,7 +14,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = "results/FROZEN_MANIFEST.sha256"
-PATTERNS = ("results/certificate/*.parquet", "results/certificate/*.csv", "results/certificate/*.txt",
+PATTERNS = ("results/raw/*.parquet", "results/certificate/*.parquet", "results/certificate/*.csv", "results/certificate/*.txt",
             "logs/*.log", "configs/*.json", "splits/*.json")
 
 

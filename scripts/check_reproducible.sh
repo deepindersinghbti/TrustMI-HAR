@@ -18,7 +18,7 @@ if [ -n "$(git -C "$P" status --porcelain --untracked-files=no)" ]; then echo "u
 git clone -q "$P" "$CLONE" || exit 1
 exec > >(tee "$CLONE/repro.log") 2>&1
 cd "$CLONE"
-echo "START $(date -Is) | clone of $P at $(git rev-parse --short HEAD) | tag $TAG = $(git rev-parse --short $TAG)"
+echo "START $(date -Is) | clone of $P at $(git rev-parse --short HEAD) | tag $TAG = commit $(git rev-parse --short "$TAG^{commit}")"
 
 echo; echo "== 1. code at the tag"
 CHANGED=$(git diff --name-only "$TAG" HEAD -- . ':!docs' ':!paper' ':!scripts/make_journal_tables.py' \
@@ -30,6 +30,7 @@ echo; echo "== 2. inputs"
 ln -s "$P/trustmi-env" trustmi-env
 ln -s "$P/data" data
 ln -s "$P/runs" runs
+ln -s "$P/results/raw" results/raw     # MI training records (mi_bound_summary, T12)
 mkdir -p logs
 cp "$P"/logs/*.log logs/        # the frozen scorer logs (the table script checks its numbers against them)
 cp --reflink=auto "$P"/results/certificate/*.parquet results/certificate/ || exit 1
