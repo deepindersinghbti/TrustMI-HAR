@@ -1,0 +1,5 @@
+item,verdict,value
+N1,NOT CONFIRMED,doing nothing: raw 0 68.7% vs mean fill 55.9%
+N2,NOT CONFIRMED,"REV3 flags 90.4% (mean fill 91.4%), names the watch on 45.7% of flagged (mean fill 48.7%)"
+N3,NOT CONFIRMED,REV3 use / drop 53.6% vs doing nothing 68.7% (raw 0)
+N4,CONFIRMED,"REV3 AUROC, mean of 4 people: raw 0 0.949 vs mean fill 0.945"
