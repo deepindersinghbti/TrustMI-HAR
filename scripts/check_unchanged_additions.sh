@@ -17,10 +17,36 @@ git clone -q "$P" "$CLONE" || exit 1
 exec > >(tee "$CLONE/check.log") 2>&1
 cd "$CLONE"
 echo "START $(date -Is) | clone of $P at $(git rev-parse --short HEAD)"
-ln -s "$P/trustmi-env" trustmi-env; ln -s "$P/data" data; ln -s "$P/runs" runs
+ln -s "$P/trustmi-env" trustmi-env; ln -s "$P/runs" runs
 ln -s "$P/results/raw" results/raw
+# data/ is partly tracked by git, so the clone already has a data/ folder: link every untracked file and folder of
+# the project's data/ into it, one by one. norm_stats is NOT linked: the clone writes its own normalisation files.
+python - "$P" <<'PY' || exit 1
+import sys
+from pathlib import Path
+def link(src, dst):
+    for e in src.iterdir():
+        d = dst / e.name
+        if e.name == "norm_stats":
+            continue
+        if d.is_symlink():
+            continue
+        if d.exists():
+            if e.is_dir() and d.is_dir():
+                link(e, d)
+            continue
+        d.symlink_to(e)
+link(Path(sys.argv[1]) / "data", Path("data"))
+for f in ("processed/utd_mhad_v1.npz", "processed/mmact_sensor_v1.npz"):
+    if not (Path("data") / f).exists():
+        sys.exit(f"data link check: data/{f} missing in the clone")
+print("data linked into the clone (norm_stats kept separate)")
+PY
 mkdir -p logs
 cp --reflink=auto "$P"/results/certificate/*.parquet results/certificate/ || exit 1
+# every scratch file the checks below re-make is deleted first, so a run that fails leaves NO file to compare
+rm -f results/certificate/*_f0_s0*.parquet results/certificate/*_f19_s0*.parquet
+echo "scratch outputs removed in the clone: every compared file below is made by this check"
 source trustmi-env/bin/activate
 CE=results/certificate
 fail=0
