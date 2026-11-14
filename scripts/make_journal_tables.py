@@ -625,16 +625,36 @@ def additions_imuoff(o):
     return pd.DataFrame(curve, columns=["group", "k", "p", "mean", "lo", "hi"])
 
 
+LOGFILE_V1_D3 = "cert_v1_score_d3.log"
+
+
 def additions_predictions(o):
-    """Every prediction of the 14 Nov additions with its verdict, read from the scorers' prediction files, plus
-    P3 of the v1 WearGait-PD ablation, which is decided by the numbers in T11."""
-    v = pd.read_csv(RES / "v1_d3_auroc_summary.csv"); v = v[v.task == "LIE"].set_index("score")
-    au = lambda k: float(v.loc[k, "auroc"].split()[0])
+    """Every prediction written before the 13-14 Nov runs, with its verdict: the v1 WearGait-PD ablation (decided here
+    from v1_d3_* and checked against the scorer's log) and the 14 Nov additions (read from the scorers' files)."""
+    ok = lambda b: "CONFIRMED" if b else "NOT CONFIRMED"
+    v1 = pd.read_csv(RES / "v1_d3_per_subject.csv"); v1 = v1[v1.revision == 1]
+    pv = v1.pivot_table(index="fold", columns="system", values="lie_auroc")
+    nv = v1.pivot_table(index="fold", columns="system", values="naming")
+    m, v, a = "REV3 = C3 + MI (main)", "V1 (confidence + S1 + S2)", "REV3 + V1 signs"
+    blk = log_block(LOGFILE_V1_D3, "TABLE 2, v1 signs as systems, revision 1")
+    num = lambda line, key: float(re.search(key + r" ([+-][\d.]+)", line).group(1))
+    lv = next(l for l in blk if l.strip().startswith(f"REV3 minus {v}:"))
+    la = next(l for l in blk if l.strip().startswith(f"REV3 minus {a}:"))
+    d1, d2, d4 = stats(pv[m] - pv[v]), (pv[a] - pv[m]).mean(), (100 * (nv[m] - nv[v])).mean()
+    check("v1 d3 P1 REV3 minus V1 lie AUROC", d1[0], num(lv, "lie"), 3)
+    check("v1 d3 P2 REV3 + V1 minus REV3 lie AUROC", d2, -num(la, "lie"), 3)
+    check("v1 d3 P4 REV3 minus V1 naming", d4, num(lv, "naming"), 1)
+    va = pd.read_csv(RES / "v1_d3_auroc_summary.csv"); va = va[va.task == "LIE"].set_index("score")
+    au = lambda k: float(va.loc[k, "auroc"].split()[0])
     signs = ["S1 stability drop", "S1 stability flip", "S2 hide-one flips", "S2 hide-one shift"]
     best = au("X lowest expert support")
-    rows = [("v1 signs, WearGait-PD", "P3", "CONFIRMED" if all(au(k) < best for k in signs) else "NOT CONFIRMED",
+    rows = [("v1 signs, WearGait-PD", "P1", ok(d1[3] >= 9 and d1[1] > 0),
+             f"REV3 minus V1 lie AUROC {d1[0]:+.3f} [{d1[1]:+.3f}, {d1[2]:+.3f}], better in {d1[3]}/{d1[4]} folds"),
+            ("v1 signs, WearGait-PD", "P2", ok(abs(d2) <= 0.005), f"REV3 + V1 minus REV3 lie AUROC {d2:+.4f}"),
+            ("v1 signs, WearGait-PD", "P3", ok(all(au(k) < best for k in signs)),
              f"v1 signs alone {min(au(k) for k in signs):.3f}-{max(au(k) for k in signs):.3f} vs lowest expert "
-             f"support {best:.3f} (lie AUROC)")]
+             f"support {best:.3f} (lie AUROC)"),
+            ("v1 signs, WearGait-PD", "P4", ok(d4 >= 20), f"REV3 minus V1 naming {d4:+.1f} points")]
     for f, label in (("nowatch2_d2v_predictions.csv", "raw-zero watch, MMAct"),
                      ("imuoff2_d3_predictions.csv", "partial IMU-off, WearGait-PD")):
         q = pd.read_csv(RES / f)

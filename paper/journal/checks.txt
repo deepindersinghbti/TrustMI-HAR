@@ -2656,3 +2656,6 @@ OK  imuoff2 legs k=5 p=75 REV3 minus nothing (points): built 0.376397 | scorer l
 OK  imuoff2 legs k=6 p=75 REV3 minus nothing (points): built 1.660645 | scorer log 1.660645 (tolerance 1.5e-09)
 OK  imuoff2 legs k=7 p=75 REV3 minus nothing (points): built 3.899162 | scorer log 3.899162 (tolerance 1.5e-09)
 OK  imuoff2 legs k=8 p=75 REV3 minus nothing (points): built 7.853327 | scorer log 7.853327 (tolerance 1.5e-09)
+OK  v1 d3 P1 REV3 minus V1 lie AUROC: built 0.207677 | scorer log 0.208000 (tolerance 5.0e-04)
+OK  v1 d3 P2 REV3 + V1 minus REV3 lie AUROC: built 0.000380 | scorer log 0.000000 (tolerance 5.0e-04)
+OK  v1 d3 P4 REV3 minus V1 naming: built 45.182781 | scorer log 45.200000 (tolerance 5.0e-02)

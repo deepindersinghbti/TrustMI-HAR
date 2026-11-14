@@ -525,7 +525,10 @@ Plans: docs/plan_v1_d3_2026-11-13.md and docs/plan_additions_2026-11-14.md. A pr
 
 | Experiment                      | Prediction | Verdict       | Result                                                                                                                                                      |
 |---------------------------------|------------|---------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| v1 signs, WearGait-PD           | P1         | CONFIRMED     | REV3 minus V1 lie AUROC +0.208 [+0.199, +0.216], better in 10/10 folds                                                                                      |
+| v1 signs, WearGait-PD           | P2         | CONFIRMED     | REV3 + V1 minus REV3 lie AUROC +0.0004                                                                                                                      |
 | v1 signs, WearGait-PD           | P3         | CONFIRMED     | v1 signs alone 0.551-0.764 vs lowest expert support 0.970 (lie AUROC)                                                                                       |
+| v1 signs, WearGait-PD           | P4         | CONFIRMED     | REV3 minus V1 naming +45.2 points                                                                                                                           |
 | raw-zero watch, MMAct           | N1         | NOT CONFIRMED | doing nothing: raw 0 68.7% vs mean fill 55.9%                                                                                                               |
 | raw-zero watch, MMAct           | N2         | NOT CONFIRMED | REV3 flags 90.4% (mean fill 91.4%), names the watch on 45.7% of flagged (mean fill 48.7%)                                                                   |
 | raw-zero watch, MMAct           | N3         | NOT CONFIRMED | REV3 use / drop 53.6% vs doing nothing 68.7% (raw 0)                                                                                                        |
@@ -549,5 +552,5 @@ Plans: docs/plan_v1_d3_2026-11-13.md and docs/plan_additions_2026-11-14.md. A pr
 
 ## Checks
 
-2658 numbers compared with the scorers' own logs; 0 disagree.
+2661 numbers compared with the scorers' own logs; 0 disagree.
 
