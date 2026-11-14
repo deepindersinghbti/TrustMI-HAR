@@ -18,6 +18,7 @@ exec > >(tee "$CLONE/check.log") 2>&1
 cd "$CLONE"
 echo "START $(date -Is) | clone of $P at $(git rev-parse --short HEAD)"
 ln -s "$P/trustmi-env" trustmi-env; ln -s "$P/runs" runs
+source trustmi-env/bin/activate        # before any python below
 ln -s "$P/results/raw" results/raw
 # data/ is partly tracked by git, so the clone already has a data/ folder: link every untracked file and folder of
 # the project's data/ into it, one by one. norm_stats is NOT linked: the clone writes its own normalisation files.
@@ -47,7 +48,6 @@ cp --reflink=auto "$P"/results/certificate/*.parquet results/certificate/ || exi
 # every scratch file the checks below re-make is deleted first, so a run that fails leaves NO file to compare
 rm -f results/certificate/*_f0_s0*.parquet results/certificate/*_f19_s0*.parquet
 echo "scratch outputs removed in the clone: every compared file below is made by this check"
-source trustmi-env/bin/activate
 CE=results/certificate
 fail=0
 cmpf () { echo "--- $2"; python scripts/check_identical.py "$CE/$1" "$CE/$2" --fold "$3" "${@:4}" || fail=1; }
