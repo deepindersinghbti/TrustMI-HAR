@@ -190,3 +190,57 @@ results; reported next to REV3 revision 1, never instead of it.
 - **Check.** The REV3 variant reproduces each bench's stored revision-1 numbers exactly (largest difference
   1.1e-16 over 9 benches).
 
+
+## F. Frozen results, tables by script, reproducibility check — 13-14 Nov 2026
+Plan: `docs/plan_followup_2026-11-12.md`, Part C.
+- **Fingerprint** (`scripts/freeze_manifest.py`): SHA-256 of every file matching `results/raw/*.parquet`,
+  `results/certificate/*.parquet|*.csv|*.txt`, `logs/*.log`, `configs/*.json`, `splits/*.json`, written to
+  `results/FROZEN_MANIFEST.sha256`. Check mode reports changed, missing and new files. A later freeze may add files
+  but never change or remove an existing checksum (checked by counting removed lines in the manifest's git diff).
+- **Tags:** `journal-results-frozen` (13 Nov), `-v2` (13 Nov, adds the v1 signs on WearGait-PD), `-v3` (14 Nov, adds
+  the three additions of section G). Earlier tags are never moved.
+- **Tables and figures** (`scripts/make_journal_tables.py`): built only from stored result files. Every printed
+  number that also appears in a scorer log is compared with it (tolerance = the log's rounding); model accuracies
+  are compared with the training logs. Macro-F1 averages over the classes present in the true labels
+  (`np.unique(y)`), as in the training code. Disagreements are listed in `paper/journal/checks.txt`.
+- **Reproducibility check** (`scripts/check_reproducible.sh`): fresh `git clone` into a throwaway folder; stops if
+  any file other than docs, paper and the freeze tools differs from the tag; links the environment, `runs/`,
+  `results/raw/` and the untracked files of `data/` one by one (not `data/norm_stats`, which the loaders rewrite);
+  copies the stored model outputs and checks them against the fingerprint; deletes every scorer output; re-runs every
+  scorer in dependency order and the table script; compares each re-made table with the frozen one
+  (`scripts/compare_outputs.py`: byte-identical, or same shape and text with every number within 1e-12). Scorer logs
+  are compared line by line and differences reported as notes only.
+
+## G. Three additions — 14 Nov 2026
+Plan: `docs/plan_additions_2026-11-14.md` (decisions D1, D2 and the stuck-onset wording correction recorded there).
+Frozen systems throughout (fitted on validation lies only); revision 1 main, revision 2 labelled post hoc. Each is a
+separate bench with its own files; the existing benches are untouched (`scripts/check_unchanged_additions.sh`).
+
+### G.1 Raw-zero dead watch, MMAct (`--conditions nowatch2`; `scripts/cert_nowatch_score.py --bench nowatch2`)
+- `nw_zero:watch`: the 247 real no-watch clips (6 people, the six folds that have them, 3 seeds) with raw value 0 on
+  every watch channel, then the fold's training normalisation. `r_zero:watch`: the same reference clips as the
+  no-watch bench with the recorded watch replaced the same way. `clean`, `nw_fill:watch`, `r_fill:watch` re-run and
+  required to equal the stored no-watch bench exactly.
+- Systems as in section B; known-missing reference = backup `b4s_nowatch`. Reporting: pooled, per person, mean of
+  the four people with 28 or more clips; no interval across people.
+
+### G.2 Partial IMU-off, WearGait-PD (`--conditions imuoff2`; `scripts/cert_imuoff2_score.py`)
+- `io_part:<group>:k<k>:p<p>`: the first k IMUs of the clip's IMU order (the order of section D) set to the training
+  mean for one contiguous stretch covering p = 25, 50 or 75% of the clip's valid samples. One start per
+  (group, clip, p), drawn inside the clip from a generator keyed on (seed constant, group, p, clip), so the stretch is
+  the same for every k, seed and model. k: arms 1-2, trunk 1-3, legs 1-8 (39 conditions + clean). p = 100% is the
+  stored section-D bench.
+- Unit = fold (10 folds); main result: legs, REV3 use / drop minus doing nothing, per k and p.
+
+### G.3 Stuck sensor and saturation, all datasets (`--conditions faults2`; `src/trustmi/faults2.py`;
+`scripts/cert_fault_score.py --bench faults2`)
+- Same rules as section A: only valid samples change, padding stays 0, valid length unchanged.
+- `f_stuck`, levels 1-3: the last 25 / 50 / 100% of the valid samples repeat the value at the onset (onset at
+  75 / 50 / 0%; deterministic). Skeleton: tracking freeze. Video: the frame at the onset repeated to the end.
+- `f_sat`, levels 1-3: per axis, in physical units, accelerometer clipped at +/-8 / 4 / 2 g and gyroscope at
+  +/-1000 / 500 / 250 deg/s. Not applied to orientation angles or the skeleton. Video: pixel values x1.5 / 2 / 3,
+  clipped to the valid range, before feature extraction (`scripts/extract_video_faults2.py`).
+- The new faults form their own pooled group ("new faults"); the existing "all faults" group is unchanged.
+  Measures as in section A.
+- Share of readings actually clipped, per dataset, sensor, level and fold (test part):
+  `scripts/faults2_clip_share.py` -> `results/certificate/faults2_clip_share.csv`.
