@@ -12,7 +12,7 @@
 set -u
 P="$(cd "$(dirname "$0")/.." && pwd)"
 CLONE=${CLONE:-$HOME/trustmi_repro_check}
-TAG=journal-results-frozen-v2      # v2 (13 Nov): adds the v1 signs on WearGait-PD (docs/plan_v1_d3_2026-11-13.md)
+TAG=journal-results-frozen-v3      # v3 (14 Nov): adds the three additions (docs/plan_additions_2026-11-14.md)
 if [ -e "$CLONE" ]; then echo "$CLONE exists: remove it first (rm -rf $CLONE)"; exit 1; fi
 if [ -n "$(git -C "$P" status --porcelain --untracked-files=no)" ]; then echo "uncommitted changes: commit first"; exit 1; fi
 git clone -q "$P" "$CLONE" || exit 1
@@ -29,8 +29,30 @@ echo "scorer code, src, configs, splits and result tables identical to the tag"
 
 echo; echo "== 2. inputs"
 ln -s "$P/trustmi-env" trustmi-env
-ln -s "$P/data" data
 ln -s "$P/runs" runs
+source trustmi-env/bin/activate
+# data/ is partly tracked by git, so the clone already has a data/ folder: link every untracked file and folder of the
+# project's data/ into it one by one (a plain "ln -s" would land inside it as data/data). norm_stats is NOT linked:
+# faults2_clip_share.py loads the data, and the loaders rewrite the fold normalisation files; the clone keeps its own.
+python - "$P" <<'PY' || exit 1
+import sys
+from pathlib import Path
+def link(src, dst):
+    for e in src.iterdir():
+        d = dst / e.name
+        if e.name == "norm_stats" or d.is_symlink():
+            continue
+        if d.exists():
+            if e.is_dir() and d.is_dir():
+                link(e, d)
+            continue
+        d.symlink_to(e)
+link(Path(sys.argv[1]) / "data", Path("data"))
+for f in ("processed/utd_mhad_v1.npz", "processed/mmact_sensor_v1.npz"):
+    if not (Path("data") / f).exists():
+        sys.exit(f"data link check: data/{f} missing in the clone")
+print("data linked into the clone (norm_stats kept separate)")
+PY
 ln -s "$P/results/raw" results/raw     # MI training records (mi_bound_summary, T12)
 mkdir -p logs
 cp "$P"/logs/*.log logs/        # the frozen scorer logs (the table script checks its numbers against them)
@@ -47,10 +69,13 @@ OUT_CSV="mi_d1v2_per_subject.csv mi_d2v_per_subject.csv mi_d3_per_subject.csv
  v1_d3_auroc_per_subject.csv v1_d3_auroc_summary.csv v1_d3_per_subject.csv
  nowatch_d2v_per_subject.csv realdrop_d3_per_fold.csv
  imuoff_d3_per_fold.csv imuoff_d3_answers_per_fold.csv imuoff_d3_predictions.csv
- posthoc_per_unit.csv posthoc_imuoff_per_fold.csv posthoc_tau.csv"
-OUT_PQ="nowatch_d2v_rows.parquet realdrop_d3_rows.parquet imuoff_d3_rev3_rows.parquet"
+ posthoc_per_unit.csv posthoc_imuoff_per_fold.csv posthoc_tau.csv
+ nowatch2_d2v_per_subject.csv nowatch2_d2v_predictions.csv
+ imuoff2_d3_per_fold.csv imuoff2_d3_answers_per_fold.csv imuoff2_d3_predictions.csv
+ faults2_d1v2_per_subject.csv faults2_d2v_per_subject.csv faults2_d3_per_subject.csv
+ faults2_d1v2_predictions.csv faults2_d2v_predictions.csv faults2_d3_predictions.csv faults2_clip_share.csv"
+OUT_PQ="nowatch_d2v_rows.parquet realdrop_d3_rows.parquet imuoff_d3_rev3_rows.parquet nowatch2_d2v_rows.parquet"
 # the frozen originals stay in $P; the clone keeps only the INPUTS, so every output has to be made again
-source trustmi-env/bin/activate
 python - "$P" <<'PY' || { echo "STOP: copied model outputs differ from the manifest"; exit 1; }
 import hashlib, sys
 from pathlib import Path
@@ -76,6 +101,10 @@ run rerun_nowatch_d2v.log scripts/cert_nowatch_score.py
 run rerun_realdrop_d3.log scripts/cert_realdrop_score.py
 run rerun_imuoff_d3.log scripts/cert_imuoff_score.py
 run rerun_posthoc.log scripts/cert_posthoc_score.py
+run rerun_nowatch2_d2v.log scripts/cert_nowatch_score.py --bench nowatch2
+run rerun_imuoff2_d3.log scripts/cert_imuoff2_score.py
+for d in d1v2 d2v d3; do run "rerun_faults2_$d.log" scripts/cert_fault_score.py --dataset $d --bench faults2; done
+run rerun_faults2_clip_share.log scripts/faults2_clip_share.py
 run rerun_tables.log scripts/make_journal_tables.py --out "$CLONE/paper/journal"
 
 echo; echo "== 4. compare with the frozen outputs"
@@ -90,7 +119,10 @@ python scripts/compare_outputs.py --frozen "$P" --rerun "$CLONE" --files $FILES 
   logs/cert_v1_score_d1v2.log:logs/rerun_v1_d1v2.log logs/cert_v1_score_d2v.log:logs/rerun_v1_d2v.log \
   logs/cert_v1_score_d3.log:logs/rerun_v1_d3.log \
   logs/cert_nowatch_score_d2v.log:logs/rerun_nowatch_d2v.log logs/score_realdrop_d3.log:logs/rerun_realdrop_d3.log \
-  logs/score_imuoff_d3.log:logs/rerun_imuoff_d3.log logs/score_posthoc.log:logs/rerun_posthoc.log
+  logs/score_imuoff_d3.log:logs/rerun_imuoff_d3.log logs/score_posthoc.log:logs/rerun_posthoc.log \
+  logs/score_nowatch2_d2v.log:logs/rerun_nowatch2_d2v.log logs/score_imuoff2_d3.log:logs/rerun_imuoff2_d3.log \
+  logs/score_faults2_d1v2.log:logs/rerun_faults2_d1v2.log logs/score_faults2_d2v.log:logs/rerun_faults2_d2v.log \
+  logs/score_faults2_d3.log:logs/rerun_faults2_d3.log logs/faults2_clip_share.log:logs/rerun_faults2_clip_share.log
 RC=$?
 echo; echo "END $(date -Is) | $([ $RC -eq 0 ] && echo 'REPRODUCED: every output identical (or within 1e-12)' || echo 'DIFFERENCES FOUND: see above')"
 exit $RC

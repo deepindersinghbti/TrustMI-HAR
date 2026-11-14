@@ -372,7 +372,182 @@ Rule (a): confidence as a second alarm (detection and abstention only). Rule (b)
 | WearGait-PD | arms-trunk  | 1.76 [1.70, 1.82]     | 10    | 1.63 to 1.86 |
 | WearGait-PD | trunk-legs  | 2.06 [2.02, 2.10]     | 10    | 1.95 to 2.14 |
 
+## T13_faults_new: Two more everyday faults, stuck sensor and saturation (frozen transfer, the new faults pooled, revision 1)
+
+Stuck = the sensor freezes at 75 / 50 / 0 % of the clip until its end; saturation = readings clipped at +/-8 / 4 / 2 g and +/-1000 / 500 / 250 deg/s; video: frozen frames and over-exposure x1.5 / 2 / 3. Certificate fitted on validation lies only (frozen). The original faults (T5) are not part of this pool.
+
+| Dataset     | System                      | AUROC, harmful faults | AUROC, all faults | Names faulty sensor % (harmful) | Fault-clip acc. %: alone -> use/drop | False alarms on clean % |
+|-------------|-----------------------------|-----------------------|-------------------|---------------------------------|--------------------------------------|-------------------------|
+| UTD-MHAD    | Confidence (MSP)            | 0.922 [0.896, 0.948]  | 0.578             | --                              | 88.3 -> 88.3                         | 0.0                     |
+| UTD-MHAD    | C3 (conference certificate) | 0.918 [0.899, 0.938]  | 0.620             | 70.1                            | 88.3 -> 85.7                         | 20.7                    |
+| UTD-MHAD    | REV3 (ours, main)           | 0.900 [0.864, 0.935]  | 0.642             | 70.5                            | 88.3 -> 86.8                         | 25.0                    |
+| UTD-MHAD    | TMC                         | 0.881 [0.854, 0.909]  | 0.593             | 17.0                            | 90.9 -> 90.9                         | 9.5                     |
+| UTD-MHAD    | ECML                        | 0.872 [0.842, 0.902]  | 0.593             | 60.9                            | 87.0 -> 87.4                         | 12.1                    |
+| UTD-MHAD    | Dropout-trained model       | 0.905 [0.868, 0.941]  | 0.641             | 66.9                            | 89.8 -> 88.0                         | 12.5                    |
+| MMAct       | Confidence (MSP)            | 0.883 [0.870, 0.897]  | 0.584             | --                              | 79.0 -> 79.0                         | 0.0                     |
+| MMAct       | C3 (conference certificate) | 0.861 [0.844, 0.878]  | 0.608             | 64.3                            | 79.0 -> 81.8                         | 43.8                    |
+| MMAct       | REV3 (ours, main)           | 0.876 [0.856, 0.896]  | 0.632             | 66.3                            | 79.0 -> 81.2                         | 30.5                    |
+| MMAct       | TMC                         | 0.848 [0.825, 0.871]  | 0.577             | 11.4                            | 82.4 -> 82.4                         | 1.4                     |
+| MMAct       | ECML                        | 0.829 [0.811, 0.847]  | 0.573             | 8.2                             | 79.9 -> 79.9                         | 5.1                     |
+| MMAct       | Dropout-trained model       | 0.876 [0.856, 0.896]  | 0.631             | 64.4                            | 81.6 -> 82.3                         | 13.2                    |
+| WearGait-PD | Confidence (MSP)            | 0.909 [0.887, 0.931]  | 0.519             | --                              | 95.2 -> 95.2                         | 0.0                     |
+| WearGait-PD | C3 (conference certificate) | 0.837 [0.824, 0.851]  | 0.558             | 68.6                            | 95.2 -> 95.4                         | 26.4                    |
+| WearGait-PD | REV3 (ours, main)           | 0.941 [0.931, 0.951]  | 0.606             | 82.0                            | 95.2 -> 95.6                         | 6.8                     |
+| WearGait-PD | TMC                         | 0.930 [0.918, 0.941]  | 0.547             | 56.1                            | 95.9 -> 95.6                         | 4.4                     |
+| WearGait-PD | ECML                        | 0.881 [0.831, 0.932]  | 0.545             | 60.8                            | 95.5 -> 95.2                         | 6.3                     |
+| WearGait-PD | Dropout-trained model       | 0.933 [0.922, 0.943]  | 0.607             | 76.6                            | 96.2 -> 96.2                         | 2.6                     |
+
+## T13b_faults_new_paired: Stuck sensor and saturation: REV3 minus other systems, harmful-fault AUROC, paired per unit
+
+| Dataset     | REV3 minus                  | AUROC, harmful faults           |
+|-------------|-----------------------------|---------------------------------|
+| UTD-MHAD    | Confidence (MSP)            | -0.022 [-0.045, +0.001] (2/8)   |
+| UTD-MHAD    | C3 (conference certificate) | -0.018 [-0.053, +0.016] (4/8)   |
+| UTD-MHAD    | TMC                         | +0.019 [-0.005, +0.043] (6/8)   |
+| MMAct       | Confidence (MSP)            | -0.007 [-0.023, +0.009] (9/20)  |
+| MMAct       | C3 (conference certificate) | +0.015 [+0.003, +0.026] (15/20) |
+| MMAct       | TMC                         | +0.028 [+0.012, +0.044] (18/20) |
+| WearGait-PD | Confidence (MSP)            | +0.032 [+0.007, +0.057] (9/10)  |
+| WearGait-PD | C3 (conference certificate) | +0.103 [+0.093, +0.113] (10/10) |
+| WearGait-PD | TMC                         | +0.011 [-0.002, +0.024] (8/10)  |
+
+## T13c_faults_new_by_level: Stuck sensor and saturation by fault and level, all sensors pooled (means over units, revision 1)
+
+| Dataset     | Fault      | Level | Answers changed % | Fault-clip acc. alone % | REV3 use/drop % | AUROC harmful: confidence | AUROC harmful: REV3 | REV3 names faulty sensor % (harmful) |
+|-------------|------------|-------|-------------------|-------------------------|-----------------|---------------------------|---------------------|--------------------------------------|
+| UTD-MHAD    | saturation | 1     | 1.5               | 94.4                    | 90.0            | 0.955                     | 0.836               | 68.5                                 |
+| UTD-MHAD    | saturation | 2     | 2.1               | 94.2                    | 89.5            | 0.941                     | 0.862               | 56.6                                 |
+| UTD-MHAD    | saturation | 3     | 3.1               | 93.7                    | 89.3            | 0.942                     | 0.880               | 65.2                                 |
+| UTD-MHAD    | stuck      | 1     | 1.4               | 94.5                    | 91.0            | 0.960                     | 0.768               | 34.9                                 |
+| UTD-MHAD    | stuck      | 2     | 6.9               | 90.4                    | 87.2            | 0.903                     | 0.822               | 47.4                                 |
+| UTD-MHAD    | stuck      | 3     | 29.5              | 68.6                    | 76.4            | 0.921                     | 0.929               | 78.8                                 |
+| MMAct       | saturation | 1     | 5.1               | 85.9                    | 84.7            | 0.911                     | 0.795               | 51.2                                 |
+| MMAct       | saturation | 2     | 12.4              | 79.5                    | 80.8            | 0.915                     | 0.845               | 60.3                                 |
+| MMAct       | saturation | 3     | 18.5              | 74.1                    | 78.4            | 0.906                     | 0.870               | 65.5                                 |
+| MMAct       | stuck      | 1     | 3.3               | 88.1                    | 86.3            | 0.904                     | 0.730               | 38.7                                 |
+| MMAct       | stuck      | 2     | 10.4              | 82.8                    | 82.2            | 0.858                     | 0.804               | 55.0                                 |
+| MMAct       | stuck      | 3     | 32.4              | 63.5                    | 75.1            | 0.860                     | 0.940               | 77.7                                 |
+| WearGait-PD | saturation | 1     | 0.0               | 96.6                    | 96.4            | --                        | --                  | --                                   |
+| WearGait-PD | saturation | 2     | 0.0               | 96.6                    | 96.4            | --                        | --                  | --                                   |
+| WearGait-PD | saturation | 3     | 0.1               | 96.6                    | 96.4            | 0.993                     | 0.846               | 24.6                                 |
+| WearGait-PD | stuck      | 1     | 0.9               | 96.3                    | 96.0            | 0.953                     | 0.831               | 35.9                                 |
+| WearGait-PD | stuck      | 2     | 2.0               | 95.6                    | 95.2            | 0.933                     | 0.874               | 58.7                                 |
+| WearGait-PD | stuck      | 3     | 8.4               | 89.6                    | 93.4            | 0.898                     | 0.968               | 92.6                                 |
+
+## T13d_saturation_clipped: Saturation: share of readings actually clipped (test part, all folds)
+
+Levels: 1 = +/-8 g, +/-1000 deg/s; 2 = +/-4 g, +/-500 deg/s; 3 = +/-2 g, +/-250 deg/s (scripts/faults2_clip_share.py).
+
+| Dataset     | Sensor | Level | Readings clipped % | Clips with any clipping % |
+|-------------|--------|-------|--------------------|---------------------------|
+| UTD-MHAD    | IMU    | 1     | 0.004              | 1.5                       |
+| UTD-MHAD    | IMU    | 2     | 0.257              | 30.1                      |
+| UTD-MHAD    | IMU    | 3     | 3.091              | 76.7                      |
+| MMAct       | watch  | 1     | 0.002              | 1.5                       |
+| MMAct       | watch  | 2     | 0.101              | 11.8                      |
+| MMAct       | watch  | 3     | 0.706              | 33.9                      |
+| MMAct       | phone  | 1     | 0.000              | 0.0                       |
+| MMAct       | phone  | 2     | 0.014              | 8.0                       |
+| MMAct       | phone  | 3     | 0.324              | 44.2                      |
+| WearGait-PD | arms   | 1     | 0.000              | 0.1                       |
+| WearGait-PD | arms   | 2     | 0.009              | 2.1                       |
+| WearGait-PD | arms   | 3     | 0.235              | 16.4                      |
+| WearGait-PD | trunk  | 1     | 0.000              | 0.0                       |
+| WearGait-PD | trunk  | 2     | 0.000              | 0.1                       |
+| WearGait-PD | trunk  | 3     | 0.007              | 4.2                       |
+| WearGait-PD | legs   | 1     | 0.000              | 0.3                       |
+| WearGait-PD | legs   | 2     | 0.034              | 23.0                      |
+| WearGait-PD | legs   | 3     | 1.298              | 59.2                      |
+
+## T14_nowatch_rawzero: MMAct: the 247 real no-watch clips with the watch as raw 0 (addition 3; 6 people, 3 seeds pooled; revision 1)
+
+Raw 0 on every watch channel, then the training normalisation (physically impossible while worn). REV3 per person: person 2: 31.5% vs doing nothing 70.6% (126 clips); person 10: 86.7% vs doing nothing 40.0% (5 clips); person 11: 83.3% vs doing nothing 72.2% (6 clips); person 13: 78.6% vs doing nothing 61.9% (28 clips); person 16: 81.5% vs doing nothing 73.5% (54 clips); person 20: 61.9% vs doing nothing 61.9% (28 clips). The reference row is read from score_nowatch2_d2v.log.
+
+| System                                                     | Acc. alone % | Acc. after use/drop % | Flagged % | Names the watch (flagged) % | AUROC no-watch vs reference (4 people) | Acc. on reference clips % |
+|------------------------------------------------------------|--------------|-----------------------|-----------|-----------------------------|----------------------------------------|---------------------------|
+| Confidence (MSP)                                           | 68.7         | 68.7                  | 0.0       | --                          | 0.757                                  | 90.1                      |
+| C3 (conference certificate)                                | 68.7         | 50.7                  | 87.2      | 36.1                        | 0.848                                  | 89.9                      |
+| REV3 (ours, main)                                          | 68.7         | 53.6                  | 90.4      | 45.7                        | 0.949                                  | 89.1                      |
+| TMC                                                        | 85.0         | 85.0                  | 2.4       | 44.4                        | 0.613                                  | 90.3                      |
+| ECML                                                       | 82.3         | 81.0                  | 21.3      | 49.4                        | 0.572                                  | 89.5                      |
+| Dropout-trained model                                      | 64.9         | 51.3                  | 87.2      | 44.0                        | 0.951                                  | 89.6                      |
+| Backup without the watch, sensor known missing [reference] | --           | 84.1                  | --        | --                          | --                                     | --                        |
+
+## T15_imuoff_partial: WearGait-PD: k IMUs switched off during part of the clip (addition 2; mean over 10 folds; revision 1)
+
+p = 100 % (whole clip) is table T8.
+
+| Group | IMUs off | Off for % of the clip | Doing nothing % | REV3 (ours, main) % | REV3 minus nothing (points) | Folds better | REV3 AUROC |
+|-------|----------|-----------------------|-----------------|---------------------|-----------------------------|--------------|------------|
+| arms  | 1        | 25                    | 96.6            | 96.3                | -0.24 [-0.53, +0.06]        | 1/10         | 0.570      |
+| arms  | 2        | 25                    | 96.6            | 96.3                | -0.28 [-0.58, +0.01]        | 2/10         | 0.698      |
+| trunk | 1        | 25                    | 96.6            | 96.3                | -0.23 [-0.55, +0.08]        | 1/10         | 0.530      |
+| trunk | 2        | 25                    | 96.5            | 96.2                | -0.32 [-0.69, +0.05]        | 1/10         | 0.584      |
+| trunk | 3        | 25                    | 96.5            | 96.1                | -0.41 [-0.83, +0.01]        | 1/10         | 0.651      |
+| legs  | 1        | 25                    | 96.5            | 96.3                | -0.17 [-0.39, +0.06]        | 1/10         | 0.504      |
+| legs  | 2        | 25                    | 96.4            | 96.2                | -0.16 [-0.43, +0.10]        | 2/10         | 0.511      |
+| legs  | 3        | 25                    | 96.2            | 96.0                | -0.20 [-0.44, +0.04]        | 1/10         | 0.524      |
+| legs  | 4        | 25                    | 96.1            | 95.9                | -0.20 [-0.42, +0.02]        | 1/10         | 0.545      |
+| legs  | 5        | 25                    | 96.0            | 95.8                | -0.25 [-0.50, -0.01]        | 1/10         | 0.570      |
+| legs  | 6        | 25                    | 95.8            | 95.6                | -0.24 [-0.47, -0.01]        | 2/10         | 0.598      |
+| legs  | 7        | 25                    | 95.7            | 95.5                | -0.23 [-0.43, -0.03]        | 1/10         | 0.625      |
+| legs  | 8        | 25                    | 95.6            | 95.4                | -0.21 [-0.44, +0.02]        | 2/10         | 0.647      |
+| arms  | 1        | 50                    | 96.6            | 96.3                | -0.28 [-0.60, +0.03]        | 2/10         | 0.641      |
+| arms  | 2        | 50                    | 96.5            | 96.1                | -0.38 [-0.86, +0.11]        | 2/10         | 0.790      |
+| trunk | 1        | 50                    | 96.5            | 96.1                | -0.38 [-0.78, +0.01]        | 1/10         | 0.565      |
+| trunk | 2        | 50                    | 96.4            | 95.7                | -0.68 [-1.25, -0.11]        | 1/10         | 0.657      |
+| trunk | 3        | 50                    | 96.2            | 95.4                | -0.79 [-1.45, -0.14]        | 1/10         | 0.738      |
+| legs  | 1        | 50                    | 96.4            | 96.2                | -0.21 [-0.45, +0.04]        | 1/10         | 0.509      |
+| legs  | 2        | 50                    | 96.1            | 95.8                | -0.27 [-0.55, -0.00]        | 2/10         | 0.529      |
+| legs  | 3        | 50                    | 95.7            | 95.4                | -0.29 [-0.53, -0.05]        | 2/10         | 0.563      |
+| legs  | 4        | 50                    | 95.2            | 95.0                | -0.24 [-0.43, -0.05]        | 2/10         | 0.605      |
+| legs  | 5        | 50                    | 94.6            | 94.4                | -0.18 [-0.36, -0.01]        | 1/10         | 0.646      |
+| legs  | 6        | 50                    | 93.7            | 93.7                | -0.02 [-0.37, +0.33]        | 3/10         | 0.682      |
+| legs  | 7        | 50                    | 92.9            | 93.2                | +0.29 [-0.25, +0.83]        | 6/10         | 0.711      |
+| legs  | 8        | 50                    | 92.1            | 93.1                | +1.06 [+0.08, +2.05]        | 8/10         | 0.730      |
+| arms  | 1        | 75                    | 96.5            | 96.1                | -0.42 [-0.82, -0.01]        | 2/10         | 0.714      |
+| arms  | 2        | 75                    | 96.4            | 95.9                | -0.54 [-1.29, +0.21]        | 2/10         | 0.859      |
+| trunk | 1        | 75                    | 96.4            | 95.8                | -0.64 [-1.15, -0.12]        | 1/10         | 0.605      |
+| trunk | 2        | 75                    | 96.2            | 95.1                | -1.08 [-1.75, -0.41]        | 1/10         | 0.734      |
+| trunk | 3        | 75                    | 95.9            | 95.2                | -0.70 [-1.39, -0.01]        | 2/10         | 0.828      |
+| legs  | 1        | 75                    | 96.2            | 96.0                | -0.22 [-0.46, +0.02]        | 2/10         | 0.518      |
+| legs  | 2        | 75                    | 95.6            | 95.3                | -0.26 [-0.50, -0.02]        | 1/10         | 0.559      |
+| legs  | 3        | 75                    | 94.8            | 94.5                | -0.24 [-0.44, -0.03]        | 2/10         | 0.616      |
+| legs  | 4        | 75                    | 93.4            | 93.3                | -0.14 [-0.40, +0.13]        | 3/10         | 0.673      |
+| legs  | 5        | 75                    | 91.5            | 91.8                | +0.38 [-0.40, +1.16]        | 6/10         | 0.724      |
+| legs  | 6        | 75                    | 88.8            | 90.4                | +1.66 [+0.32, +3.00]        | 10/10        | 0.767      |
+| legs  | 7        | 75                    | 85.7            | 89.6                | +3.90 [+2.11, +5.69]        | 10/10        | 0.801      |
+| legs  | 8        | 75                    | 81.9            | 89.8                | +7.85 [+4.91, +10.80]       | 10/10        | 0.824      |
+
+## T16_predictions_additions: Predictions written before the runs (13-14 Nov) and their verdicts
+
+Plans: docs/plan_v1_d3_2026-11-13.md and docs/plan_additions_2026-11-14.md. A prediction that failed is reported as failed; nothing was re-tuned after a result.
+
+| Experiment                      | Prediction | Verdict       | Result                                                                                                                                                      |
+|---------------------------------|------------|---------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| v1 signs, WearGait-PD           | P3         | CONFIRMED     | v1 signs alone 0.551-0.764 vs lowest expert support 0.970 (lie AUROC)                                                                                       |
+| raw-zero watch, MMAct           | N1         | NOT CONFIRMED | doing nothing: raw 0 68.7% vs mean fill 55.9%                                                                                                               |
+| raw-zero watch, MMAct           | N2         | NOT CONFIRMED | REV3 flags 90.4% (mean fill 91.4%), names the watch on 45.7% of flagged (mean fill 48.7%)                                                                   |
+| raw-zero watch, MMAct           | N3         | NOT CONFIRMED | REV3 use / drop 53.6% vs doing nothing 68.7% (raw 0)                                                                                                        |
+| raw-zero watch, MMAct           | N4         | CONFIRMED     | REV3 AUROC, mean of 4 people: raw 0 0.949 vs mean fill 0.945                                                                                                |
+| partial IMU-off, WearGait-PD    | I1         | CONFIRMED     | legs k=8 gain: p25 -0.21, p50 +1.06, p75 +7.85, p100 +39.52                                                                                                 |
+| partial IMU-off, WearGait-PD    | I2         | CONFIRMED     | legs k=8 doing nothing: p25 95.6% vs whole clip 52.5%                                                                                                       |
+| partial IMU-off, WearGait-PD    | I3         | CONFIRMED     | legs k=8 REV3 AUROC: p25 0.647, p50 0.730, p75 0.824, p100 0.912                                                                                            |
+| partial IMU-off, WearGait-PD    | I4         | CONFIRMED     | k=1 gain: arms p25 -0.24, arms p50 -0.28, arms p75 -0.42, trunk p25 -0.23, trunk p50 -0.38, trunk p75 -0.64, legs p25 -0.17, legs p50 -0.21, legs p75 -0.22 |
+| stuck + saturation, UTD-MHAD    | F1         | CONFIRMED     | harmful-fault AUROC: confidence alone 0.922 vs REV3 0.900                                                                                                   |
+| stuck + saturation, UTD-MHAD    | F2         | CONFIRMED     | names the faulty sensor (harmful): REV3 70.5% vs TMC alone 17.0%                                                                                            |
+| stuck + saturation, UTD-MHAD    | F3         | CONFIRMED     | share of answers changed by level: f_stuck 1.4% < 6.9% < 29.5%; f_sat 1.5% < 2.1% < 3.1%                                                                    |
+| stuck + saturation, UTD-MHAD    | F4         | CONFIRMED     | saturation level 1 changes 1.49% of answers (predicted < 5%)                                                                                                |
+| stuck + saturation, MMAct       | F1         | CONFIRMED     | harmful-fault AUROC: confidence alone 0.883 vs REV3 0.876                                                                                                   |
+| stuck + saturation, MMAct       | F2         | CONFIRMED     | names the faulty sensor (harmful): REV3 66.3% vs TMC_S3 alone 11.4%                                                                                         |
+| stuck + saturation, MMAct       | F3         | CONFIRMED     | share of answers changed by level: f_stuck 3.3% < 10.4% < 32.4%; f_sat 5.1% < 12.4% < 18.5%                                                                 |
+| stuck + saturation, MMAct       | F4         | NOT CONFIRMED | saturation level 1 changes 5.13% of answers (predicted < 5%)                                                                                                |
+| stuck + saturation, WearGait-PD | F1         | NOT CONFIRMED | harmful-fault AUROC: confidence alone 0.909 vs REV3 0.941                                                                                                   |
+| stuck + saturation, WearGait-PD | F2         | CONFIRMED     | names the faulty sensor (harmful): REV3 82.0% vs TMC_W alone 56.1%                                                                                          |
+| stuck + saturation, WearGait-PD | F3         | CONFIRMED     | share of answers changed by level: f_stuck 0.9% < 2.0% < 8.4%; f_sat 0.0% < 0.0% < 0.1%                                                                     |
+| stuck + saturation, WearGait-PD | F4         | CONFIRMED     | saturation level 1 changes 0.00% of answers (predicted < 5%)                                                                                                |
+
 ## Checks
 
-2534 numbers compared with the scorers' own logs; 0 disagree.
+2658 numbers compared with the scorers' own logs; 0 disagree.
 

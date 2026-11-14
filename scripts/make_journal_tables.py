@@ -256,33 +256,43 @@ def lie_tables(o):
 
 
 # ----------------------------------------------------------------- T5: faults
-def fault_tables(o):
+FAULT_NOTE = ("Faults = drift, gap (partial dropout) and timing shift, 3 levels each, in every sensor; the certificate "
+              "is fitted on validation lies only and transferred unchanged ('frozen'). 'REV3, faults in the fit' is a "
+              "labelled extra row and is not shown here.")
+
+
+def fault_tables(o, prefix="faults", logs=None, tag="faults", names=("T5_faults", "T5b_faults_paired"),
+                 titles=("Everyday sensor faults (frozen transfer, all faults pooled, revision 1)",
+                         "Everyday faults: REV3 minus other systems, harmful-fault AUROC, paired per unit"),
+                 note=FAULT_NOTE):
+    """The fault tables of one fault bench (default: the original bench, T5 / T5b; faults2 = addition 1)."""
+    logs = logs or LOGFILE["faults"]
     rows, diffs = [], []
     for ds in DS:
-        d = pd.read_csv(RES / f"faults_{ds}_per_subject.csv")
+        d = pd.read_csv(RES / f"{prefix}_{ds}_per_subject.csv")
         d = d[(d.revision == 1) & (d.group == "all faults")]
         systems = ["confidence alone", "C3", "REV3 (main)"] + [f"{e} alone" for e in EV[ds]] + ["D (dropout model)"]
-        det = log_rows(log_block(LOGFILE["faults"][ds], "DETECTION, AUROC fault clips vs clean clips"), 7)
-        nam = log_rows(log_block(LOGFILE["faults"][ds], "NAMING the faulty sensor"), 6)
-        hdr_det = [l for l in (LOGS / LOGFILE["faults"][ds]).read_text().splitlines()
+        det = log_rows(log_block(logs[ds], "DETECTION, AUROC fault clips vs clean clips"), 7)
+        nam = log_rows(log_block(logs[ds], "NAMING the faulty sensor"), 6)
+        hdr_det = [l for l in (LOGS / logs[ds]).read_text().splitlines()
                    if l.startswith("system ") and "confidence alone" in l][0]
         det_cols = re.split(r"\s{2,}", hdr_det.strip())[1:]
-        hdr_nam = [l for l in (LOGS / LOGFILE["faults"][ds]).read_text().splitlines()
+        hdr_nam = [l for l in (LOGS / logs[ds]).read_text().splitlines()
                    if l.startswith("system ") and "confidence alone" not in l][0]
         nam_cols = re.split(r"\s{2,}", hdr_nam.strip())[1:]
         for s in systems:
             g = d[d.system == s]
             st = {c: stats(g[c]) for c in ("auroc_harmful", "auroc", "naming_harmful", "acc_fault", "acc_policy_fault",
                                            "false_alarm", "flagged")}
-            check(f"faults {ds} {s} auroc_harmful", st["auroc_harmful"][0], det["all faults"][det_cols.index(s)], 3)
+            check(f"{tag} {ds} {s} auroc_harmful", st["auroc_harmful"][0], det["all faults"][det_cols.index(s)], 3)
             if s in nam_cols:
-                check(f"faults {ds} {s} naming_harmful", 100 * st["naming_harmful"][0],
+                check(f"{tag} {ds} {s} naming_harmful", 100 * st["naming_harmful"][0],
                       nam["all faults"][nam_cols.index(s)], 3)
             if s != "confidence alone":
-                line = next(l for l in log_block(LOGFILE["faults"][ds], "RECOVERY, revision 1")
+                line = next(l for l in log_block(logs[ds], "RECOVERY, revision 1")
                             if re.search(r"\s" + re.escape(s) + r"\s{2,}", " " + l))
                 nums = [float(x) for x in re.findall(r"-?\d+\.\d+", line)]
-                check(f"faults {ds} {s} acc_policy_fault", 100 * st["acc_policy_fault"][0], nums[1], 3)
+                check(f"{tag} {ds} {s} acc_policy_fault", 100 * st["acc_policy_fault"][0], nums[1], 3)
             rows.append({"Dataset": DSNAME[ds], "System": LABEL[s],
                          "AUROC, harmful faults": fmt(*st["auroc_harmful"][:3]),
                          "AUROC, all faults": fmt(st["auroc"][0]),
@@ -296,12 +306,8 @@ def fault_tables(o):
             st = stats(rv.auroc_harmful - g.auroc_harmful)
             diffs.append({"Dataset": DSNAME[ds], "REV3 minus": LABEL[s],
                           "AUROC, harmful faults": fmt(*st[:3], sign=True) + f" ({st[3]}/{st[4]})"})
-    note = ("Faults = drift, gap (partial dropout) and timing shift, 3 levels each, in every sensor; the certificate "
-            "is fitted on validation lies only and transferred unchanged ('frozen'). 'REV3, faults in the fit' is a "
-            "labelled extra row and is not shown here.")
-    o.table("T5_faults", "Everyday sensor faults (frozen transfer, all faults pooled, revision 1)", pd.DataFrame(rows), note)
-    o.table("T5b_faults_paired", "Everyday faults: REV3 minus other systems, harmful-fault AUROC, paired per unit",
-            pd.DataFrame(diffs))
+    o.table(names[0], titles[0], pd.DataFrame(rows), note)
+    o.table(names[1], titles[1], pd.DataFrame(diffs))
 
 
 # ----------------------------------------------------------------- T6: missing sensors
@@ -516,6 +522,153 @@ def figures(o, curve):
 
 
 # ----------------------------------------------------------------- main
+# ----------------------------------------------------------------- T13-T16: the 14 Nov additions
+# docs/plan_additions_2026-11-14.md. New functions only; the tables above are unchanged.
+def additions_faults(o):
+    """Addition 1: stuck sensor + saturation (faults2 bench), as T5 / T5b, plus harm by fault and level and the
+    share of readings actually clipped."""
+    fault_tables(o, prefix="faults2", logs={d: f"score_faults2_{d}.log" for d in DS}, tag="faults2",
+                 names=("T13_faults_new", "T13b_faults_new_paired"),
+                 titles=("Two more everyday faults, stuck sensor and saturation (frozen transfer, the new faults "
+                         "pooled, revision 1)", "Stuck sensor and saturation: REV3 minus other systems, "
+                         "harmful-fault AUROC, paired per unit"),
+                 note="Stuck = the sensor freezes at 75 / 50 / 0 % of the clip until its end; saturation = readings "
+                      "clipped at +/-8 / 4 / 2 g and +/-1000 / 500 / 250 deg/s; video: frozen frames and over-"
+                      "exposure x1.5 / 2 / 3. Certificate fitted on validation lies only (frozen). The original "
+                      "faults (T5) are not part of this pool.")
+    rows = []
+    for ds in DS:
+        d = pd.read_csv(RES / f"faults2_{ds}_per_subject.csv")
+        d = d[(d.revision == 1) & d.group.str.match(r"^f_(stuck|sat):L\d:all$")]
+        for g, h in d.groupby("group", sort=False):
+            f, lv = g.split(":")[0], int(g.split(":")[1][1])
+            c, r = h[h.system == "confidence alone"], h[h.system == "REV3 (main)"]
+            rows.append({"Dataset": DSNAME[ds], "Fault": {"f_stuck": "stuck", "f_sat": "saturation"}[f], "Level": lv,
+                         "Answers changed %": fmt(r.flipped.mean(), k=100, d=1),
+                         "Fault-clip acc. alone %": fmt(r.acc_fault.mean(), k=100, d=1),
+                         "REV3 use/drop %": fmt(r.acc_policy_fault.mean(), k=100, d=1),
+                         "AUROC harmful: confidence": fmt(c.auroc_harmful.mean()),
+                         "AUROC harmful: REV3": fmt(r.auroc_harmful.mean()),
+                         "REV3 names faulty sensor % (harmful)": fmt(r.naming_harmful.mean(), k=100, d=1)})
+    o.table("T13c_faults_new_by_level", "Stuck sensor and saturation by fault and level, all sensors pooled "
+            "(means over units, revision 1)", pd.DataFrame(rows))
+    cs = pd.read_csv(RES / "faults2_clip_share.csv")
+    g = cs.groupby(["dataset", "sensor", "level"], sort=False)[["clipped", "n_values", "clips_with_clipping",
+                                                               "n_clips"]].sum().reset_index()
+    o.table("T13d_saturation_clipped", "Saturation: share of readings actually clipped (test part, all folds)",
+            pd.DataFrame({"Dataset": g.dataset.map(DSNAME), "Sensor": g.sensor.map(SNAME), "Level": g.level,
+                          "Readings clipped %": [f"{100 * a / b:.3f}" for a, b in zip(g.clipped, g.n_values)],
+                          "Clips with any clipping %": [f"{100 * a / b:.1f}" for a, b in
+                                                        zip(g.clips_with_clipping, g.n_clips)]}),
+            "Levels: 1 = +/-8 g, +/-1000 deg/s; 2 = +/-4 g, +/-500 deg/s; 3 = +/-2 g, +/-250 deg/s "
+            "(scripts/faults2_clip_share.py).")
+
+
+def additions_nowatch(o):
+    """Addition 3: the dead watch as raw 0 on the 247 real no-watch clips (nowatch2 bench), as T6."""
+    p = pd.read_csv(RES / "nowatch2_d2v_per_subject.csv"); p = p[p.revision == 1]
+    big, logf = [2, 13, 16, 20], "score_nowatch2_d2v.log"
+    logr = log_rows(log_block(logf, "SYSTEMS, revision 1"), 10)
+    rows = []
+    for s, g in p.groupby("system", sort=False):
+        rate = lambda a, b: g[a].sum() / g[b].sum()
+        v = {"acc_alone": 100 * rate("correct_alone_nw", "n_nw"), "acc_policy": 100 * rate("correct_policy_nw", "n_nw"),
+             "ref": 100 * rate("correct_policy_ref", "n_ref"), "flagged": 100 * rate("n_flagged_nw", "n_nw"),
+             "named": np.nan if s == "confidence alone" else 100 * rate("n_named_watch_flagged_nw", "n_flagged_nw"),
+             "auroc": g.set_index("subject").loc[big].auroc_nw.mean()}
+        lv = logr[s]
+        for j, c in ((0, "acc_alone"), (1, "acc_policy"), (2, "ref"), (3, "flagged"), (5, "named")):
+            check(f"nowatch2 {s} {c}", v[c], lv[j], 3)
+        check(f"nowatch2 {s} auroc", v["auroc"], lv[7], 3)
+        rows.append({"System": LABEL.get(s, s), "Acc. alone %": fmt(v["acc_alone"], d=1),
+                     "Acc. after use/drop %": fmt(v["acc_policy"], d=1), "Flagged %": fmt(v["flagged"], d=1),
+                     "Names the watch (flagged) %": fmt(v["named"], d=1),
+                     "AUROC no-watch vs reference (4 people)": fmt(v["auroc"]),
+                     "Acc. on reference clips %": fmt(v["ref"], d=1)})
+    km = re.search(r"pooled\s*: doing nothing\s+([\d.]+) \| REV3 policy\s+([\d.]+) \| known missing\s+([\d.]+)",
+                   (LOGS / logf).read_text())
+    check("nowatch2 pooled REV3 policy (log line)", 100 * rate_all(p, "REV3 (main)", "correct_policy_nw", "n_nw"),
+          float(km.group(2)), 1)
+    rows.append({"System": "Backup without the watch, sensor known missing [reference]", "Acc. alone %": "--",
+                 "Acc. after use/drop %": km.group(3), "Flagged %": "--", "Names the watch (flagged) %": "--",
+                 "AUROC no-watch vs reference (4 people)": "--", "Acc. on reference clips %": "--"})
+    per = p[p.system == "REV3 (main)"].set_index("subject")
+    who = "; ".join(f"person {int(k)}: {100 * r.correct_policy_nw / r.n_nw:.1f}% vs doing nothing "
+                    f"{100 * r.correct_alone_nw / r.n_nw:.1f}% ({int(r.n_nw // 3)} clips)" for k, r in per.iterrows())
+    o.table("T14_nowatch_rawzero", "MMAct: the 247 real no-watch clips with the watch as raw 0 (addition 3; 6 people, "
+            "3 seeds pooled; revision 1)", pd.DataFrame(rows),
+            "Raw 0 on every watch channel, then the training normalisation (physically impossible while worn). "
+            f"REV3 per person: {who}. The reference row is read from {logf}.")
+
+
+def additions_imuoff(o):
+    """Addition 2: k IMUs off during p = 25 / 50 / 75 % of the clip (imuoff2 bench); p = 100 % is T8."""
+    d = pd.read_csv(RES / "imuoff2_d3_per_fold.csv"); d = d[(d.revision == 1) & (d.group != "clean")]
+    pred = pd.read_csv(RES / "imuoff2_d3_predictions.csv")
+    pred = pred[pred["item"].isin(["main", "supporting"])]
+    rows, curve = [], []
+    for (grp, k, pp), g in d.groupby(["group", "k", "p"], sort=False):
+        rv = g[g.system == "REV3 (main)"].sort_values("fold")
+        st = stats(100 * (rv.acc_policy.values - rv.acc_alone.values))
+        pr = pred[(pred.group == grp) & (pred.k == k) & (pred.p == pp)]
+        if len(pr) != 1:
+            raise SystemExit(f"imuoff2 {grp} k={k} p={pp}: {len(pr)} rows in the predictions file")
+        check(f"imuoff2 {grp} k={k} p={pp} REV3 minus nothing (points)", st[0], pr["mean"].iloc[0], 9)
+        rows.append({"Group": grp, "IMUs off": int(k), "Off for % of the clip": int(pp),
+                     "Doing nothing %": fmt(rv.acc_alone.mean(), k=100, d=1),
+                     "REV3 (ours, main) %": fmt(rv.acc_policy.mean(), k=100, d=1),
+                     "REV3 minus nothing (points)": fmt(*st[:3], d=2, sign=True), "Folds better": f"{st[3]}/{st[4]}",
+                     "REV3 AUROC": fmt(rv.auroc.mean())})
+        curve.append((grp, int(k), int(pp), *st[:3]))
+    o.table("T15_imuoff_partial", "WearGait-PD: k IMUs switched off during part of the clip (addition 2; mean over "
+            "10 folds; revision 1)", pd.DataFrame(rows), "p = 100 % (whole clip) is table T8.")
+    return pd.DataFrame(curve, columns=["group", "k", "p", "mean", "lo", "hi"])
+
+
+def additions_predictions(o):
+    """Every prediction of the 14 Nov additions with its verdict, read from the scorers' prediction files, plus
+    P3 of the v1 WearGait-PD ablation, which is decided by the numbers in T11."""
+    v = pd.read_csv(RES / "v1_d3_auroc_summary.csv"); v = v[v.task == "LIE"].set_index("score")
+    au = lambda k: float(v.loc[k, "auroc"].split()[0])
+    signs = ["S1 stability drop", "S1 stability flip", "S2 hide-one flips", "S2 hide-one shift"]
+    best = au("X lowest expert support")
+    rows = [("v1 signs, WearGait-PD", "P3", "CONFIRMED" if all(au(k) < best for k in signs) else "NOT CONFIRMED",
+             f"v1 signs alone {min(au(k) for k in signs):.3f}-{max(au(k) for k in signs):.3f} vs lowest expert "
+             f"support {best:.3f} (lie AUROC)")]
+    for f, label in (("nowatch2_d2v_predictions.csv", "raw-zero watch, MMAct"),
+                     ("imuoff2_d3_predictions.csv", "partial IMU-off, WearGait-PD")):
+        q = pd.read_csv(RES / f)
+        q = q[q.verdict.notna()] if "verdict" in q else q
+        rows += [(label, r["item"], r["verdict"], r["value"]) for _, r in q.iterrows()]
+    for ds in DS:
+        q = pd.read_csv(RES / f"faults2_{ds}_predictions.csv")
+        rows += [(f"stuck + saturation, {DSNAME[ds]}", r["item"], r["verdict"], r["value"]) for _, r in q.iterrows()]
+    o.table("T16_predictions_additions", "Predictions written before the runs (13-14 Nov) and their verdicts",
+            pd.DataFrame(rows, columns=["Experiment", "Prediction", "Verdict", "Result"]),
+            "Plans: docs/plan_v1_d3_2026-11-13.md and docs/plan_additions_2026-11-14.md. A prediction "
+            "that failed is reported as failed; nothing was re-tuned after a result.")
+
+
+def figure_partial(o, c2, c1):
+    import matplotlib; matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    plt.rcParams.update({"font.size": 8, "font.family": "serif", "axes.spines.top": False,
+                         "axes.spines.right": False, "pdf.fonttype": 42})
+    fig, ax = plt.subplots(figsize=(3.5, 2.4))
+    whole = c1[c1.group == "legs"].assign(p=100)
+    allp = pd.concat([c2[c2.group == "legs"], whole])
+    for k, mk in ((8, "o"), (6, "s"), (4, "^"), (2, "v")):
+        c = allp[allp.k == k].sort_values("p")
+        ax.errorbar(c.p, c["mean"], yerr=[c["mean"] - c.lo, c.hi - c["mean"]], fmt=mk + "-", ms=3.5, lw=1,
+                    capsize=2, label=f"{k} of 8 IMUs")
+    ax.axhline(0, color="0.5", lw=0.6, ls="--")
+    ax.set_xticks([25, 50, 75, 100]); ax.set_xlabel("Legs: IMUs off for % of the clip")
+    ax.set_ylabel("REV3 minus doing nothing\n(accuracy points)"); ax.legend(frameon=False)
+    fig.tight_layout()
+    fig.savefig(o.base / "figs/F4_imuoff_partial.pdf"); fig.savefig(o.base / "figs/F4_imuoff_partial.png", dpi=200)
+    plt.close(fig)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=str(ROOT / "paper/journal"))
@@ -529,6 +682,11 @@ def main():
     curve = missing_tables(o)
     other_tables(o)
     figures(o, curve)
+    additions_faults(o)
+    additions_nowatch(o)
+    curve2 = additions_imuoff(o)
+    additions_predictions(o)
+    figure_partial(o, curve2, curve)
     bad = [c for c in CHECKS if not c[4]]
     lines = [f"{'OK ' if ok else 'BAD'} {w}: built {x:.6f} | scorer log {y:.6f} (tolerance {tol:.1e})"
              for w, x, y, tol, ok in CHECKS]

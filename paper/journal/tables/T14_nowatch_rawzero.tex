@@ -1,0 +1,15 @@
+% MMAct: the 247 real no-watch clips with the watch as raw 0 (addition 3; 6 people, 3 seeds pooled; revision 1)
+% built by scripts/make_journal_tables.py from frozen results; do not edit by hand
+\begin{tabular}{lcccccc}
+\toprule
+System & Acc. alone \% & Acc. after use/drop \% & Flagged \% & Names the watch (flagged) \% & AUROC no-watch vs reference (4 people) & Acc. on reference clips \% \\
+\midrule
+Confidence (MSP) & 68.7 & 68.7 & 0.0 & -- & 0.757 & 90.1 \\
+C3 (conference certificate) & 68.7 & 50.7 & 87.2 & 36.1 & 0.848 & 89.9 \\
+REV3 (ours, main) & 68.7 & 53.6 & 90.4 & 45.7 & 0.949 & 89.1 \\
+TMC & 85.0 & 85.0 & 2.4 & 44.4 & 0.613 & 90.3 \\
+ECML & 82.3 & 81.0 & 21.3 & 49.4 & 0.572 & 89.5 \\
+Dropout-trained model & 64.9 & 51.3 & 87.2 & 44.0 & 0.951 & 89.6 \\
+Backup without the watch, sensor known missing [reference] & -- & 84.1 & -- & -- & -- & -- \\
+\bottomrule
+\end{tabular}

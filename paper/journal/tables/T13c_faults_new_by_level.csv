@@ -1,0 +1,19 @@
+Dataset,Fault,Level,Answers changed %,Fault-clip acc. alone %,REV3 use/drop %,AUROC harmful: confidence,AUROC harmful: REV3,REV3 names faulty sensor % (harmful)
+UTD-MHAD,saturation,1,1.5,94.4,90.0,0.955,0.836,68.5
+UTD-MHAD,saturation,2,2.1,94.2,89.5,0.941,0.862,56.6
+UTD-MHAD,saturation,3,3.1,93.7,89.3,0.942,0.880,65.2
+UTD-MHAD,stuck,1,1.4,94.5,91.0,0.960,0.768,34.9
+UTD-MHAD,stuck,2,6.9,90.4,87.2,0.903,0.822,47.4
+UTD-MHAD,stuck,3,29.5,68.6,76.4,0.921,0.929,78.8
+MMAct,saturation,1,5.1,85.9,84.7,0.911,0.795,51.2
+MMAct,saturation,2,12.4,79.5,80.8,0.915,0.845,60.3
+MMAct,saturation,3,18.5,74.1,78.4,0.906,0.870,65.5
+MMAct,stuck,1,3.3,88.1,86.3,0.904,0.730,38.7
+MMAct,stuck,2,10.4,82.8,82.2,0.858,0.804,55.0
+MMAct,stuck,3,32.4,63.5,75.1,0.860,0.940,77.7
+WearGait-PD,saturation,1,0.0,96.6,96.4,--,--,--
+WearGait-PD,saturation,2,0.0,96.6,96.4,--,--,--
+WearGait-PD,saturation,3,0.1,96.6,96.4,0.993,0.846,24.6
+WearGait-PD,stuck,1,0.9,96.3,96.0,0.953,0.831,35.9
+WearGait-PD,stuck,2,2.0,95.6,95.2,0.933,0.874,58.7
+WearGait-PD,stuck,3,8.4,89.6,93.4,0.898,0.968,92.6

@@ -1,0 +1,19 @@
+Dataset,Sensor,Level,Readings clipped %,Clips with any clipping %
+UTD-MHAD,IMU,1,0.004,1.5
+UTD-MHAD,IMU,2,0.257,30.1
+UTD-MHAD,IMU,3,3.091,76.7
+MMAct,watch,1,0.002,1.5
+MMAct,watch,2,0.101,11.8
+MMAct,watch,3,0.706,33.9
+MMAct,phone,1,0.000,0.0
+MMAct,phone,2,0.014,8.0
+MMAct,phone,3,0.324,44.2
+WearGait-PD,arms,1,0.000,0.1
+WearGait-PD,arms,2,0.009,2.1
+WearGait-PD,arms,3,0.235,16.4
+WearGait-PD,trunk,1,0.000,0.0
+WearGait-PD,trunk,2,0.000,0.1
+WearGait-PD,trunk,3,0.007,4.2
+WearGait-PD,legs,1,0.000,0.3
+WearGait-PD,legs,2,0.034,23.0
+WearGait-PD,legs,3,1.298,59.2
