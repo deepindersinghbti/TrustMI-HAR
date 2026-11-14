@@ -166,13 +166,13 @@ def parts_for(kind):
     """Which parts a condition set runs on: the no-watch and real-dropout benches need no validation part
     (nothing is fitted on them) and add their own extra part; the IMU-off bench runs on the test part only."""
     return {"nowatch": ("test", "nowatch"), "realdrop": ("test", "dropout"),
-            "imuoff": ("test",)}.get(kind, ("val", "test"))
+            "imuoff": ("test",)}.get(base_kind(kind), ("val", "test"))
 
 
 def dataset_for(kind, DS, dname, fold, part):
     """DS(fold, part); the no-watch clips (part 'nowatch'); the real-dropout clips (part 'dropout')."""
     if part == "nowatch":
-        if kind != "nowatch" or dname not in NOWATCH_DATASETS:
+        if base_kind(kind) != "nowatch" or dname not in NOWATCH_DATASETS:
             raise ValueError("part 'nowatch' needs --conditions nowatch on d2v")
         from trustmi.data.mmact import MMActNoWatch
         return MMActNoWatch(fold)
@@ -183,6 +183,7 @@ def dataset_for(kind, DS, dname, fold, part):
 
 def folds_for(kind, dname, folds):
     """For the no-watch bench, keep only the folds whose test person has no-watch clips."""
+    kind = base_kind(kind)                    # nowatch2 / imuoff2 use the folds of nowatch / imuoff
     if kind == "realdrop":
         if dname not in REALDROP_DATASETS:
             raise SystemExit(f"--conditions realdrop: no real-dropout clips in {dname}")
@@ -215,12 +216,115 @@ def conditions_for(kind, dname, ds, tr, fold, attack, phys_sensors, video=True):
         return build_realdrop_conditions(dname, ds, tr, fold)
     if kind == "imuoff":
         return build_imuoff_conditions(dname, ds, tr, fold)
+    if kind == "nowatch2":
+        return build_nowatch2_conditions(dname, ds, tr, fold)
+    if kind == "imuoff2":
+        return build_imuoff2_conditions(dname, ds, tr, fold)
     raise ValueError(f"unknown condition set {kind!r}")
 
 
 def conditions_suffix(kind, video=True):
     """File-name suffix of a condition set: '' for lies (unchanged names), '_faults' or '_faults-novideo',
     '_nowatch', '_realdrop', '_imuoff'."""
-    if kind in ("nowatch", "realdrop", "imuoff"):
+    if kind in ("nowatch", "realdrop", "imuoff", "nowatch2", "imuoff2"):
         return f"_{kind}"
     return "" if kind == "lies" else ("_faults" if video else "_faults-novideo")
+
+
+# ---------------------------------------------------------------- journal additions (14 Nov)
+# docs/plan_additions_2026-11-14.md, Additions 3 and 2. New code only, plus the two-line dispatch above
+# (base_kind); every existing condition set is built exactly as before (scripts/check_unchanged_additions.sh).
+EXTRA_KINDS = {"nowatch2": "nowatch", "imuoff2": "imuoff"}
+IMUOFF2_P = (25, 50, 75)                      # % of the clip's valid samples during which the IMUs are off
+
+
+def base_kind(kind):
+    """The existing condition set whose folds, parts and loaders a new one uses (itself for the old ones)."""
+    return EXTRA_KINDS.get(kind, kind)
+
+
+def raw_zero(x, lens, mu, sd):
+    """Addition 3: a sensor that sends raw 0 on every channel. Valid samples become (0 - mean) / std with the
+    fold's TRAINING statistics (the same normalisation as the real data); padding stays exactly 0."""
+    x = np.asarray(x, dtype=np.float32)
+    if x.ndim != 3:
+        raise RuntimeError(f"expected (N, T, C), got {x.shape}")
+    N, T, C = x.shape
+    mu, sd = np.asarray(mu, np.float64).reshape(-1), np.asarray(sd, np.float64).reshape(-1)
+    if mu.shape != (C,) or sd.shape != (C,):
+        raise RuntimeError(f"statistics for {mu.shape} / {sd.shape} channels, data has {C}")
+    z = ((0.0 - mu) / sd).astype(np.float32)
+    valid = np.arange(T)[None, :] < np.asarray(lens).reshape(-1, 1)
+    return np.where(valid[:, :, None], z[None, None, :], np.float32(0.0)).astype(np.float32)
+
+
+def watch_stats(ds, tr, fold):
+    """The watch's training mean and std for this fold: the no-watch loader keeps them in ds.stats (same
+    fit_stats rows); every other MMAct part reads the normalisation file its loader wrote, as OperatorBank does."""
+    if getattr(ds, "nowatch", False):
+        return ds.stats["watch"]
+    from trustmi.operators import _stats_for
+    mu, sd, _ = _stats_for("watch", fold, np.unique(np.asarray(tr.subject)), getattr(ds, "stats_file", None))
+    return mu, sd
+
+
+def build_nowatch2_conditions(dname, ds, tr, fold):
+    """Addition 3 (raw-zero watch), in the same format as build_conditions: EVERY condition of the no-watch bench,
+    built by build_nowatch_conditions itself (so they reproduce the stored no-watch files), plus
+      part 'test'     r_zero:watch   the reference clips with the recorded watch replaced by raw 0
+      part 'nowatch'  nw_zero:watch  the clips where the watch was never recorded, watch = raw 0
+    donor_y is -1; `attacked` is the watch. Deterministic."""
+    conds, gidx = build_nowatch_conditions(dname, ds, tr, fold)
+    N = len(ds.y)
+    mu, sd = watch_stats(ds, tr, fold)
+    xz = raw_zero(ds.x["watch"], ds.x["len"], mu, sd)
+    if getattr(ds, "nowatch", False):
+        conds["nw_zero:watch"] = ({"watch": xz}, np.full(N, -1), np.ones(N, bool), "watch")
+    else:
+        conds["r_zero:watch"] = ({"watch": xz}, np.full(N, -1), conds["r_fill:watch"][2], "watch")
+    return conds, gidx
+
+
+def off_stretch(group, clip, p, L):
+    """Addition 2: (start, length) of the stretch during which the IMUs are off: round(p% of L) samples at a
+    random position fully inside the clip. Keyed on (group, clip, p) only: the same for every k, seed and model."""
+    n = int(round(p / 100 * int(L)))
+    rng = np.random.default_rng([IMUOFF_SEED, 1, list(IMUS).index(group), int(p), int(clip)])
+    return int(rng.integers(0, int(L) - n + 1)), n
+
+
+def imuoff_part_input(x, group, gidx, k, p, lens):
+    """x: the normalised group tensor (N, T, 6 * n_imus). A float32 copy in which all 6 channels of the first k IMUs
+    of the clip's random order (imu_order, the IMU-off test's order) are 0 (= the training mean) during the clip's
+    off stretch (off_stretch); everything else untouched."""
+    x = np.asarray(x, dtype=np.float32)
+    n = IMUS[group]
+    if x.ndim != 3 or x.shape[2] != 6 * n:
+        raise RuntimeError(f"{group}: expected (N, T, {6 * n}), got {x.shape}")
+    N, T, _ = x.shape
+    lens = np.asarray(lens).reshape(-1)
+    t = np.zeros((N, T), bool)
+    for r, (c, L) in enumerate(zip(gidx, lens)):
+        a, m = off_stretch(group, c, p, L)
+        t[r, a: a + m] = True
+    ch = np.repeat(imus_off(group, gidx, k), 6, axis=1)             # (N, 6n)
+    return np.where(t[:, :, None] & ch[:, None, :], np.float32(0.0), x).astype(np.float32)
+
+
+def build_imuoff2_conditions(dname, ds, tr, fold):
+    """Addition 2 (partial IMU-off), test part only, in the same format as build_conditions:
+      clean                        the test people's clean clips, unchanged
+      io_part:<group>:k<k>:p<p>    the first k IMUs of the clip's order off during p% of the clip (p = 25, 50, 75)
+    donor_y is -1; `attacked` is the group. Deterministic; needs no training statistics (mean = 0)."""
+    if dname not in IMUOFF_DATASETS:
+        raise ValueError(f"no IMU groups in {dname}")
+    N = len(ds.y)
+    gidx, lens = np.asarray(ds.idx), np.asarray(ds.x["len"])
+    conds = {"clean": ({}, np.full(N, -1), np.ones(N, bool), "")}
+    for g, n in IMUS.items():
+        x = np.asarray(ds.x[g])
+        for k in range(1, n + 1):
+            for p in IMUOFF2_P:
+                conds[f"io_part:{g}:k{k}:p{p}"] = ({g: imuoff_part_input(x, g, gidx, k, p, lens)},
+                                                   np.full(N, -1), np.ones(N, bool), g)
+    return conds, gidx

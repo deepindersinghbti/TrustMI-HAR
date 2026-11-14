@@ -22,6 +22,12 @@ naming; AUROC and "answer the safest 80%" only per person and as the plain mean 
 CHECKS before any number: (1) the bench's clean rows equal the lie bench's clean rows; (2) each frozen fit
 reproduces the stored lie numbers exactly (cert_fault_score.check_frozen_on_lies).
 Writes results/certificate/nowatch_d2v[_<tag>]_per_subject.csv and nowatch_d2v[_<tag>]_rows.parquet
+
+ADDITION 3 (docs/plan_additions_2026-11-14.md): --bench nowatch2 scores the raw-zero watch instead
+(nw = nw_zero:watch, rf = r_zero:watch; files *_nowatch2.parquet; writes nowatch2_d2v_*). It first checks that the
+rows the new bench shares with the stored no-watch bench are identical, then grades predictions N1-N4 against the
+stored mean-fill results (nowatch_d2v_per_subject.csv) and writes nowatch2_d2v[_<tag>]_predictions.csv.
+Without --bench, everything is exactly as before.
 """
 import argparse, sys
 from pathlib import Path
@@ -40,15 +46,16 @@ from cert_fault_score import (Frozen, check_clean, check_frozen_on_lies, with_dr
 
 DS_ = "d2v"
 NW, RF, CLEAN = "nw_fill:watch", "r_fill:watch", "clean"
+BENCH, DESC = "nowatch", "watch filled"            # --bench nowatch2 (addition 3) switches these four names
 MIN_BIG = 28                                  # plan section 7: persons with >= 28 no-watch clips
 SETS = ("nw", "ref", "rf")
 
 
 # ---------------------------------------------------------------- data
 def bench(tag):
-    ex = pd.read_parquet(RES / f"experts_{DS_}_{tag}_nowatch.parquet")
+    ex = pd.read_parquet(RES / f"experts_{DS_}_{tag}_{BENCH}.parquet")
     ex = ex.assign(pred=ex.pred_fused)
-    mi = pd.read_parquet(RES / f"mi_{DS_}_own_{tag}_nowatch.parquet")
+    mi = pd.read_parquet(RES / f"mi_{DS_}_own_{tag}_{BENCH}.parquet")
     return merge(ex, mi, [c for c in mi.columns if c.startswith(("pmi_", "mi_", "s4"))], f"{DS_} no-watch MI")
 
 
@@ -131,7 +138,13 @@ def rate(df, num, den):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--tag", default=FULL, help=f"{FULL} = the full run; e.g. f19_s0 = smoke-run files (code check)")
+    ap.add_argument("--bench", choices=("nowatch", "nowatch2"), default="nowatch",
+                    help="nowatch2 = addition 3, the raw-zero watch (docs/plan_additions_2026-11-14.md)")
     args = ap.parse_args(); ds = DS_
+    global NW, RF, BENCH, DESC
+    if args.bench == "nowatch2":
+        NW, RF, BENCH, DESC = "nw_zero:watch", "r_zero:watch", "nowatch2", "watch raw 0"
+        check_shared(args.tag)
     MS.journal_files(ds)                                   # lie files: always the full run
     pd.set_option("display.width", 220)
 
@@ -147,13 +160,13 @@ def main():
         raise SystemExit("no-watch bench: unexpected part or unavailable rows: stop and paste this")
     ev_l = keep(pd.read_parquet(RES / f"{EVFILE[ds]}.parquet"))
     ev_l = ev_l[ev_l.available]
-    ev_b = add_scene(pd.read_parquet(RES / f"evidential_{ds}_{args.tag}_nowatch.parquet"), b)
+    ev_b = add_scene(pd.read_parquet(RES / f"evidential_{ds}_{args.tag}_{BENCH}.parquet"), b)
     for m in MS.MAIN_EV[ds]:
         check_clean(ev_l[ev_l.method == m], ev_b[(ev_b.method == m) & (ev_b.part == "test")],
                     ["pred", "msp", "u", "conflict"], f"{ds} {m}")
     d_l = with_dropout(lie, RES / f"dropout_{ds}_sd50_{FULL}.parquet", ds)
     b_raw = b.copy()
-    d_b = with_dropout(b, RES / f"dropout_{ds}_sd50_{args.tag}_nowatch.parquet", ds)
+    d_b = with_dropout(b, RES / f"dropout_{ds}_sd50_{args.tag}_{BENCH}.parquet", ds)
     check_clean(d_l, d_b[d_b.part == "test"], ["pred", "msp"], f"{ds} dropout sd50")
     b_raw = b_raw.merge(d_b[KEYS + ["sd50_pred", "sd50_hide_pred_watch"]], on=KEYS, validate="one_to_one")
 
@@ -200,10 +213,16 @@ def main():
     per["reference"] = per.subject.map(notes)
     report(per, ans, notes)
     sfx = "" if args.tag == FULL else f"_{args.tag}"
-    out = RES / f"nowatch_{ds}{sfx}_per_subject.csv"
+    out = RES / f"{BENCH}_{ds}{sfx}_per_subject.csv"
     per.to_csv(out, index=False)
-    R.to_parquet(RES / f"nowatch_{ds}{sfx}_rows.parquet", index=False)
-    print(f"\nsaved: {out.relative_to(ROOT)} and nowatch_{ds}{sfx}_rows.parquet")
+    R.to_parquet(RES / f"{BENCH}_{ds}{sfx}_rows.parquet", index=False)
+    print(f"\nsaved: {out.relative_to(ROOT)} and {BENCH}_{ds}{sfx}_rows.parquet")
+    if BENCH == "nowatch2" and args.tag != FULL:
+        print("smoke run: predictions not evaluated (code check only)")
+    elif BENCH == "nowatch2":
+        pr = predictions_nowatch2(per, ans)
+        pr.to_csv(RES / f"{BENCH}_{ds}{sfx}_predictions.csv", index=False)
+        print(f"saved: {BENCH}_{ds}{sfx}_predictions.csv")
 
 
 # ---------------------------------------------------------------- report
@@ -218,8 +237,8 @@ def report(per, ans, notes):
 
     # ---- answers without a certificate
     print("\nANSWERS WITHOUT A CERTIFICATE, accuracy % on the no-watch clips (and on the reference clips)")
-    cols = {"full model, watch filled (alone)": "full_alone", "K backup b4s_nowatch (phone + video)": "known_backup",
-            "M full model, watch flagged absent": "flagged_absent", "D dropout model, watch filled": "dropout_alone",
+    cols = {f"full model, {DESC} (alone)": "full_alone", "K backup b4s_nowatch (phone + video)": "known_backup",
+            "M full model, watch flagged absent": "flagged_absent", f"D dropout model, {DESC}": "dropout_alone",
             "D dropout model, watch hidden (= its K and M)": "dropout_hidden"}
     tab = {}
     for label, c in cols.items():
@@ -294,6 +313,48 @@ def report(per, ans, notes):
               f" (flagged) nw {pct('n_named_watch_flagged_nw', 'n_flagged_nw')} rf {pct('n_named_watch_flagged_rf', 'n_flagged_rf')}"
               f" | policy acc nw {pct('correct_policy_nw', 'n_nw')} rf {pct('correct_policy_rf', 'n_rf')}"
               f" | AUROC nw {a.auroc_nw:.3f} rf {a.auroc_rf:.3f}{lab}")
+
+
+# ---------------------------------------------------------------- addition 3: checks and predictions
+def check_shared(tag):
+    """The new bench reruns every condition of the stored no-watch bench: those rows must be identical."""
+    from bench_subset import check_subset
+    for pre, by in ((f"experts_{DS_}", ()), (f"mi_{DS_}_own", ()), (f"evidential_{DS_}", ("method",)),
+                    (f"dropout_{DS_}_sd50", ())):
+        old = pd.read_parquet(RES / f"{pre}_{FULL}_nowatch.parquet")
+        new = pd.read_parquet(RES / f"{pre}_{tag}_nowatch2.parquet")
+        check_subset(old, new, by, f"{pre} nowatch2 vs nowatch")
+
+
+def predictions_nowatch2(per, ans):
+    """N1-N4 (plan, Addition 3.5), each with a plain verdict, against the STORED mean-fill results."""
+    old = pd.read_csv(RES / f"nowatch_{DS_}_per_subject.csv")
+    old = old[(old.system == SYS_MAIN) & (old.revision == 1)].set_index("subject")
+    new = per[(per.system == SYS_MAIN) & (per.revision == 1)].set_index("subject")
+    seeds = ans.seed.nunique()
+    big = sorted(p for p in new.index if new.loc[p, "n_nw"] // seeds >= MIN_BIG)
+    if sorted(old.index) != sorted(new.index):
+        raise SystemExit("nowatch2: different people from the stored no-watch results: stop and paste this")
+    r = lambda d, a, b: 100 * d[a].sum() / d[b].sum()
+    nothing_old, nothing_new = r(old, "correct_alone_nw", "n_nw"), r(new, "correct_alone_nw", "n_nw")
+    flag_old, flag_new = r(old, "n_flagged_nw", "n_nw"), r(new, "n_flagged_nw", "n_nw")
+    name_old = r(old, "n_named_watch_flagged_nw", "n_flagged_nw")
+    name_new = r(new, "n_named_watch_flagged_nw", "n_flagged_nw")
+    pol_new = r(new, "correct_policy_nw", "n_nw")
+    au_old, au_new = old.loc[big, "auroc_nw"].mean(), new.loc[big, "auroc_nw"].mean()
+    v = lambda ok: "CONFIRMED" if ok else "NOT CONFIRMED"
+    items = [
+        ("N1", nothing_new < nothing_old, f"doing nothing: raw 0 {nothing_new:.1f}% vs mean fill {nothing_old:.1f}%"),
+        ("N2", flag_new > flag_old and name_new > name_old,
+         f"REV3 flags {flag_new:.1f}% (mean fill {flag_old:.1f}%), names the watch on {name_new:.1f}% of flagged"
+         f" (mean fill {name_old:.1f}%)"),
+        ("N3", pol_new > nothing_new, f"REV3 use / drop {pol_new:.1f}% vs doing nothing {nothing_new:.1f}% (raw 0)"),
+        ("N4", au_new >= au_old, f"REV3 AUROC, mean of {len(big)} people: raw 0 {au_new:.3f} vs mean fill {au_old:.3f}"),
+    ]
+    print("\nPREDICTIONS (plan, Addition 3.5), revision 1, pooled over all no-watch clips unless stated:")
+    for n, ok, val in items:
+        print(f"  {n}: {val} -> {v(ok)}")
+    return pd.DataFrame([dict(item=n, verdict=v(ok), value=val) for n, ok, val in items])
 
 
 if __name__ == "__main__":
