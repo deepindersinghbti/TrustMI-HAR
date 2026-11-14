@@ -1,0 +1,5 @@
+dataset,item,verdict,value
+d2v,F1,CONFIRMED,harmful-fault AUROC: confidence alone 0.883 vs REV3 0.876
+d2v,F2,CONFIRMED,names the faulty sensor (harmful): REV3 66.3% vs TMC_S3 alone 11.4%
+d2v,F3,CONFIRMED,share of answers changed by level: f_stuck 3.3% < 10.4% < 32.4%; f_sat 5.1% < 12.4% < 18.5%
+d2v,F4,NOT CONFIRMED,saturation level 1 changes 5.13% of answers (predicted < 5%)
