@@ -30,6 +30,12 @@ CHECKS before any number: (1) the fault bench's clean rows equal the lie bench's
 inputs); (2) fitting frozen and applying to the LIE test rows reproduces per_subject (the scorer behind every lie
 number) exactly, for every system and revision.
 Writes results/certificate/faults_<dataset>[_<tag>]_per_subject.csv
+
+ADDITION 1 (docs/plan_additions_2026-11-14.md): --bench faults2 scores the stuck-sensor and saturation bench instead
+(files *_faults2.parquet; writes faults2_<dataset>[_<tag>]_per_subject.csv). Its pooled group "all faults" holds the
+NEW faults only; the stored "all faults" of the original bench is not touched. On the full run it grades
+predictions F1-F4 (plan 1.5) for this dataset and writes faults2_<dataset>_predictions.csv.
+Without --bench, everything is exactly as before.
 """
 import argparse, sys
 from pathlib import Path
@@ -204,8 +210,10 @@ def main():
     ap.add_argument("--dataset", choices=CP.JOURNAL, required=True)
     ap.add_argument("--tag", default=FULL, help=f"{FULL} = the full run; f0_s0 = smoke-run files (code check only)")
     ap.add_argument("--novideo", action="store_true", help="read the _faults-novideo smoke files")
+    ap.add_argument("--bench", choices=("faults", "faults2"), default="faults",
+                    help="faults2 = addition 1, stuck sensor + saturation (docs/plan_additions_2026-11-14.md)")
     args = ap.parse_args(); ds = args.dataset
-    fs = "_faults-novideo" if args.novideo else "_faults"
+    fs = f"_{args.bench}-novideo" if args.novideo else f"_{args.bench}"
     MS.journal_files(ds)                                  # lie files: always the full run (CP.TAG = all_s0-1-2)
     pd.set_option("display.width", 220)
 
@@ -262,9 +270,15 @@ def main():
 
     res = pd.DataFrame(rows)
     report(res, ds)
-    out = RES / f"faults_{ds if args.tag == FULL and not args.novideo else f'{ds}_{args.tag}{fs}'}_per_subject.csv"
+    out = RES / f"{args.bench}_{ds if args.tag == FULL and not args.novideo else f'{ds}_{args.tag}{fs}'}_per_subject.csv"
     res.to_csv(out, index=False)
     print(f"\nsaved: {out.relative_to(ROOT)}")
+    if args.bench == "faults2" and args.tag == FULL and not args.novideo:
+        pr = predictions_faults2(res, ds)
+        pr.to_csv(RES / f"faults2_{ds}_predictions.csv", index=False)
+        print(f"saved: faults2_{ds}_predictions.csv")
+    elif args.bench == "faults2":
+        print("smoke run: predictions not evaluated (code check only)")
 
 
 def mean_table(res, rev, cols, groups_, systems):
@@ -305,6 +319,32 @@ def report(res, ds):
         if "naming_harmful" in b and b.naming_harmful.notna().any():
             line += f" | naming harmful {ci(a.naming_harmful - b.naming_harmful, 100)}"
         print(line)
+
+
+# ---------------------------------------------------------------- addition 1: predictions F1-F4 for one dataset
+def predictions_faults2(res, ds):
+    """F1-F4 (plan, Addition 1.5) on this dataset, revision 1, means over test units. F1 and F2 are stated for every
+    dataset, so each dataset's verdict here is one part of them; F3 and F4 likewise."""
+    r = res[res.revision == 1]
+    m = lambda sys_, g, c: r[(r.system == sys_) & (r.group == g)][c].mean()
+    tmc = f"{MS.MAIN_EV[ds][0].upper()} alone"
+    f1c, f1r = m(SYS_CONF, "all faults", "auroc_harmful"), m(SYS_MAIN, "all faults", "auroc_harmful")
+    f2r, f2t = m(SYS_MAIN, "all faults", "naming_harmful"), m(tmc, "all faults", "naming_harmful")
+    flips = {f: [m(SYS_MAIN, f"{f}:L{lv}:all", "flipped") for lv in (1, 2, 3)] for f in ("f_stuck", "f_sat")}
+    f3 = all(a < b < c for a, b, c in flips.values())
+    f4 = flips["f_sat"][0] < 0.05
+    v = lambda ok: "CONFIRMED" if ok else "NOT CONFIRMED"
+    items = [
+        ("F1", f1c > f1r, f"harmful-fault AUROC: confidence alone {f1c:.3f} vs REV3 {f1r:.3f}"),
+        ("F2", f2r > f2t, f"names the faulty sensor (harmful): REV3 {100 * f2r:.1f}% vs {tmc} {100 * f2t:.1f}%"),
+        ("F3", f3, "share of answers changed by level: " + "; ".join(
+            f"{f} " + " < ".join(f"{100 * x:.1f}%" for x in xs) for f, xs in flips.items())),
+        ("F4", f4, f"saturation level 1 changes {100 * flips['f_sat'][0]:.2f}% of answers (predicted < 5%)"),
+    ]
+    print(f"\nPREDICTIONS (plan, Addition 1.5), {ds}, revision 1 (this dataset's part of each prediction):")
+    for n, ok, val in items:
+        print(f"  {n}: {val} -> {v(ok)}")
+    return pd.DataFrame([dict(dataset=ds, item=n, verdict=v(ok), value=val) for n, ok, val in items])
 
 
 if __name__ == "__main__":

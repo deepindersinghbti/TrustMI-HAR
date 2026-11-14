@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
-# docs/plan_additions_2026-11-14.md, Checks 1 and 3: the four model-running scripts gained two condition sets
-# (nowatch2, imuoff2). Every EXISTING path must still give exactly the stored results.
+# docs/plan_additions_2026-11-14.md, Checks 1 and 3: the four model-running scripts gained three condition sets
+# (nowatch2, imuoff2, faults2). Every EXISTING path must still give exactly the stored results.
 # Runs in a throwaway clone ($CLONE), so no frozen file in the project is written (the fold-0 scratch files that
 # such checks overwrite are part of results/FROZEN_MANIFEST.sha256). About 15 minutes; run inside tmux.
 #   1. unit tests: tests/test_additions.py (incl. the MMAct data test), test_imuoff.py, test_nowatch.py
 #   2. scripts/check_lies_unchanged_journal.sh   (conference datasets; lie bench of d1v2 and d2v)
 #   3. WearGait-PD (d3), fold 0 seed 0: lies, faults, real dropouts, IMU-off   (4 scripts each)
 #   4. MMAct (d2v), fold 19 seed 0: the no-watch bench                         (4 scripts)
+#   5. UTD-MHAD and MMAct, fold 0 seed 0: the original fault bench (with video) (4 scripts each)
 # each compared row by row with the stored all-folds file (scripts/check_identical.py). Log: $CLONE/check.log
 set -u
 P="$(cd "$(dirname "$0")/.." && pwd)"
@@ -54,7 +55,8 @@ cmpf () { echo "--- $2"; python scripts/check_identical.py "$CE/$1" "$CE/$2" --f
 run () { local f=$1; shift; python "$@" --folds "$f" --seeds 0 > /dev/null || { echo "ERROR running $*"; fail=1; }; }
 
 echo; echo "=== 1. unit tests"
-PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest tests/test_additions.py tests/test_imuoff.py tests/test_nowatch.py -q -rs \
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest tests/test_additions.py tests/test_imuoff.py tests/test_nowatch.py \
+  tests/test_faults.py tests/test_faults2.py -q -rs \
   > logs/check_k_pytest.out 2>&1; rc=$?
 tail -4 logs/check_k_pytest.out
 [ $rc = 0 ] || { echo "UNIT TESTS FAILED (see $CLONE/logs/check_k_pytest.out)"; fail=1; }
@@ -88,6 +90,19 @@ run 19 scripts/cert_evidential.py --dataset d2v --conditions nowatch
 cmpf evidential_d2v_all_s0-1-2_nowatch.parquet evidential_d2v_f19_s0_nowatch.parquet 19 --by method
 run 19 scripts/cert_dropout.py --dataset d2v --rate sd50 --conditions nowatch
 cmpf dropout_d2v_sd50_all_s0-1-2_nowatch.parquet dropout_d2v_sd50_f19_s0_nowatch.parquet 19
+echo; echo "=== 5. UTD-MHAD and MMAct, fold 0 seed 0: original fault bench"
+for d in d1v2 d2v; do
+  if [ $d = d1v2 ]; then X=b4_noimu,b4_noskel,b4_novideo; else X=b4s_nowatch,b4s_nophone,b4s; fi
+  echo; echo "### $d faults"
+  run 0 scripts/cert_experts.py --dataset $d --conditions faults --extra-models $X
+  cmpf experts_${d}_all_s0-1-2_faults.parquet experts_${d}_f0_s0_faults.parquet 0
+  run 0 scripts/cert_mi.py --dataset $d --version own --conditions faults
+  cmpf mi_${d}_own_all_s0-1-2_faults.parquet mi_${d}_own_f0_s0_faults.parquet 0
+  run 0 scripts/cert_evidential.py --dataset $d --conditions faults
+  cmpf evidential_${d}_all_s0-1-2_faults.parquet evidential_${d}_f0_s0_faults.parquet 0 --by method
+  run 0 scripts/cert_dropout.py --dataset $d --rate sd50 --conditions faults
+  cmpf dropout_${d}_sd50_all_s0-1-2_faults.parquet dropout_${d}_sd50_f0_s0_faults.parquet 0
+done
 echo
-[ $fail = 0 ] && echo "END $(date -Is) | ALL IDENTICAL: existing results unchanged by the two new condition sets" \
+[ $fail = 0 ] && echo "END $(date -Is) | ALL IDENTICAL: existing results unchanged by the three new condition sets" \
               || echo "END $(date -Is) | AT LEAST ONE DIFFERENCE OR ERROR: stop and paste this"

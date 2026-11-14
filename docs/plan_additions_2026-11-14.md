@@ -101,8 +101,11 @@ freezes ("stuck") and a sensor whose readings are cut off at its measuring range
 
 ### 1.2 Fault definitions (same rules as the existing faults: only valid samples change, padding stays 0,
 the valid length never changes, every random draw keyed on (seed, fault, level, clip))
-- **`f_stuck`**: from a random onset to the end of the clip, the sensor repeats its value at the onset.
+- **`f_stuck`**: from the onset to the end of the clip, the sensor repeats its value at the onset.
   The frozen stretch covers **25% / 50% / 100%** of the valid samples (100% = the whole clip is one constant value).
+  *Wording correction (14 Nov, before any Addition 1 code ran or result existed): an earlier version said "a random
+  onset". A stretch that must end at the last sample and has a fixed length has only one possible onset, at 75% /
+  50% / 0% of the clip, so there is no random draw; the fault is deterministic.*
   It differs from the existing gap fault, which holds a value in the middle of the clip and then recovers.
 - **`f_sat`** (decision D2, to be confirmed): readings clipped at a fixed measuring range, using the standard
   full-scale settings of MEMS motion sensors:

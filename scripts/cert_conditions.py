@@ -220,6 +220,8 @@ def conditions_for(kind, dname, ds, tr, fold, attack, phys_sensors, video=True):
         return build_nowatch2_conditions(dname, ds, tr, fold)
     if kind == "imuoff2":
         return build_imuoff2_conditions(dname, ds, tr, fold)
+    if kind == "faults2":
+        return build_fault2_conditions(dname, ds, tr, fold, video)
     raise ValueError(f"unknown condition set {kind!r}")
 
 
@@ -228,13 +230,15 @@ def conditions_suffix(kind, video=True):
     '_nowatch', '_realdrop', '_imuoff'."""
     if kind in ("nowatch", "realdrop", "imuoff", "nowatch2", "imuoff2"):
         return f"_{kind}"
+    if kind == "faults2":
+        return "_faults2" if video else "_faults2-novideo"
     return "" if kind == "lies" else ("_faults" if video else "_faults-novideo")
 
 
 # ---------------------------------------------------------------- journal additions (14 Nov)
 # docs/plan_additions_2026-11-14.md, Additions 3 and 2. New code only, plus the two-line dispatch above
 # (base_kind); every existing condition set is built exactly as before (scripts/check_unchanged_additions.sh).
-EXTRA_KINDS = {"nowatch2": "nowatch", "imuoff2": "imuoff"}
+EXTRA_KINDS = {"nowatch2": "nowatch", "imuoff2": "imuoff", "faults2": "faults"}
 IMUOFF2_P = (25, 50, 75)                      # % of the clip's valid samples during which the IMUs are off
 
 
@@ -327,4 +331,28 @@ def build_imuoff2_conditions(dname, ds, tr, fold):
             for p in IMUOFF2_P:
                 conds[f"io_part:{g}:k{k}:p{p}"] = ({g: imuoff_part_input(x, g, gidx, k, p, lens)},
                                                    np.full(N, -1), np.ones(N, bool), g)
+    return conds, gidx
+
+
+def build_fault2_conditions(dname, ds, tr, fold, video=True):
+    """Addition 1 (stuck sensor, saturation), in the same format as build_fault_conditions:
+      clean                       the unchanged input
+      <fault>:L<level>:<sensor>   f_stuck / f_sat at level 1-3, only where planned (trustmi.faults2.APPLIES2)
+    donor_y is -1; `attacked` is the faulty sensor. Deterministic. video=False leaves the video faults out (only
+    for a smoke run made before the frame-level features exist; the file name then says so)."""
+    from trustmi.faults2 import FaultBank2, VideoFaultBank2, APPLIES2, LEVELS
+    from trustmi.faults import condition_name
+    N = len(ds.y)
+    sensors = [s for (d, s) in APPLIES2 if d == dname and (video or s != "video")]
+    if not sensors:
+        raise ValueError(f"no stuck / saturation faults planned for {dname}")
+    banks = {s: (VideoFaultBank2(dname, ds, tr, fold) if s == "video" else FaultBank2(dname, s, ds, tr, fold))
+             for s in sensors}
+    gidx = next(b.gidx for s, b in banks.items() if s != "video")
+    conds = {"clean": ({}, np.full(N, -1), np.ones(N, bool), "")}
+    for s, bank in banks.items():
+        for fault in APPLIES2[(dname, s)]:
+            for lv in LEVELS:
+                xn, avail, _ = bank.apply_fault(fault, lv)
+                conds[condition_name(fault, lv, s)] = ({s: xn}, np.full(N, -1), avail, s)
     return conds, gidx

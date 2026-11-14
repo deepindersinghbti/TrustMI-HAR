@@ -28,7 +28,7 @@ from trustmi.models.evidential import EvidentialLateFusion, fuse_tmc, fuse_ecml
 from trustmi.operators import OperatorBank
 from cert_conditions import (build_fault_conditions, build_nowatch_conditions, build_realdrop_conditions,
                              build_imuoff_conditions, conditions_suffix, parts_for, dataset_for, folds_for,
-                             build_nowatch2_conditions, build_imuoff2_conditions)
+                             build_nowatch2_conditions, build_imuoff2_conditions, build_fault2_conditions)
 from trustmi.device import DEVICE, autocast
 
 # run name -> (method, sensors in the order train.py used; ECML's fusion order depends on it)
@@ -95,7 +95,7 @@ def main():
     ap.add_argument("--folds", default="all")
     ap.add_argument("--seeds", default="0,1,2")
     ap.add_argument("--attack", default=None, help="comma list of sensors to swap (as in cert_experts.py)")
-    ap.add_argument("--conditions", choices=("lies", "faults", "nowatch", "realdrop", "imuoff", "nowatch2", "imuoff2"), default="lies",
+    ap.add_argument("--conditions", choices=("lies", "faults", "nowatch", "realdrop", "imuoff", "nowatch2", "imuoff2", "faults2"), default="lies",
                     help="lies (default, unchanged), faults (docs/plan_faults_2026-11-11.md), "
                          "nowatch (d2v only, docs/plan_nowatch_2026-11-11.md), "
                          "realdrop (d3 only, docs/plan_weargait_2026-11-11.md) or "
@@ -148,6 +148,9 @@ def main():
                 subj = np.asarray(ds.subject)
             elif args.conditions == "imuoff2":           # addition 2: partial IMU-off (cert_conditions.py)
                 conds, gidx = build_imuoff2_conditions(dname, ds, tr, fold)
+                subj = np.asarray(ds.subject)
+            elif args.conditions == "faults2":           # addition 1: stuck sensor + saturation
+                conds, gidx = build_fault2_conditions(dname, ds, tr, fold, not args.no_video_faults)
                 subj = np.asarray(ds.subject)
             else:                                        # the lie bench, exactly as before
                 banks = {sen: OperatorBank(dname, sen, ds, tr, fold) for sen in attack}

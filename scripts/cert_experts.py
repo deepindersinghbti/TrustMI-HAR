@@ -50,7 +50,7 @@ def main():
     ap.add_argument("--seeds", default="0,1,2")
     ap.add_argument("--attack", default=None, help="comma list of sensors to swap")
     ap.add_argument("--extra-models", default="", help="comma list of extra models to store answers for")
-    ap.add_argument("--conditions", choices=("lies", "faults", "nowatch", "realdrop", "imuoff", "nowatch2", "imuoff2"), default="lies",
+    ap.add_argument("--conditions", choices=("lies", "faults", "nowatch", "realdrop", "imuoff", "nowatch2", "imuoff2", "faults2"), default="lies",
                     help="lies (default, unchanged), faults (docs/plan_faults_2026-11-11.md), "
                          "nowatch (d2v only, docs/plan_nowatch_2026-11-11.md), "
                          "realdrop (d3 only, docs/plan_weargait_2026-11-11.md) or "
